@@ -1,0 +1,67 @@
+basePath: /api
+definitions:
+  user_model.UserCreateRequest:
+    properties:
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - id
+    - name
+    - password
+    type: object
+host: 127.0.0.1:8080
+info:
+  contact:
+    name: Leon Lin
+  description: this the user service for meal order system
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: meal order user API
+  version: "1.0"
+paths:
+  /:
+    get:
+      consumes:
+      - application/json
+      description: Hello World
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Hello, World!
+          schema:
+            type: string
+      summary: Hello World
+      tags:
+      - Hello World
+  /user/register/admin:
+    post:
+      consumes:
+      - application/json
+      description: create an admin account, who can login by username and password
+      parameters:
+      - description: body
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/user_model.UserCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Hello, World!
+          schema:
+            type: string
+      summary: Admin Register
+      tags:
+      - admin
+swagger: "2.0"
