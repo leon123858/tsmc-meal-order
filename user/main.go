@@ -5,8 +5,16 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/leon123858/tsmc-meal-order/user/controller"
 	_ "github.com/leon123858/tsmc-meal-order/user/docs"
+	"github.com/leon123858/tsmc-meal-order/user/service"
 	echoSwagger "github.com/swaggo/echo-swagger"
 )
+
+func init() {
+	// init firebase
+	if err := service.InitFirebase(); err != nil {
+		panic(err)
+	}
+}
 
 //	@title			meal order user API
 //	@version		1.0
@@ -18,7 +26,7 @@ import (
 //	@license.url	http://www.apache.org/licenses/LICENSE-2.0.html
 
 // @host		127.0.0.1:8080
-// @BasePath	/api
+// @BasePath	/api/user
 func main() {
 	e := echo.New()
 	e.Use(middleware.CORS())
@@ -26,11 +34,9 @@ func main() {
 
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 
-	apiGroup := e.Group("/api")
-	apiGroup.GET("/", controller.HelloWorld)
+	apiGroup := e.Group("/api/user")
 
-	userGroup := apiGroup.Group("/user")
-	userGroup.POST("/register/admin", controller.AdminRegister)
+	apiGroup.POST("/create", controller.CreateUser)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }

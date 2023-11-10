@@ -1,21 +1,48 @@
-basePath: /api
+basePath: /api/user
 definitions:
   user_model.UserCreateRequest:
     properties:
       email:
-        type: string
-      id:
+        description: email
         type: string
       name:
+        description: name
         type: string
       password:
+        description: password
         type: string
+      type:
+        allOf:
+        - $ref: '#/definitions/user_model.UserType'
+        description: 使用者類型 (一般使用者, 管理者)
     required:
     - email
-    - id
     - name
     - password
+    - type
     type: object
+  user_model.UserCreateResponse:
+    properties:
+      data:
+        description: user id (uid in this system)
+        type: string
+      message:
+        description: error message
+        type: string
+      result:
+        description: 'true: success, false: error'
+        type: boolean
+    type: object
+  user_model.UserType:
+    enum:
+    - normal
+    - admin
+    type: string
+    x-enum-comments:
+      Normal: 一般使用者
+    x-enum-varnames:
+    - Normal
+    - Admin
 host: 127.0.0.1:8080
 info:
   contact:
@@ -27,26 +54,11 @@ info:
   title: meal order user API
   version: "1.0"
 paths:
-  /:
-    get:
-      consumes:
-      - application/json
-      description: Hello World
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Hello, World!
-          schema:
-            type: string
-      summary: Hello World
-      tags:
-      - Hello World
-  /user/register/admin:
+  /create:
     post:
       consumes:
       - application/json
-      description: create an admin account, who can login by username and password
+      description: create an user account, who can log in by username and password
       parameters:
       - description: body
         in: body
@@ -58,10 +70,10 @@ paths:
       - application/json
       responses:
         "200":
-          description: Hello, World!
+          description: OK
           schema:
-            type: string
-      summary: Admin Register
+            $ref: '#/definitions/user_model.UserCreateResponse'
+      summary: create user api (should be admin now)
       tags:
-      - admin
+      - user
 swagger: "2.0"

@@ -21,32 +21,9 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/": {
-            "get": {
-                "description": "Hello World",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Hello World"
-                ],
-                "summary": "Hello World",
-                "responses": {
-                    "200": {
-                        "description": "Hello, World!",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/user/register/admin": {
+        "/create": {
             "post": {
-                "description": "create an admin account, who can login by username and password",
+                "description": "create an user account, who can log in by username and password",
                 "consumes": [
                     "application/json"
                 ],
@@ -54,9 +31,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "admin"
+                    "user"
                 ],
-                "summary": "Admin Register",
+                "summary": "create user api (should be admin now)",
                 "parameters": [
                     {
                         "description": "body",
@@ -70,9 +47,9 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Hello, World!",
+                        "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/user_model.UserCreateResponse"
                         }
                     }
                 }
@@ -84,24 +61,63 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "email",
-                "id",
                 "name",
-                "password"
+                "password",
+                "type"
             ],
             "properties": {
                 "email": {
-                    "type": "string"
-                },
-                "id": {
+                    "description": "email",
                     "type": "string"
                 },
                 "name": {
+                    "description": "name",
                     "type": "string"
                 },
                 "password": {
+                    "description": "password",
                     "type": "string"
+                },
+                "type": {
+                    "description": "使用者類型 (一般使用者, 管理者)",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/user_model.UserType"
+                        }
+                    ]
                 }
             }
+        },
+        "user_model.UserCreateResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "user id (uid in this system)",
+                    "type": "string"
+                },
+                "message": {
+                    "description": "error message",
+                    "type": "string"
+                },
+                "result": {
+                    "description": "true: success, false: error",
+                    "type": "boolean"
+                }
+            }
+        },
+        "user_model.UserType": {
+            "type": "string",
+            "enum": [
+                "normal",
+                "admin"
+            ],
+            "x-enum-comments": {
+                "Normal": "一般使用者"
+            },
+            "x-enum-varnames": [
+                "Normal",
+                "Admin"
+            ]
         }
     }
 }`
@@ -110,7 +126,7 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "127.0.0.1:8080",
-	BasePath:         "/api",
+	BasePath:         "/api/user",
 	Schemes:          []string{},
 	Title:            "meal order user API",
 	Description:      "this the user service for meal order system",
