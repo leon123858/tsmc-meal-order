@@ -80,6 +80,10 @@ const docTemplate = `{
                 },
                 "type": {
                     "description": "使用者類型 (一般使用者, 管理者)",
+                    "enum": [
+                        "normal",
+                        "admin"
+                    ],
                     "allOf": [
                         {
                             "$ref": "#/definitions/user_model.UserType"

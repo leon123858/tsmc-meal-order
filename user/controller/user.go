@@ -22,7 +22,10 @@ import (
 func CreateUser(c echo.Context) error {
 	req := new(user_model.UserCreateRequest)
 	if err := c.Bind(req); err != nil {
-		return err
+		return c.JSON(http.StatusBadRequest, user_model.ErrorResponse(err.Error()))
+	}
+	if err := c.Validate(req); err != nil {
+		return c.JSON(http.StatusBadRequest, user_model.ErrorResponse(err.Error()))
 	}
 	userInfo := (&auth.UserToCreate{}).Email(req.Email).Password(req.Password).DisplayName(req.Name)
 	record, err := service.AuthClient.CreateUser(context.Background(), userInfo)

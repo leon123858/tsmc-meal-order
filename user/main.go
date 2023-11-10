@@ -1,11 +1,13 @@
 package main
 
 import (
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/leon123858/tsmc-meal-order/user/controller"
 	_ "github.com/leon123858/tsmc-meal-order/user/docs"
 	"github.com/leon123858/tsmc-meal-order/user/service"
+	"github.com/leon123858/tsmc-meal-order/user/utils"
 	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
@@ -31,6 +33,8 @@ func main() {
 	e := echo.New()
 	e.Use(middleware.CORS())
 	e.Use(middleware.Logger())
+
+	e.Validator = &utils.CustomValidator{Validator: validator.New()}
 
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 
