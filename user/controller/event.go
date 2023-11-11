@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/leon123858/tsmc-meal-order/user/service"
 	"net/http"
@@ -20,6 +21,11 @@ func SyncEventMessage(c echo.Context) error {
 	if err := c.Bind(req); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
-	println("msg: " + string(req.Message.Data))
+	event := make(map[string]interface{})
+	if err := req.BindPubSubMessageData(&event); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+	// print event
+	fmt.Printf("%+v\n", event)
 	return c.String(http.StatusOK, "success")
 }

@@ -19,3 +19,6 @@ emulator:
 format:
 	go mod tidy
 	go fmt ./...
+
+trySync:
+	node ./trigger-sync.js

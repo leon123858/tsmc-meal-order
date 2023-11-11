@@ -13,7 +13,7 @@ type PubSubMessage struct {
 	Subscription string `json:"subscription"`
 }
 
-func (req *PubSubMessage) BindPubSubMessageData(obj *interface{}) error {
+func (req *PubSubMessage) BindPubSubMessageData(obj interface{}) error {
 	err := json.Unmarshal(req.Message.Data, obj)
 	if err != nil {
 		return err
