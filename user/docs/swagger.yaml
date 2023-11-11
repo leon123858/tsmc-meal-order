@@ -18,11 +18,11 @@ definitions:
         enum:
         - normal
         - admin
+        - ""
     required:
     - email
     - name
     - password
-    - type
     type: object
   user_model.UserCreateResponse:
     properties:

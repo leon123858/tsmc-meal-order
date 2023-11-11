@@ -1,4 +1,4 @@
-package user_model
+package model
 
 type Response struct {
 	Result  bool        `json:"result"`  // true: success, false: error

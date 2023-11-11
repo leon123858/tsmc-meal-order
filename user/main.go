@@ -32,7 +32,9 @@ func init() {
 func main() {
 	e := echo.New()
 	e.Use(middleware.CORS())
-	e.Use(middleware.Logger())
+	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Format: "method=${method}, uri=${uri}, status=${status}\n",
+	}))
 
 	e.Validator = &utils.CustomValidator{Validator: validator.New()}
 
