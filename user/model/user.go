@@ -17,14 +17,32 @@ type UserCreateRequest struct {
 
 // UserInformation 用戶存在 user 資料庫的資訊
 type UserInformation struct {
-	UID      string   `json:"uid"`      // user id (uid in this system)
-	Email    string   `json:"email"`    // email
-	Name     string   `json:"name"`     // name
-	Place    string   `json:"place"`    // 取餐地點
-	UserType UserType `json:"userType"` // 使用者類型 (一般使用者, 管理者)
+	UserCoreInformation
+	UserGeneralInformation
+	UserType UserType `json:"userType" firestore:"userType"` // 使用者類型 (一般使用者, 管理者)
 }
 
-type UserCreateResponse struct {
+type UserCoreInformation struct {
+	UID   string `json:"uid" firestore:"uid"`     // user id (uid in this system)
+	Email string `json:"email" firestore:"email"` // email
+}
+
+type UserGeneralInformation struct {
+	Name  string `json:"name" firestore:"name"`   // name
+	Place string `json:"place" firestore:"place"` // 取餐地點
+}
+
+type UserGeneralUpdateRequest struct {
+	UID string `json:"uid" validate:"required"` // user id (uid in this system)
+	UserGeneralInformation
+}
+
+type StringResponse struct {
 	Response
-	Data string `json:"data"` // user id (uid in this system)
+	Data string `json:"data"`
+}
+
+type UserInfoResponse struct {
+	Response
+	Data UserInformation `json:"data"`
 }

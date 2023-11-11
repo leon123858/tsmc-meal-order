@@ -43,6 +43,10 @@ func main() {
 	apiGroup := e.Group("/api/user")
 
 	apiGroup.POST("/create", controller.CreateUser)
+	apiGroup.GET("/get", controller.GetUser)
+	apiGroup.POST("/update", controller.UpdateUser)
+
+	apiGroup.POST("/sync", controller.SyncEventMessage)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }

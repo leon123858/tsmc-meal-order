@@ -1,6 +1,17 @@
 basePath: /api/user
 definitions:
-  user_model.UserCreateRequest:
+  model.StringResponse:
+    properties:
+      data:
+        type: string
+      message:
+        description: error message
+        type: string
+      result:
+        description: 'true: success, false: error'
+        type: boolean
+    type: object
+  model.UserCreateRequest:
     properties:
       email:
         description: email
@@ -13,7 +24,7 @@ definitions:
         type: string
       type:
         allOf:
-        - $ref: '#/definitions/user_model.UserType'
+        - $ref: '#/definitions/model.UserType'
         description: 使用者類型 (一般使用者, 管理者)
         enum:
         - normal
@@ -24,11 +35,24 @@ definitions:
     - name
     - password
     type: object
-  user_model.UserCreateResponse:
+  model.UserGeneralUpdateRequest:
     properties:
-      data:
+      name:
+        description: name
+        type: string
+      place:
+        description: 取餐地點
+        type: string
+      uid:
         description: user id (uid in this system)
         type: string
+    required:
+    - uid
+    type: object
+  model.UserInfoResponse:
+    properties:
+      data:
+        $ref: '#/definitions/model.UserInformation'
       message:
         description: error message
         type: string
@@ -36,7 +60,26 @@ definitions:
         description: 'true: success, false: error'
         type: boolean
     type: object
-  user_model.UserType:
+  model.UserInformation:
+    properties:
+      email:
+        description: email
+        type: string
+      name:
+        description: name
+        type: string
+      place:
+        description: 取餐地點
+        type: string
+      uid:
+        description: user id (uid in this system)
+        type: string
+      userType:
+        allOf:
+        - $ref: '#/definitions/model.UserType'
+        description: 使用者類型 (一般使用者, 管理者)
+    type: object
+  model.UserType:
     enum:
     - normal
     - admin
@@ -46,6 +89,20 @@ definitions:
     x-enum-varnames:
     - Normal
     - Admin
+  service.PubSubMessage:
+    properties:
+      message:
+        properties:
+          data:
+            items:
+              type: integer
+            type: array
+          id:
+            type: string
+        type: object
+      subscription:
+        type: string
+    type: object
 host: 127.0.0.1:8080
 info:
   contact:
@@ -68,15 +125,80 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/user_model.UserCreateRequest'
+          $ref: '#/definitions/model.UserCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: data is uid (user id in this system)
+          schema:
+            $ref: '#/definitions/model.StringResponse'
+      summary: create user api (should be admin now)
+      tags:
+      - user
+  /get:
+    get:
+      consumes:
+      - application/json
+      description: get user information by uid
+      parameters:
+      - description: uid
+        in: query
+        name: uid
+        required: true
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/user_model.UserCreateResponse'
-      summary: create user api (should be admin now)
+            $ref: '#/definitions/model.UserInfoResponse'
+      summary: get user api
+      tags:
+      - user
+  /sync:
+    post:
+      consumes:
+      - application/json
+      description: 同步 event, 由 infra handle 傳入 cloud run, 若非 200 回傳, 會觸發重試
+      parameters:
+      - description: body
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/service.PubSubMessage'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            type: string
+      summary: 同步 event
+      tags:
+      - event
+  /update:
+    post:
+      consumes:
+      - application/json
+      description: update user information by uid
+      parameters:
+      - description: body
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/model.UserGeneralUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: data is uid (user id in this system)
+          schema:
+            $ref: '#/definitions/model.StringResponse'
+      summary: update user api
       tags:
       - user
 swagger: "2.0"

@@ -41,15 +41,115 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/user_model.UserCreateRequest"
+                            "$ref": "#/definitions/model.UserCreateRequest"
                         }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "data is uid (user id in this system)",
+                        "schema": {
+                            "$ref": "#/definitions/model.StringResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/get": {
+            "get": {
+                "description": "get user information by uid",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "get user api",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "uid",
+                        "name": "uid",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/user_model.UserCreateResponse"
+                            "$ref": "#/definitions/model.UserInfoResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sync": {
+            "post": {
+                "description": "同步 event, 由 infra handle 傳入 cloud run, 若非 200 回傳, 會觸發重試",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "event"
+                ],
+                "summary": "同步 event",
+                "parameters": [
+                    {
+                        "description": "body",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.PubSubMessage"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/update": {
+            "post": {
+                "description": "update user information by uid",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "update user api",
+                "parameters": [
+                    {
+                        "description": "body",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.UserGeneralUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "data is uid (user id in this system)",
+                        "schema": {
+                            "$ref": "#/definitions/model.StringResponse"
                         }
                     }
                 }
@@ -57,7 +157,23 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "user_model.UserCreateRequest": {
+        "model.StringResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "string"
+                },
+                "message": {
+                    "description": "error message",
+                    "type": "string"
+                },
+                "result": {
+                    "description": "true: success, false: error",
+                    "type": "boolean"
+                }
+            }
+        },
+        "model.UserCreateRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -86,18 +202,37 @@ const docTemplate = `{
                     ],
                     "allOf": [
                         {
-                            "$ref": "#/definitions/user_model.UserType"
+                            "$ref": "#/definitions/model.UserType"
                         }
                     ]
                 }
             }
         },
-        "user_model.UserCreateResponse": {
+        "model.UserGeneralUpdateRequest": {
+            "type": "object",
+            "required": [
+                "uid"
+            ],
+            "properties": {
+                "name": {
+                    "description": "name",
+                    "type": "string"
+                },
+                "place": {
+                    "description": "取餐地點",
+                    "type": "string"
+                },
+                "uid": {
+                    "description": "user id (uid in this system)",
+                    "type": "string"
+                }
+            }
+        },
+        "model.UserInfoResponse": {
             "type": "object",
             "properties": {
                 "data": {
-                    "description": "user id (uid in this system)",
-                    "type": "string"
+                    "$ref": "#/definitions/model.UserInformation"
                 },
                 "message": {
                     "description": "error message",
@@ -109,7 +244,36 @@ const docTemplate = `{
                 }
             }
         },
-        "user_model.UserType": {
+        "model.UserInformation": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "description": "email",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "name",
+                    "type": "string"
+                },
+                "place": {
+                    "description": "取餐地點",
+                    "type": "string"
+                },
+                "uid": {
+                    "description": "user id (uid in this system)",
+                    "type": "string"
+                },
+                "userType": {
+                    "description": "使用者類型 (一般使用者, 管理者)",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/model.UserType"
+                        }
+                    ]
+                }
+            }
+        },
+        "model.UserType": {
             "type": "string",
             "enum": [
                 "normal",
@@ -122,6 +286,28 @@ const docTemplate = `{
                 "Normal",
                 "Admin"
             ]
+        },
+        "service.PubSubMessage": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "object",
+                    "properties": {
+                        "data": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "id": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "subscription": {
+                    "type": "string"
+                }
+            }
         }
     }
 }`
