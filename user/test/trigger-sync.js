@@ -3,10 +3,11 @@ const cloudRunUrl = 'http://127.0.0.1:8080/api/user/sync';
 const utf8Encode = new TextEncoder();
 
 const test = {
-    type : 'userCreate',
+    type : 'user-create',
     data : {
-        uid : 'test123',
+        uid : 'knYD26ptPYVkXcREZXlKoZVMl9HQ',
         email : 'test@test.test',
+        userType : 'admin',
     }
 }
 const pubSubMessage = {
@@ -16,7 +17,7 @@ const pubSubMessage = {
         data: uint8ArrayToArray(utf8Encode.encode(JSON.stringify(test))),
         id: '消息ID',
     },
-    subscription: '訂閱ID',
+    subscription: 'user-create-event',
 };
 const options = {
     method: 'POST',
@@ -37,9 +38,9 @@ const options = {
 } )();
 
 function uint8ArrayToArray(uint8Array) {
-    var array = [];
+    const array = [];
 
-    for (var i = 0; i < uint8Array.byteLength; i++) {
+    for (let i = 0; i < uint8Array.byteLength; i++) {
         array[i] = uint8Array[i];
     }
 

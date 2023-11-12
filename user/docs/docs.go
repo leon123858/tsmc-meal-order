@@ -23,7 +23,7 @@ const docTemplate = `{
     "paths": {
         "/create": {
             "post": {
-                "description": "create an user account, who can log in by username and password",
+                "description": "create a user account, who can log in by username and password",
                 "consumes": [
                     "application/json"
                 ],
@@ -82,6 +82,47 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/model.UserInfoResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/login": {
+            "post": {
+                "description": "login by JWT token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "login api",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "JWT token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "body",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.UserCoreInformation"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "$ref": "#/definitions/model.StringResponse"
                         }
                     }
                 }
@@ -170,6 +211,19 @@ const docTemplate = `{
                 "result": {
                     "description": "true: success, false: error",
                     "type": "boolean"
+                }
+            }
+        },
+        "model.UserCoreInformation": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "description": "email",
+                    "type": "string"
+                },
+                "uid": {
+                    "description": "user id (uid in this system)",
+                    "type": "string"
                 }
             }
         },

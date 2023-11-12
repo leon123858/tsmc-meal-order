@@ -11,6 +11,15 @@ definitions:
         description: 'true: success, false: error'
         type: boolean
     type: object
+  model.UserCoreInformation:
+    properties:
+      email:
+        description: email
+        type: string
+      uid:
+        description: user id (uid in this system)
+        type: string
+    type: object
   model.UserCreateRequest:
     properties:
       email:
@@ -118,7 +127,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: create an user account, who can log in by username and password
+      description: create a user account, who can log in by username and password
       parameters:
       - description: body
         in: body
@@ -155,6 +164,33 @@ paths:
           schema:
             $ref: '#/definitions/model.UserInfoResponse'
       summary: get user api
+      tags:
+      - user
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: login by JWT token
+      parameters:
+      - description: JWT token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: body
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/model.UserCoreInformation'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            $ref: '#/definitions/model.StringResponse'
+      summary: login api
       tags:
       - user
   /sync:

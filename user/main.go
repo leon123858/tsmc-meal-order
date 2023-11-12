@@ -45,6 +45,7 @@ func main() {
 	apiGroup.POST("/create", controller.CreateUser)
 	apiGroup.GET("/get", controller.GetUser)
 	apiGroup.POST("/update", controller.UpdateUser)
+	apiGroup.POST("/login", controller.Login)
 
 	apiGroup.POST("/sync", controller.SyncEventMessage)
 
