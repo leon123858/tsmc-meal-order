@@ -154,7 +154,7 @@ app.MapDelete("/api/menu/{id:int}", (int id) =>
     }
     else
     {
-        response.ErrorMessages.Add("Invalid id.");
+        response.ErrorMessages.Add("Invalid menu id.");
         return Results.NotFound(response);
     }
 })
@@ -164,6 +164,41 @@ app.MapDelete("/api/menu/{id:int}", (int id) =>
 .WithOpenApi(operation => new(operation)
 {
     Summary = "Delete the menu with the specified id, if exist."
+});
+
+app.MapGet("/api/menu/{menuId:int}/foodItem/{itemId:int}", (int menuId, int itemId) =>
+{
+    APIResponse response = new() { IsSuccess = false, StatusCode = HttpStatusCode.NotFound };
+    Menu? menu = MenuList.menuList.FirstOrDefault(m => m.Id == menuId);
+
+    if (menu != null)
+    {
+        FoodItem? foodItem = menu.FoodItems.FirstOrDefault(f => f.Id == itemId);
+        if (foodItem != null)
+        {
+            response.Result = foodItem;
+            response.IsSuccess = true;
+            response.StatusCode = HttpStatusCode.OK;
+            return Results.Ok(response);
+        }
+        else
+        {
+            response.ErrorMessages.Add("Invalid item Id.");
+            return Results.NotFound(response);
+        }
+    }
+    else
+    {
+        response.ErrorMessages.Add("Invalid menu Id.");
+        return Results.NotFound(response);
+    }
+})
+.WithName("GetMenuItem")
+.Produces<APIResponse>(StatusCodes.Status200OK)
+.Produces<APIResponse>(StatusCodes.Status404NotFound)
+.WithOpenApi(operation => new(operation)
+{
+    Summary = "Get the item of the menu with the specified id, if exist."
 });
 
 app.Run();

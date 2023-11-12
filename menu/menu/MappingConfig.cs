@@ -9,6 +9,8 @@ namespace menu
         public MappingConfig() { 
             CreateMap<Menu, MenuCreateDto>().ReverseMap();
             CreateMap<Menu, MenuDto>().ReverseMap();
+            CreateMap<FoodItem, FoodItemCreateDto>().ReverseMap();
+            CreateMap<FoodItem, FoodItemDto>().ReverseMap();
         }
     }
 }

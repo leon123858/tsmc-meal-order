@@ -1,6 +1,6 @@
-﻿namespace menu.Models
+﻿namespace menu.Models.DTO
 {
-    public class FoodItem
+    public class FoodItemDto
     {
         public int Id { get; set; }
         public string Description { get; set; } = "";
