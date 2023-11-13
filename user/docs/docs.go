@@ -128,7 +128,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/sync": {
+        "/sync/:event": {
             "post": {
                 "description": "同步 event, 由 infra handle 傳入 cloud run, 若非 200 回傳, 會觸發重試",
                 "consumes": [
@@ -368,10 +368,10 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0",
+	Version:          "3.0",
 	Host:             "127.0.0.1:8080",
 	BasePath:         "/api/user",
-	Schemes:          []string{},
+	Schemes:          []string{"http", "https"},
 	Title:            "meal order user API",
 	Description:      "this the user service for meal order system",
 	InfoInstanceName: "swagger",

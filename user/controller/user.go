@@ -75,7 +75,7 @@ func Login(c echo.Context) error {
 	}
 	// publish event
 	pubSubInfo, err := service.NewPubSubInfo(service.PubsubClientWrapper{
-		ProjectID: utils.GCP_PROJECT_ID,
+		ProjectID: utils.GcpProjectId,
 	})
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, model.ErrorResponse(err.Error()))

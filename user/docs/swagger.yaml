@@ -121,7 +121,7 @@ info:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   title: meal order user API
-  version: "1.0"
+  version: "3.0"
 paths:
   /create:
     post:
@@ -193,7 +193,7 @@ paths:
       summary: login api
       tags:
       - user
-  /sync:
+  /sync/:event:
     post:
       consumes:
       - application/json
@@ -237,4 +237,7 @@ paths:
       summary: update user api
       tags:
       - user
+schemes:
+- http
+- https
 swagger: "2.0"

@@ -31,6 +31,7 @@ FROM gcr.io/distroless/base-debian11 AS build-release-stage
 WORKDIR /
 
 COPY --from=build-stage /user /user
+ENV APP_ENV=production
 
 EXPOSE 8080
 

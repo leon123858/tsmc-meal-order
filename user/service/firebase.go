@@ -14,7 +14,7 @@ var DBClient *firestore.Client
 func InitFirebase() (err error) {
 	var app *firebase.App
 	app, err = firebase.NewApp(context.Background(), &firebase.Config{
-		ProjectID: utils.GCP_PROJECT_ID,
+		ProjectID: utils.GcpProjectId,
 	})
 	if err != nil {
 		return

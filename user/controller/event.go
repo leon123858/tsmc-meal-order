@@ -17,17 +17,19 @@ import (
 //	@Produce		json
 //	@Param			input	body		service.PubSubMessage	true	"body"
 //	@Success		200		{object}	string					"success"
-//	@Router			/sync [post]
+//	@Router			/sync/:event [post]
 func SyncEventMessage(c echo.Context) error {
 	req := new(service.PubSubMessage)
 	if err := c.Bind(req); err != nil {
+		println(err.Error())
 		return c.String(http.StatusBadRequest, err.Error())
 	}
-	switch req.Subscription {
+	eventType := c.Param("event")
+	switch eventType {
 	case "user-create-event":
 		event := new(model.UserCreateEvent)
 		if err := req.BindPubSubMessageData(event); err != nil {
-			//fmt.Printf("%+v\n", event)
+			println(err.Error())
 			return c.String(http.StatusBadRequest, err.Error())
 		}
 		// create user in firestore(db)
@@ -43,9 +45,11 @@ func SyncEventMessage(c echo.Context) error {
 			UserType: event.Data.UserType,
 		})
 		if err != nil {
+			println(err.Error())
 			return c.JSON(http.StatusBadRequest, model.ErrorResponse(err.Error()))
 		}
 	default:
+		println("invalid subscription id" + req.Subscription)
 		return c.String(http.StatusBadRequest, "invalid subscription id")
 	}
 	return c.String(http.StatusOK, "success")

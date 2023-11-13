@@ -1,4 +1,8 @@
 {
+    "schemes": [
+        "http",
+        "https"
+    ],
     "swagger": "2.0",
     "info": {
         "description": "this the user service for meal order system",
@@ -10,7 +14,7 @@
             "name": "Apache 2.0",
             "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
         },
-        "version": "1.0"
+        "version": "3.0"
     },
     "host": "127.0.0.1:8080",
     "basePath": "/api/user",
@@ -122,7 +126,7 @@
                 }
             }
         },
-        "/sync": {
+        "/sync/:event": {
             "post": {
                 "description": "同步 event, 由 infra handle 傳入 cloud run, 若非 200 回傳, 會觸發重試",
                 "consumes": [
