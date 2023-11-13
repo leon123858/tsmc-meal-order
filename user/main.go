@@ -43,6 +43,7 @@ func main() {
 	if os.Getenv("APP_ENV") == "production" {
 		e.Debug = false
 		docs.SwaggerInfo.Host = utils.GcpRunUrlHost
+		e.Use(middleware.Recover())
 	}
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 
@@ -51,7 +52,7 @@ func main() {
 	apiGroup.POST("/create", controller.CreateUser)
 	apiGroup.GET("/get", controller.GetUser)
 	apiGroup.POST("/update", controller.UpdateUser)
-	apiGroup.POST("/login", controller.Login)
+	apiGroup.POST("/login", controller.Login, service.GenerateJwtAuthHandler, service.GenerateJwtGetUserTypeHandler)
 
 	apiGroup.POST("/sync/:event", controller.SyncEventMessage)
 

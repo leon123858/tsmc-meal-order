@@ -7,7 +7,6 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/leon123858/tsmc-meal-order/user/model"
 	"github.com/leon123858/tsmc-meal-order/user/service"
-	"github.com/leon123858/tsmc-meal-order/user/utils"
 	"net/http"
 )
 
@@ -32,62 +31,29 @@ func Login(c echo.Context) error {
 	if err := c.Validate(req); err != nil {
 		return c.JSON(http.StatusBadRequest, model.ErrorResponse(err.Error()))
 	}
-	// get token from header
-	token := c.Request().Header.Get("Authorization")
-	if token == "" {
-		return c.JSON(http.StatusForbidden, model.ErrorResponse("token is required"))
-	}
-	// replace Bearer
-	if len(token) < 7 || token[:7] != "Bearer " {
-		return c.JSON(http.StatusForbidden, model.ErrorResponse("invalid token"))
-	}
-	token = token[7:]
-	// verify token
-	user, err := service.AuthClient.VerifyIDToken(context.Background(), token)
-	if err != nil {
-		return c.JSON(http.StatusForbidden, model.ErrorResponse(err.Error()))
-	}
+	// get user from context
+	user := c.Get("user").(*auth.Token)
 	if user.UID != req.UID {
-		println(user.UID)
-		println(req.UID)
-		return c.JSON(http.StatusForbidden, model.ErrorResponse("no permission uid"))
+		return c.JSON(http.StatusForbidden, model.ErrorResponse("not map uid"))
 	}
 	// get user from firestore(db)
 	userInfo, _ := service.DBClient.Collection("user").Doc(req.UID).Get(context.Background())
 	if userInfo.Exists() {
 		return c.JSON(http.StatusOK, model.SuccessResponse("login success"))
 	}
-	userType := user.Claims["type"]
-	if userType == "" || userType == nil {
-		userType = model.Normal
-		// set custom claim for user
-		if err := service.AuthClient.SetCustomUserClaims(context.Background(), user.UID, map[string]interface{}{
-			"type": userType,
-		}); err != nil {
-			return c.JSON(http.StatusInternalServerError, model.ErrorResponse(err.Error()))
-		}
-	}
-	// valid user type
-	var typeOfUserType model.UserType
-	typeOfUserType, ok := model.Parse2UserType(userType.(string))
-	if !ok {
-		return c.JSON(http.StatusBadRequest, model.ErrorResponse("invalid user type"))
-	}
 	// publish event
-	pubSubInfo, err := service.NewPubSubInfo(service.PubsubClientWrapper{
-		ProjectID: utils.GcpProjectId,
-	})
+	pubSubClient, err := service.NewPubSubInfo(service.PubsubClientWrapper{})
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, model.ErrorResponse(err.Error()))
 	}
-	if err := pubSubInfo.Publish("user-create", model.UserCreateEvent{
+	if err := pubSubClient.Publish("user-create", model.UserCreateEvent{
 		Type: "user-create",
 		Data: model.UserCreateEventData{
 			UserCoreInformation: model.UserCoreInformation{
 				UID:   req.UID,
 				Email: req.Email,
 			},
-			UserType: typeOfUserType,
+			UserType: c.Get("userType").(model.UserType),
 		},
 	}); err != nil {
 		return c.JSON(http.StatusInternalServerError, model.ErrorResponse(err.Error()))

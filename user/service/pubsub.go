@@ -4,7 +4,7 @@ import (
 	"cloud.google.com/go/pubsub"
 	"context"
 	"encoding/json"
-	"errors"
+	"github.com/leon123858/tsmc-meal-order/user/utils"
 )
 
 type PubsubClientWrapper struct {
@@ -33,8 +33,7 @@ func (req *PubSubMessage) BindPubSubMessageData(obj interface{}) error {
 
 func NewPubSubInfo(info PubsubClientWrapper) (*PubsubClientWrapper, error) {
 	if info.ProjectID == "" {
-		// project id is required
-		return nil, errors.New("project id is required")
+		info.ProjectID = utils.GcpProjectId
 	}
 	client, err := pubsub.NewClient(context.Background(), info.ProjectID)
 	if err != nil {

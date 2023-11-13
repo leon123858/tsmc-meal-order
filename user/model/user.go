@@ -15,6 +15,9 @@ var (
 )
 
 func Parse2UserType(str string) (UserType, bool) {
+	if str == "" {
+		return Normal, false
+	}
 	c, ok := string2UserType[str]
 	return c, ok
 }
