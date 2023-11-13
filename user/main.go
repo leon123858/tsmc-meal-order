@@ -20,7 +20,7 @@ func init() {
 }
 
 //	@title			meal order user API
-//	@version		3.0
+//	@version		2.0
 //	@description	this the user service for meal order system
 
 //	@contact.name	Leon Lin
