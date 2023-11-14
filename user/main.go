@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
+	_ "github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/leon123858/tsmc-meal-order/user/controller"
 	"github.com/leon123858/tsmc-meal-order/user/docs"
