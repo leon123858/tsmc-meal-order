@@ -1,9 +1,7 @@
 namespace mail.Model;
 
-public class UserMail: Mail
+public class UserMail : Mail
 {
-    public string Status { get; set; }
-    
     public UserMail(Mail mail)
     {
         Id = mail.Id;
@@ -17,4 +15,6 @@ public class UserMail: Mail
             _ => "錯誤狀態"
         };
     }
+
+    public string Status { get; set; }
 }

@@ -1,7 +1,6 @@
-namespace mail.Controllers;
-
-using mail.Model;
 using Microsoft.AspNetCore.Mvc;
+
+namespace mail.Controllers;
 
 [ApiController]
 [Route("api/mail/")]
@@ -13,7 +12,7 @@ public class EventController : ControllerBase
     {
         _logger = logger;
     }
-    
+
     [HttpPost("send/{mailId}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]

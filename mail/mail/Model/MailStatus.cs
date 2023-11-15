@@ -2,7 +2,7 @@ namespace mail.Model;
 
 public enum MailStatus
 {
-    UNSEND ,
+    UNSEND,
     SENDING,
     SENT,
     FAILED,

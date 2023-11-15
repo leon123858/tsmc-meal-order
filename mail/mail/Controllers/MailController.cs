@@ -1,4 +1,5 @@
 using mail.Model;
+using mail.Repository;
 using Microsoft.AspNetCore.Mvc;
 
 namespace mail.Controllers;
@@ -8,58 +9,79 @@ namespace mail.Controllers;
 public class MailController : ControllerBase
 {
     private readonly ILogger<MailController> _logger;
-    private readonly Repository.MailRepository _mailRepositoryRepository;
+    private readonly MailRepository _mailRepositoryRepository;
 
-    public MailController(ILogger<MailController> logger, Repository.MailRepository mailRepositoryRepository)
+    public MailController(ILogger<MailController> logger, MailRepository mailRepositoryRepository)
     {
         _logger = logger;
         _mailRepositoryRepository = mailRepositoryRepository;
     }
-    
+
     [HttpGet("get/{userId}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MailListResponse))]
-    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(Response))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Response))]
     public ActionResult<MailListResponse> GetUserMails(string userId)
     {
         try
         {
-            var mail = _mailRepositoryRepository.Get(Guid.Parse(userId));
-            if (mail == null)
-            {
-                return NotFound(new Response("mail not found"));
-            }
-            var response = new MailResponse(mail);
+            var mailList = _mailRepositoryRepository.GetMailData(userId);
+            var response = new MailListResponse(mailList);
             return Ok(response);
         }
         catch (Exception e)
         {
             _logger.LogError("fetch mail error: {error}", e.Message);
-            return NotFound(new Response(e.Message));
+            return BadRequest(new Response(e.Message));
         }
     }
-    
+
     [HttpPost("create")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MailResponse))]
-    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(Response))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Response))]
     public ActionResult<MailResponse> CreateMail(MailCreateRequest request)
     {
         var mail = new Mail();
+        try
+        {
+            _mailRepositoryRepository.Create(mail, request.to);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError("Create mail error: {error}", e.Message);
+            return BadRequest(new Response(e.Message));
+        }
         _logger.LogInformation("Create mail: {mail}", mail.Id);
         return Ok(new MailResponse(mail));
     }
-    
+
     [HttpPost("stop/{mailId}")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MailResponse))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Response))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(Response))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Response))]
     public ActionResult<MailResponse> StopMail(string mailId)
     {
-        try {
-            var mail = new Mail(Guid.Parse(mailId));
+        try
+        {
+            var mail = _mailRepositoryRepository.GetMailData(Guid.Parse(mailId));
+            if (mail == null)
+            {
+                _logger.LogWarning($"mail not found: {mailId}");
+                return NotFound(new Response("mail not found"));
+            }
+
+            if (mail.Status != MailStatus.UNSEND && mail.Status != MailStatus.SENDING)
+            {
+                _logger.LogWarning($"mail in end state: {mailId}");
+                return BadRequest(new Response("mail in end state"));
+            }
+            var newMail = _mailRepositoryRepository.StopMailSend(mail.Id, mail.Status);
             _logger.LogInformation("Stop mail: {mail}", mail.Id);
-            return Ok(new MailResponse(mail));
-        } catch (Exception e) {
+            return Ok(new MailResponse(newMail));
+        }
+        catch (Exception e)
+        {
             _logger.LogError("Stop mail error: {error}", e.Message);
-            return NotFound(new Response(e.Message));
+            return BadRequest(new Response(e.Message));
         }
     }
 }
