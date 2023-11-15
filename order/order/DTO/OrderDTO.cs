@@ -1,9 +1,13 @@
-﻿namespace order.Model;
+﻿using order.Attributes;
+using order.Model;
 
-public class Order
+namespace order.DTO;
+
+public class OrderDTO
 {
-    public OrderStatus Status { get; set; }
+    [UpdateKey]
     public int Id { get; set; }
+    public OrderStatus Status { get; set; }
     public List<FoodItem> FoodItems { get; set; }
     public string CustomerName { get; set; }
     public DateTime OrderDate { get; set; }

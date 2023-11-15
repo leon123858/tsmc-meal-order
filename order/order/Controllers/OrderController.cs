@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using order.Exceptions;
 using order.Model;
 using order.Repository;
+using order.Service;
 
 namespace order.Controllers;
 
@@ -8,69 +10,119 @@ namespace order.Controllers;
 [Route("api/orders")]
 public class OrderController : ControllerBase
 {
-    private readonly OrderRepository _repository;
+    private readonly OrderService _orderService;
 
-    public OrderController(OrderRepository repository)
+    public OrderController(OrderService orderService)
     {
-        _repository = repository;
+        _orderService = orderService;
     }
 
     [HttpGet]
-    public ActionResult<IEnumerable<Order>> GetOrders()
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<Order>))]
+    public IActionResult GetOrders()
     {
-        var orders = _repository.GetOrders();
+        var orders = _orderService.GetOrders();
         return Ok(orders);
     }
 
     [HttpGet("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Order))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public ActionResult<Order> GetOrder(string id)
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
+    public IActionResult GetOrder(int id)
     {
-        var guid = Guid.Parse(id);
-
-        var order = _repository.GetOrder(guid);
-        if (order == null)
+        try
+        {
+            var order = _orderService.GetOrder(id);
+            return Ok(order);
+        }
+        catch (OrderNotFoundException e)
+        {
             return NotFound();
-
-        return Ok(order);
+        }
+        catch (Exception e)
+        {
+            return BadRequest("Unknown Error");
+        }
     }
 
     [HttpPost("create")]
-    public ActionResult<Order> CreateOrder([FromBody] Order order)
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(Order))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
+    public IActionResult CreateOrder([FromBody] Order? order)
     {
-        _repository.CreateOrder(order);
+        if (order == null)
+            return BadRequest("Invalid order data");
 
-        return CreatedAtAction("GetOrder", new { id = order.Id }, order);
+        _orderService.CreateOrder(order);
+
+        return CreatedAtAction(nameof(GetOrder), new { id = order.Id }, order);
     }
 
     [HttpPut("update/{id}")]
-    public IActionResult UpdateOrder(string id, [FromBody] Order updatedOrder)
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
+    public IActionResult UpdateOrder(int id, [FromBody] Order? updatedOrder)
     {
-        var guid = Guid.Parse(id);
+        if (updatedOrder == null)
+            return BadRequest("Invalid order data");
 
-        _repository.UpdateOrder(guid, updatedOrder);
-
-        return NoContent();
+        try
+        {
+            _orderService.UpdateOrder(id, updatedOrder);
+            return NoContent();
+        }
+        catch (OrderNotFoundException e)
+        {
+            return NotFound();
+        }
+        catch (Exception e)
+        {
+            return BadRequest();
+        }
     }
 
     [HttpPut("confirm/{id}")]
-    public IActionResult ConfirmOrder(string id)
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
+    public IActionResult ConfirmOrder(int id)
     {
-        var guid = Guid.Parse(id);
-
-        _repository.ConfirmOrder(guid);
-
-        return NoContent();
+        try
+        {
+            _orderService.ConfirmOrder(id);
+            return NoContent();
+        }
+        catch (OrderNotFoundException e)
+        {
+            return NotFound();
+        }
+        catch (Exception e)
+        {
+            return BadRequest();
+        }
     }
 
     [HttpDelete("delete/{id}")]
-    public IActionResult DeleteOrder(string id)
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
+    public IActionResult DeleteOrder(int id)
     {
-        var guid = Guid.Parse(id);
-
-        _repository.DeleteOrder(guid);
-
-        return NoContent();
+        try
+        {
+            _orderService.DeleteOrder(id);
+            return NoContent();
+        }
+        catch (OrderNotFoundException e)
+        {
+            return NotFound();
+        }
+        catch (Exception e)
+        {
+            return BadRequest();
+        }
     }
 }

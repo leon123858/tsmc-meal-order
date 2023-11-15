@@ -1,5 +1,6 @@
 using order;
 using order.Repository;
+using order.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,7 +11,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 
-builder.Services.AddSingleton<OrderRepository>();
+builder.Services.AddSingleton<IOrderRepository, MemoryOrderRepository>();
+builder.Services.AddSingleton<OrderService>();
 
 
 var app = builder.Build();

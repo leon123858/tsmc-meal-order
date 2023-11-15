@@ -1,10 +1,9 @@
-﻿namespace order.Model
+﻿namespace order.Model;
+
+public enum OrderStatus
 {
-    public enum OrderStatus
-    {
-        Init,
-        Preparing,
-        Abort,
-        Canceled,
-    }
+    Init,
+    Preparing,
+    Abort,
+    Canceled,
 }
