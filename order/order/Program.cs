@@ -1,3 +1,7 @@
+using order;
+using order.Repository;
+using order.Service;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -5,6 +9,11 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+
+builder.Services.AddSingleton<IOrderRepository, MemoryOrderRepository>();
+builder.Services.AddSingleton<OrderService>();
+
 
 var app = builder.Build();
 
