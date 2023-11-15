@@ -6,8 +6,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.Configure<DatabaseSetting>(builder.Configuration.GetSection("Database"));
+builder.Services.Configure<CloudSetting>(builder.Configuration.GetSection("Cloud"));
 builder.Services.AddSingleton<MailRepository>();
-builder.Services.AddSingleton<SendGrid>();
+builder.Services.AddSingleton<Pubsub>();
 
 builder.Services.AddCors();
 builder.Services.AddControllers();
