@@ -18,12 +18,12 @@ public class Pubsub
         _projectId = config.Value.ProjectId;
         _topicId = config.Value.TopicId;
     }
-    
+
     public async Task<string> PublishMessageWithRetrySettingsAsync(string messageText)
     {
         var topicName = TopicName.FromProjectTopic(_projectId, _topicId);
-       
-        const int maxAttempts = 3;  // Retry settings control how the publisher handles retry-able failures
+
+        const int maxAttempts = 3; // Retry settings control how the publisher handles retry-able failures
         const double backoffMultiplier = 1.0; // default: 1.0
         var initialBackoff = TimeSpan.FromMilliseconds(100); // default: 100 ms
         var maxBackoff = TimeSpan.FromSeconds(60); // default : 60 seconds
@@ -35,11 +35,11 @@ public class Pubsub
             ApiSettings = new PublisherServiceApiSettings
             {
                 PublishSettings = CallSettings.FromRetry(RetrySettings.FromExponentialBackoff(
-                        maxAttempts: maxAttempts,
-                        initialBackoff: initialBackoff,
-                        maxBackoff: maxBackoff,
-                        backoffMultiplier: backoffMultiplier,
-                        retryFilter: RetrySettings.FilterForStatusCodes(StatusCode.Unavailable)))
+                        maxAttempts,
+                        initialBackoff,
+                        maxBackoff,
+                        backoffMultiplier,
+                        RetrySettings.FilterForStatusCodes(StatusCode.Unavailable)))
                     .WithTimeout(totalTimeout)
             }
         }.BuildAsync();

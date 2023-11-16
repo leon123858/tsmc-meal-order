@@ -74,7 +74,7 @@ public class MailController : ControllerBase
             _logger.LogError("mail state error: {error}", e.Message);
             return BadRequest(new Response(e.Message));
         }
-        
+
         _logger.LogInformation("Create mail: {mail}", mail.Id);
         return Ok(new MailResponse(mail));
     }
@@ -99,6 +99,7 @@ public class MailController : ControllerBase
                 _logger.LogWarning($"mail in end state: {mailId}");
                 return BadRequest(new Response("mail in end state"));
             }
+
             var newMail = _mailRepositoryRepository.StopMailSend(mail.Id, mail.Status);
             _logger.LogInformation("Stop mail: {mail}", mail.Id);
             return Ok(new MailResponse(newMail));

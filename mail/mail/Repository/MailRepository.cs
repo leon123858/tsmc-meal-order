@@ -11,10 +11,11 @@ public class MailRepository
     public MailRepository(IOptions<DatabaseSetting> databaseSettings)
     {
         var secretPassword = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Production"
-            ? Environment.GetEnvironmentVariable("POSTGRES_PASSWORD")
+            ? Environment.GetEnvironmentVariable("POSTGRES_PASSWORD", EnvironmentVariableTarget.Process)
             : databaseSettings.Value.Password;
         _connectionString =
             $"Host={databaseSettings.Value.Host};Username={databaseSettings.Value.UserName};Password={secretPassword};Database={databaseSettings.Value.DatabaseName}";
+        Console.WriteLine(_connectionString);
     }
 
     public void Create(Mail mail, string userId)
@@ -32,7 +33,7 @@ public class MailRepository
         UpdateMail(connection, id, status);
         connection.Close();
     }
-    
+
     public Mail? GetMailData(Guid mailId)
     {
         using var connection = new NpgsqlConnection(_connectionString);
@@ -41,7 +42,7 @@ public class MailRepository
         connection.Close();
         return mail;
     }
-    
+
     public List<Mail> GetMailData(string userId)
     {
         using var connection = new NpgsqlConnection(_connectionString);
@@ -55,11 +56,11 @@ public class MailRepository
     {
         if (originalStatus != MailStatus.UNSEND && originalStatus != MailStatus.SENDING)
             throw new Exception($"Mail status is End status. Mail ID: {mailId.ToString()}");
-        
-        using NpgsqlConnection connection = new NpgsqlConnection(_connectionString);
+
+        using var connection = new NpgsqlConnection(_connectionString);
         connection.Open();
-        
-        using NpgsqlTransaction transaction = connection.BeginTransaction();
+
+        using var transaction = connection.BeginTransaction();
         try
         {
             return UpdateMailTransaction(connection, transaction, mailId, originalStatus, MailStatus.STOPPED);
@@ -70,85 +71,74 @@ public class MailRepository
             throw new Exception(e.Message);
         }
     }
-    
-    private static Mail UpdateMailTransaction(NpgsqlConnection connection, NpgsqlTransaction transaction, Guid mailId,MailStatus originalStatus,
+
+    private static Mail UpdateMailTransaction(NpgsqlConnection connection, NpgsqlTransaction transaction, Guid mailId,
+        MailStatus originalStatus,
         MailStatus newStatus)
     {
         var mailBeforeUpdate = GetMail(connection, transaction, mailId);
-        
-        if (mailBeforeUpdate == null)
-        {
-            throw new Exception($"Mail record not found. Mail ID: {mailId.ToString()}");
-        }
+
+        if (mailBeforeUpdate == null) throw new Exception($"Mail record not found. Mail ID: {mailId.ToString()}");
         if (mailBeforeUpdate.Status != originalStatus)
-        {
             throw new Exception($"Mail status is not {originalStatus.ToString()}. Mail ID: {mailId.ToString()}");
-        }
-        
+
         UpdateMail(connection, transaction, mailId, newStatus);
         transaction.Commit();
-        
+
         var mailAfterUpdate = GetMail(connection, mailId);
-        if (mailAfterUpdate == null)
-        {
-            throw new Exception($"Mail record not found. Mail ID: {mailId.ToString()}");
-        }
+        if (mailAfterUpdate == null) throw new Exception($"Mail record not found. Mail ID: {mailId.ToString()}");
         return mailAfterUpdate;
     }
-    
+
     private static Mail? ReadMailData(NpgsqlCommand cmd, Guid mailId)
     {
         Mail? mail = null;
         cmd.Parameters.AddWithValue("mailId", mailId);
         using var reader = cmd.ExecuteReader();
-        if (reader.Read())
-        {
-            mail = new Mail(reader.GetGuid(0), (MailStatus)reader.GetInt32(2));
-        }
+        if (reader.Read()) mail = new Mail(reader.GetGuid(0), (MailStatus)reader.GetInt32(2));
 
         return mail;
     }
-    
+
     private static Mail? GetMail(NpgsqlConnection connection, Guid mailId)
     {
-        using NpgsqlCommand cmd = new NpgsqlCommand("SELECT id, user_id, status FROM mail WHERE id=@mailId LIMIT 1", connection);
+        using var cmd = new NpgsqlCommand("SELECT id, user_id, status FROM mail WHERE id=@mailId LIMIT 1", connection);
         return ReadMailData(cmd, mailId);
     }
-    
-    private static Mail? GetMail(NpgsqlConnection connection,NpgsqlTransaction transaction, Guid mailId)
+
+    private static Mail? GetMail(NpgsqlConnection connection, NpgsqlTransaction transaction, Guid mailId)
     {
-        using NpgsqlCommand cmd = new NpgsqlCommand("SELECT id, user_id, status FROM mail WHERE id=@mailId LIMIT 1", connection, transaction);
+        using var cmd = new NpgsqlCommand("SELECT id, user_id, status FROM mail WHERE id=@mailId LIMIT 1", connection,
+            transaction);
         return ReadMailData(cmd, mailId);
     }
-    
+
     private static List<Mail> GetUserMailList(NpgsqlConnection connection, string userId)
     {
         var list = new List<Mail>();
-        using NpgsqlCommand cmd = new NpgsqlCommand("SELECT id, status FROM mail WHERE user_id=@userId", connection);
+        using var cmd = new NpgsqlCommand("SELECT id, status FROM mail WHERE user_id=@userId", connection);
         cmd.Parameters.AddWithValue("userId", userId);
-        using NpgsqlDataReader reader = cmd.ExecuteReader();
-        while (reader.Read())
-        {
-            list.Add(new Mail(reader.GetGuid(0), (MailStatus)reader.GetInt32(1)));
-        }
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read()) list.Add(new Mail(reader.GetGuid(0), (MailStatus)reader.GetInt32(1)));
 
         return list;
     }
-    
+
     private static void UpdateMail(NpgsqlConnection connection, Guid mailId, MailStatus status)
     {
         using var updateCommand =
             new NpgsqlCommand("UPDATE mail SET status = @status WHERE id = @id", connection);
         UpdateMailData(updateCommand, mailId, status);
     }
-    
-    private static void UpdateMail(NpgsqlConnection connection, NpgsqlTransaction transaction, Guid mailId, MailStatus status)
+
+    private static void UpdateMail(NpgsqlConnection connection, NpgsqlTransaction transaction, Guid mailId,
+        MailStatus status)
     {
         using var updateCommand =
             new NpgsqlCommand("UPDATE mail SET status = @status WHERE id = @id", connection, transaction);
         UpdateMailData(updateCommand, mailId, status);
     }
-    
+
     private static void UpdateMailData(NpgsqlCommand cmd, Guid mailId, MailStatus status)
     {
         cmd.Parameters.AddWithValue("id", mailId);
@@ -156,7 +146,7 @@ public class MailRepository
         var rowsAffected = cmd.ExecuteNonQuery();
         if (rowsAffected != 1) throw new Exception($"Error updating mail data {mailId.ToString()}");
     }
-    
+
     private static void InsertMailData(NpgsqlConnection connection, Guid mailId, string userId, MailStatus status)
     {
         using var insertCommand =
