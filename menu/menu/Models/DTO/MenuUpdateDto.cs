@@ -2,8 +2,8 @@
 {
     public class MenuUpdateDto
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string Name { get; set; } = "";
-        public List<FoodItem> FoodItems { get; set; } = new();
+        public List<FoodItemCreateDto> FoodItems { get; set; } = new();
     }
 }

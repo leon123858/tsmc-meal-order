@@ -41,10 +41,10 @@ app.MapGet("/api/menu", (ILogger<Program> _logger) =>
     Summary = "Get all the menus."
 });
 
-app.MapGet("/api/menu/{id:int}", (int id) =>
+app.MapGet("/api/menu/{menuId:Guid}", (Guid menuId) =>
 {
     APIResponse response = new() { IsSuccess = false, StatusCode = HttpStatusCode.NotFound };
-    Menu? menu = MenuList.menuList.FirstOrDefault(m => m.Id == id);
+    Menu? menu = MenuList.menuList.FirstOrDefault(m => m.Id == menuId);
 
     if (menu != null)
     {
@@ -64,7 +64,7 @@ app.MapGet("/api/menu/{id:int}", (int id) =>
 .Produces<APIResponse>(StatusCodes.Status404NotFound)
 .WithOpenApi(operation => new(operation)
 {
-    Summary = "Get the menu with the specified id, if exist."
+    Summary = "Get the menu with the specified ower id, if exist."
 });
 
 app.MapPost("/api/menu/", async ([FromBody] MenuCreateDto menuCreateDto, ILogger<Program> _logger, IMapper _mapper, IValidator<MenuCreateDto> _validator) =>
@@ -78,8 +78,9 @@ app.MapPost("/api/menu/", async ([FromBody] MenuCreateDto menuCreateDto, ILogger
         return Results.BadRequest(response);
     }
 
+    // todo: get location of the user from UserService
+
     Menu menu = _mapper.Map<Menu>(menuCreateDto);
-    menu.Id = MenuList.generateNewId();
     MenuList.menuList.Add(menu);
     MenuDto menuDto = _mapper.Map<MenuDto>(menu);
 
@@ -110,16 +111,17 @@ app.MapPut("/api/menu/", async ([FromBody] MenuUpdateDto menuUpdateDto, ILogger<
         response.ErrorMessages.Add(validResult.Errors.FirstOrDefault()!.ToString());
         return Results.BadRequest(response);
     }
-
-    Menu? menu = MenuList.menuList.FirstOrDefault(m => m.Id == menuUpdateDto.Id);
+    
+    Menu newMenu = _mapper.Map<Menu>(menuUpdateDto);
+    Menu? menu = MenuList.menuList.FirstOrDefault(m => m.Id == newMenu.Id);
     if (menu == null)
     {
         response.StatusCode = HttpStatusCode.NotFound;
         response.ErrorMessages.Add("Menu id not found.");
         return Results.NotFound(response);
     }
-    menu.Name = menuUpdateDto.Name;
-    menu.FoodItems = menuUpdateDto.FoodItems;
+    menu.Name = newMenu.Name;
+    menu.FoodItems = newMenu.FoodItems;
 
     MenuDto menuDto = _mapper.Map<MenuDto>(menu);
     response.Result = menuDto;
@@ -140,11 +142,11 @@ app.MapPut("/api/menu/", async ([FromBody] MenuUpdateDto menuUpdateDto, ILogger<
     Summary = "Update the menu, if exist."
 });
 
-app.MapDelete("/api/menu/{id:int}", (int id) =>
+app.MapDelete("/api/menu/{menuId:Guid}", (Guid menuId) =>
 {
     APIResponse response = new() { IsSuccess = false, StatusCode = HttpStatusCode.BadRequest };
 
-    Menu? menu = MenuList.menuList.FirstOrDefault(m => m.Id == id);
+    Menu? menu = MenuList.menuList.FirstOrDefault(m => m.Id == menuId);
     if (menu != null)
     {
         MenuList.menuList.Remove(menu);
@@ -166,17 +168,16 @@ app.MapDelete("/api/menu/{id:int}", (int id) =>
     Summary = "Delete the menu with the specified id, if exist."
 });
 
-app.MapGet("/api/menu/{menuId:int}/foodItem/{itemId:int}", (int menuId, int itemId) =>
+app.MapGet("/api/menu/{menuId:Guid}/foodItem/{itemIdx:int}", (Guid menuId, int itemIdx) =>
 {
     APIResponse response = new() { IsSuccess = false, StatusCode = HttpStatusCode.NotFound };
-    Menu? menu = MenuList.menuList.FirstOrDefault(m => m.Id == menuId);
+    Menu? menu = MenuList.menuList.FirstOrDefault(m => m.Id == menuId); // for now, the menuId is the same as the owerId
 
     if (menu != null)
     {
-        FoodItem? foodItem = menu.FoodItems.FirstOrDefault(f => f.Id == itemId);
-        if (foodItem != null)
+        if (itemIdx < menu.FoodItems.Count)
         {
-            response.Result = foodItem;
+            response.Result = menu.FoodItems[itemIdx];
             response.IsSuccess = true;
             response.StatusCode = HttpStatusCode.OK;
             return Results.Ok(response);
@@ -198,7 +199,7 @@ app.MapGet("/api/menu/{menuId:int}/foodItem/{itemId:int}", (int menuId, int item
 .Produces<APIResponse>(StatusCodes.Status404NotFound)
 .WithOpenApi(operation => new(operation)
 {
-    Summary = "Get the item of the menu with the specified id, if exist."
+    Summary = "Get the i-th item of the menu with the specified id"
 });
 
 app.Run();
