@@ -10,6 +10,7 @@ start:
 		go run main.go
 
 swagger:
+	@echo "can install swag by: go install github.com/swaggo/swag/cmd/swag@latest"
 	swag init
 	swag fmt ./...
 	open http://localhost:8080/swagger/index.html
