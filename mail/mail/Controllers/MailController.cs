@@ -2,6 +2,7 @@ using mail.Model;
 using mail.Repository;
 using mail.Service;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace mail.Controllers;
 
@@ -56,7 +57,10 @@ public class MailController : ControllerBase
 
         try
         {
-            var msgId = await _pubsub.PublishMessageWithRetrySettingsAsync(mail.Id.ToString());
+            var message = new MailEvent(request.to, mail.Id.ToString(), request.subject, request.body);
+            var jsonString = JsonConvert.SerializeObject(message);
+            var eventId = await _pubsub.PublishMessageWithRetrySettingsAsync(jsonString);
+            _logger.LogInformation("Published message event {}", eventId);
         }
         catch (Exception e)
         {

@@ -3,6 +3,9 @@ using Google.Cloud.PubSub.V1;
 using Grpc.Core;
 using mail.Model;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using System.Text;
+using System.Text.Unicode;
 
 namespace mail.Service;
 
@@ -19,6 +22,26 @@ public class Pubsub
         _topicId = config.Value.TopicId;
     }
 
+    public class InnerMessage
+    {
+        public int[] data { get; set; }
+        public string id { get; set; }
+    }
+
+    public class PubSubMessage
+    {
+        public InnerMessage message { get; set; }
+        
+        public string subscription { get; set; }
+    }
+    
+    public static string ReceiveMessageData(PubSubMessage message)
+    {
+        var data = message.message.data.Select(c => (Byte)c).ToArray();
+        var resultString = System.Text.Encoding.UTF8.GetString(data);
+        return resultString;
+    }
+    
     public async Task<string> PublishMessageWithRetrySettingsAsync(string messageText)
     {
         var topicName = TopicName.FromProjectTopic(_projectId, _topicId);

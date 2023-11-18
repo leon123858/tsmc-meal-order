@@ -10,12 +10,9 @@ public class MailRepository
 
     public MailRepository(IOptions<DatabaseSetting> databaseSettings)
     {
-        var secretPassword = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Production"
-            ? Environment.GetEnvironmentVariable("POSTGRES_PASSWORD")
-            : databaseSettings.Value.Password;
+        var secretPassword = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD") ?? databaseSettings.Value.Password;
         _connectionString =
             $"Host={databaseSettings.Value.Host};Username={databaseSettings.Value.UserName};Password={secretPassword};Database={databaseSettings.Value.DatabaseName}";
-        Console.WriteLine(_connectionString);
     }
 
     public void Create(Mail mail, string userId)
