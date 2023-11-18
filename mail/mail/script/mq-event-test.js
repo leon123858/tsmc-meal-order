@@ -1,5 +1,6 @@
 // 這裡填入你的 Cloud Run 服務的 URL
-const cloudRunUrl = 'http://127.0.0.1:5122/api/mail/event/send-mail-event';
+const cloudRunUrl = 'http://127.0.0.1:5122/api/mail/event/fail-mail-event';
+// const cloudRunUrl = 'http://127.0.0.1:5122/api/mail/event/send-mail-event';
 const utf8Encode = new TextEncoder();
 
 const test = {

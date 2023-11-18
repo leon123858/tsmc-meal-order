@@ -1,6 +1,7 @@
 using mail.Model;
 using mail.Repository;
 using mail.Service;
+using mail.utils;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,12 @@ builder.Services.Configure<SMTPSetting>(builder.Configuration.GetSection("SMTP")
 builder.Services.AddSingleton<MailRepository>();
 builder.Services.AddSingleton<Pubsub>();
 builder.Services.AddSingleton<MailService>();
+
+// add json custom converter
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.Converters.Add(new ByteArrayJsonConverter());
+});
 
 builder.Services.AddCors();
 builder.Services.AddControllers();

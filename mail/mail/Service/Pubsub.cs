@@ -4,8 +4,7 @@ using Grpc.Core;
 using mail.Model;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using System.Text;
-using System.Text.Unicode;
+using mail.utils;
 
 namespace mail.Service;
 
@@ -24,7 +23,8 @@ public class Pubsub
 
     public class InnerMessage
     {
-        public int[] data { get; set; }
+        [JsonConverter(typeof(ByteArrayJsonConverter))]
+        public byte[] data { get; set; }
         public string id { get; set; }
     }
 
@@ -37,7 +37,7 @@ public class Pubsub
     
     public static string ReceiveMessageData(PubSubMessage message)
     {
-        var data = message.message.data.Select(c => (Byte)c).ToArray();
+        var data = message.message.data.Select(c => (byte)c).ToArray();
         var resultString = System.Text.Encoding.UTF8.GetString(data);
         return resultString;
     }
