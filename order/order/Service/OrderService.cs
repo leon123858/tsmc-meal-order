@@ -17,7 +17,7 @@ public class OrderService
         return _orderRepository.GetOrders();
     }
 
-    public Order GetOrder(int id)
+    public Order GetOrder(Guid id)
     {
         return _orderRepository.GetOrder(id);
     }
@@ -27,17 +27,17 @@ public class OrderService
         _orderRepository.CreateOrder(order);
     }
 
-    public void UpdateOrder(int id, Order updatedOrder)
+    public void UpdateOrder(Guid id, Order updatedOrder)
     {
         _orderRepository.UpdateOrder(id, updatedOrder);
     }
 
-    public void ConfirmOrder(int id)
+    public void ConfirmOrder(Guid id)
     {
         _orderRepository.ConfirmOrder(id);
     }
 
-    public void DeleteOrder(int id)
+    public void DeleteOrder(Guid id)
     {
         _orderRepository.DeleteOrder(id);
     }
