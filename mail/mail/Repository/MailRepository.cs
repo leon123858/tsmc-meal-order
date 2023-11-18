@@ -99,13 +99,15 @@ public class MailRepository
 
     private static Mail? GetMail(NpgsqlConnection connection, Guid mailId)
     {
-        using var cmd = new NpgsqlCommand("SELECT id, user_email, status FROM mail WHERE id=@mailId LIMIT 1", connection);
+        using var cmd =
+            new NpgsqlCommand("SELECT id, user_email, status FROM mail WHERE id=@mailId LIMIT 1", connection);
         return ReadMailData(cmd, mailId);
     }
 
     private static Mail? GetMail(NpgsqlConnection connection, NpgsqlTransaction transaction, Guid mailId)
     {
-        using var cmd = new NpgsqlCommand("SELECT id, user_email, status FROM mail WHERE id=@mailId LIMIT 1", connection,
+        using var cmd = new NpgsqlCommand("SELECT id, user_email, status FROM mail WHERE id=@mailId LIMIT 1",
+            connection,
             transaction);
         return ReadMailData(cmd, mailId);
     }
@@ -147,7 +149,8 @@ public class MailRepository
     private static void InsertMailData(NpgsqlConnection connection, Guid mailId, string userEmail, MailStatus status)
     {
         using var insertCommand =
-            new NpgsqlCommand("INSERT INTO mail (id, user_email, status) VALUES (@id, @userEmail, @status)", connection);
+            new NpgsqlCommand("INSERT INTO mail (id, user_email, status) VALUES (@id, @userEmail, @status)",
+                connection);
         insertCommand.Parameters.AddWithValue("id", mailId);
         insertCommand.Parameters.AddWithValue("userEmail", userEmail);
         insertCommand.Parameters.AddWithValue("status", (int)status);

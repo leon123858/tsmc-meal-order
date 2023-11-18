@@ -25,7 +25,7 @@ public class EventController : ControllerBase
     [HttpPost("event/{type}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
-    public ActionResult<string> SendMail(string type, Pubsub.PubSubMessage message)
+    public ActionResult<string> SendMail(string type, PubSubMessage message)
     {
         string mailData;
         try
@@ -37,7 +37,7 @@ public class EventController : ControllerBase
             _logger.LogError("Fetch mail data error: {error}", e.Message);
             return BadRequest("Fetch mail data error");
         }
-        
+
         switch (type)
         {
             case "send-mail-event":

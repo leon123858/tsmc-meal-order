@@ -1,6 +1,6 @@
 // 這裡填入你的 Cloud Run 服務的 URL
-// const cloudRunUrl = 'http://127.0.0.1:5122/api/mail/event/fail-mail-event';
-const cloudRunUrl = 'http://127.0.0.1:5122/api/mail/event/send-mail-event';
+const cloudRunUrl = 'http://127.0.0.1:5122/api/mail/event/fail-mail-event';
+// const cloudRunUrl = 'http://127.0.0.1:5122/api/mail/event/send-mail-event';
 const utf8Encode = new TextEncoder();
 
 const test = {
@@ -9,12 +9,15 @@ const test = {
     mailId: "da83d9d7-e3b8-4622-b487-dfd360fc6d17",
     content: "final test",
 }
+const objJsonStr = JSON.stringify(test);
+const objJsonB64 = Buffer.from(objJsonStr).toString("base64");
 const pubSubMessage = {
     message: {
         // 假設你要發送的 data 是一個 base64 編碼的字串
         // convert to number[] by utf8Encode.encode(JSON.stringify(test))
-        data: uint8ArrayToArray(utf8Encode.encode(JSON.stringify(test))),
-        id: '消息ID',
+        messageId: '消息 ID',
+        publishTime: '2020-07-22T02:26:26.000Z',
+        data: objJsonB64,
     },
     subscription: 'submission-name-訂閱名稱',
 };
@@ -35,7 +38,7 @@ const options = {
     console.log(response.status);
     const json = await response.text();
     console.log(json);
-} )();
+})();
 
 function uint8ArrayToArray(uint8Array) {
     const array = [];

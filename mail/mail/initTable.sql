@@ -5,9 +5,9 @@ WHERE extname = 'uuid-ossp';
 
 CREATE TABLE mail
 (
-    id      UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id         UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_email text    NOT NULL,
-    status  INTEGER NOT NULL
+    status     INTEGER NOT NULL
 );
 
 CREATE INDEX mail_user_id_index

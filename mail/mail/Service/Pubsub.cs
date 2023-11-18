@@ -3,8 +3,7 @@ using Google.Cloud.PubSub.V1;
 using Grpc.Core;
 using mail.Model;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using mail.utils;
+using Encoding = System.Text.Encoding;
 
 namespace mail.Service;
 
@@ -21,27 +20,14 @@ public class Pubsub
         _topicId = config.Value.TopicId;
     }
 
-    public class InnerMessage
-    {
-        [JsonConverter(typeof(ByteArrayJsonConverter))]
-        public byte[] data { get; set; }
-        public string id { get; set; }
-    }
-
-    public class PubSubMessage
-    {
-        public InnerMessage message { get; set; }
-        
-        public string subscription { get; set; }
-    }
-    
     public static string ReceiveMessageData(PubSubMessage message)
     {
-        var data = message.message.data.Select(c => (byte)c).ToArray();
-        var resultString = System.Text.Encoding.UTF8.GetString(data);
-        return resultString;
+        var base64EncodedBytes = Convert.FromBase64String(message.Message.Data);
+        // base64EncodedBytes is a byte array, so you may need to convert it to a string
+        var data = Encoding.UTF8.GetString(base64EncodedBytes);
+        return data;
     }
-    
+
     public async Task<string> PublishMessageWithRetrySettingsAsync(string messageText)
     {
         var topicName = TopicName.FromProjectTopic(_projectId, _topicId);
@@ -70,4 +56,27 @@ public class Pubsub
         _logger.LogInformation("Published message {}", messageId);
         return messageId;
     }
+}
+
+public class PubSubMessage
+{
+    public Message Message { get; set; }
+}
+
+public class Message
+{
+    public Message()
+    {
+    }
+
+    public Message(string messageId, string publishTime, string data)
+    {
+        MessageId = messageId;
+        PublishTime = publishTime;
+        Data = data;
+    }
+
+    public string MessageId { get; set; }
+    public string PublishTime { get; set; }
+    public string Data { get; set; }
 }
