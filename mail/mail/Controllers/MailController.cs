@@ -21,14 +21,14 @@ public class MailController : ControllerBase
         _pubsub = pubsub;
     }
 
-    [HttpGet("get/{userId}")]
+    [HttpGet("get/{userEmail}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MailListResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Response))]
-    public ActionResult<MailListResponse> GetUserMails(string userId)
+    public ActionResult<MailListResponse> GetUserMails(string userEmail)
     {
         try
         {
-            var mailList = _mailRepositoryRepository.GetMailData(userId);
+            var mailList = _mailRepositoryRepository.GetMailData(userEmail);
             var response = new MailListResponse(mailList);
             return Ok(response);
         }

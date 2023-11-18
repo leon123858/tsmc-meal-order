@@ -1,12 +1,12 @@
 // 這裡填入你的 Cloud Run 服務的 URL
-const cloudRunUrl = 'http://127.0.0.1:5122/api/mail/event/fail-mail-event';
-// const cloudRunUrl = 'http://127.0.0.1:5122/api/mail/event/send-mail-event';
+// const cloudRunUrl = 'http://127.0.0.1:5122/api/mail/event/fail-mail-event';
+const cloudRunUrl = 'http://127.0.0.1:5122/api/mail/event/send-mail-event';
 const utf8Encode = new TextEncoder();
 
 const test = {
     to: "a0970785699@gmail.com",
     subject: "test-tsmc-mail",
-    mailId: "5850cf55-a3f3-4074-9aff-4e28c71c1488",
+    mailId: "da83d9d7-e3b8-4622-b487-dfd360fc6d17",
     content: "final test",
 }
 const pubSubMessage = {
