@@ -4,23 +4,20 @@ namespace order;
 
 public class Response<T>
 {
-    //[JsonPropertyName("data")]
     public T Data { get; set; }
-    //[JsonPropertyName("message")]
     public string Message { get; set; }
-    //[JsonPropertyName("result")]
-    public bool Result { get; set; }
+    public bool Result { get; set; } = true;
 }
 
-public static class RequestResponse
+public static class ApiResponse
 {
-    public static Response<T> BadRequest<T>(string message = "Unknown Error.")
+    public static Response<object> BadRequest(string message = "Unknown Error.")
     {
-        return new Response<T>() { Message = message };
+        return new Response<object>() { Result = false, Message = message };
     }
     
-    public static Response<T> NotFound<T>()
+    public static Response<object> NotFound()
     {
-        return new Response<T>() { Message = "Data Not Exist." };
+        return new Response<object>() { Result = false, Message = "Data Not Exist." };
     }
 }
