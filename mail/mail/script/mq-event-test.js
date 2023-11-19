@@ -6,7 +6,7 @@ const utf8Encode = new TextEncoder();
 const test = {
     to: "a0970785699@gmail.com",
     subject: "test-tsmc-mail",
-    mailId: "da83d9d7-e3b8-4622-b487-dfd360fc6d17",
+    mailId: "55408f14-e8af-4f68-82a4-a0306592ba24",
     content: "final test",
 }
 const objJsonStr = JSON.stringify(test);

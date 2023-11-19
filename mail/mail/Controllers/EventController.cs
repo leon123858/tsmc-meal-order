@@ -44,6 +44,12 @@ public class EventController : ControllerBase
                 try
                 {
                     var mailEvent = JsonConvert.DeserializeObject<MailEvent>(mailData);
+                    var mail = _mailRepositoryRepository.GetMailData(Guid.Parse(mailEvent.MailId));
+                    if (mail.Status == MailStatus.STOPPED)
+                    {
+                        _logger.LogInformation("Mail is stopped. Mail ID: {mailId}", mail.Id.ToString());
+                        return Ok("Mail is stopped");
+                    }
                     _mailService.SendEmail(mailEvent);
                     _mailRepositoryRepository.UpdateMailStatus(Guid.Parse(mailEvent.MailId), MailStatus.SENT);
                 }
