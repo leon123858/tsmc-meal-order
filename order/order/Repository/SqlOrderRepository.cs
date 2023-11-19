@@ -18,7 +18,7 @@ namespace order.Repository
             throw new NotImplementedException();
         }
 
-        public Order? GetOrder(int id)
+        public Order GetOrder(Guid id)
         {
             throw new NotImplementedException();
         }
@@ -28,17 +28,17 @@ namespace order.Repository
             throw new NotImplementedException();
         }
 
-        public void UpdateOrder(int id, Order updatedOrder)
+        public void UpdateOrder(Guid id, Order updatedOrder)
         {
             throw new NotImplementedException();
         }
 
-        public void DeleteOrder(int id)
+        public void DeleteOrder(Guid id)
         {
             throw new NotImplementedException();
         }
 
-        public void ConfirmOrder(int id)
+        public void ConfirmOrder(Guid id)
         {
             throw new NotImplementedException();
         }

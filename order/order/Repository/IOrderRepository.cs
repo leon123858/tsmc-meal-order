@@ -5,9 +5,9 @@ namespace order.Repository;
 public interface IOrderRepository
 {
     IEnumerable<Order> GetOrders();
-    Order GetOrder(int id);
+    Order GetOrder(Guid id);
     void CreateOrder(Order order);
-    void UpdateOrder(int id, Order updatedOrder);
-    void DeleteOrder(int id);
-    void ConfirmOrder(int id);
+    void UpdateOrder(Guid id, Order updatedOrder);
+    void DeleteOrder(Guid id);
+    void ConfirmOrder(Guid id);
 }

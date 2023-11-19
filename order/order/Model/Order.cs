@@ -3,7 +3,7 @@
 public class Order
 {
     public OrderStatus Status { get; set; }
-    public int Id { get; set; }
+    public Guid Id { get; set; }
     public List<FoodItem> FoodItems { get; set; }
     public string CustomerName { get; set; }
     public DateTime OrderDate { get; set; }

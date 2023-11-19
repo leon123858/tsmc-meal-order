@@ -15,7 +15,7 @@ public class MemoryOrderRepository : IOrderRepository
 
         var order1 = new Order
         {
-            Id = 1,
+            Id = Guid.NewGuid(),
             CustomerName = "John Doe",
             FoodItems = new List<FoodItem> { meal1, meal2 },
             IsConfirmed = true
@@ -23,7 +23,7 @@ public class MemoryOrderRepository : IOrderRepository
 
         var order2 = new Order
         {
-            Id = 2,
+            Id = Guid.NewGuid(),
             CustomerName = "Jane Smith",
             FoodItems = new List<FoodItem> { meal3 },
             IsConfirmed = false
@@ -38,7 +38,7 @@ public class MemoryOrderRepository : IOrderRepository
         return _orders;
     }
 
-    public Order GetOrder(int id)
+    public Order GetOrder(Guid id)
     {
         var order = _orders.FirstOrDefault(o => o.Id == id);
 
@@ -50,11 +50,11 @@ public class MemoryOrderRepository : IOrderRepository
 
     public void CreateOrder(Order order)
     {
-        order.Id = _orders.Count + 1;
+        order.Id = Guid.NewGuid();
         _orders.Add(order);
     }
 
-    public void UpdateOrder(int id, Order updatedOrder)
+    public void UpdateOrder(Guid id, Order updatedOrder)
     {
         var existingOrder = _orders.FirstOrDefault(o => o.Id == id);
         if (existingOrder != null)
@@ -63,7 +63,7 @@ public class MemoryOrderRepository : IOrderRepository
         }
     }
 
-    public void DeleteOrder(int id)
+    public void DeleteOrder(Guid id)
     {
         var order = _orders.FirstOrDefault(o => o.Id == id);
 
@@ -73,7 +73,7 @@ public class MemoryOrderRepository : IOrderRepository
         _orders.Remove(order);
     }
 
-    public void ConfirmOrder(int id)
+    public void ConfirmOrder(Guid id)
     {
         var order = _orders.FirstOrDefault(o => o.Id == id);
 

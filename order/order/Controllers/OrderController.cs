@@ -1,3 +1,4 @@
+using core;
 using Microsoft.AspNetCore.Mvc;
 using order.Exceptions;
 using order.Model;
@@ -18,111 +19,110 @@ public class OrderController : ControllerBase
     }
 
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<Order>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ApiResponse<IEnumerable<Order>>))]
     public IActionResult GetOrders()
     {
         var orders = _orderService.GetOrders();
-        return Ok(orders);
+        return Ok(new ApiResponse<IEnumerable<Order>> { Data = orders });
     }
 
     [HttpGet("{id}")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Order))]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
-    public IActionResult GetOrder(int id)
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ApiResponse<Order>))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ApiResponse<object>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ApiResponse<object>))]
+    public IActionResult GetOrder(string id)
     {
         try
         {
-            var order = _orderService.GetOrder(id);
-            return Ok(order);
+            var order = _orderService.GetOrder(Guid.Parse(id));
+            return Ok(new ApiResponse<Order> { Data = order });
         }
         catch (OrderNotFoundException e)
         {
-            return NotFound();
+            return NotFound(ApiResponse.NotFound());
         }
         catch (Exception e)
         {
-            return BadRequest("Unknown Error");
+            return BadRequest(ApiResponse.BadRequest());
         }
     }
 
     [HttpPost("create")]
-    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(Order))]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(ApiResponse<Order>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ApiResponse<object>))]
     public IActionResult CreateOrder([FromBody] Order? order)
     {
         if (order == null)
-            return BadRequest("Invalid order data");
+            return BadRequest(ApiResponse.BadRequest("Invalid order data"));
 
         _orderService.CreateOrder(order);
 
-        return CreatedAtAction(nameof(GetOrder), new { id = order.Id }, order);
+        return CreatedAtAction(nameof(GetOrder), new { id = order.Id }, new ApiResponse<Order> { Data = order });
     }
 
     [HttpPut("update/{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
-    public IActionResult UpdateOrder(int id, [FromBody] Order? updatedOrder)
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ApiResponse<object>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ApiResponse<object>))]
+    public IActionResult UpdateOrder(string id, [FromBody] Order? updatedOrder)
     {
         if (updatedOrder == null)
-            return BadRequest("Invalid order data");
+            return BadRequest(ApiResponse.BadRequest("Invalid order data"));
 
         try
         {
-            _orderService.UpdateOrder(id, updatedOrder);
+            _orderService.UpdateOrder(Guid.Parse(id), updatedOrder);
             return NoContent();
         }
         catch (OrderNotFoundException e)
         {
-            return NotFound();
+            return NotFound(ApiResponse.NotFound());
         }
         catch (Exception e)
         {
-            return BadRequest();
+            return BadRequest(ApiResponse.BadRequest());
         }
     }
 
     [HttpPut("confirm/{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
-    public IActionResult ConfirmOrder(int id)
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ApiResponse<object>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ApiResponse<object>))]
+    public IActionResult ConfirmOrder(string id)
     {
         try
         {
-            _orderService.ConfirmOrder(id);
+            _orderService.ConfirmOrder(Guid.Parse(id));
             return NoContent();
         }
         catch (OrderNotFoundException e)
         {
-            return NotFound();
+            return NotFound(ApiResponse.NotFound());
         }
         catch (Exception e)
         {
-            return BadRequest();
+            return BadRequest(ApiResponse.BadRequest());
         }
     }
 
     [HttpDelete("delete/{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
-    public IActionResult DeleteOrder(int id)
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ApiResponse<object>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ApiResponse<object>))]
+    public IActionResult DeleteOrder(string id)
     {
         try
         {
-            _orderService.DeleteOrder(id);
+            _orderService.DeleteOrder(Guid.Parse(id));
             return NoContent();
         }
         catch (OrderNotFoundException e)
         {
-            return NotFound();
+            return NotFound(ApiResponse.NotFound());
         }
         catch (Exception e)
         {
-            return BadRequest();
+            return BadRequest(ApiResponse.BadRequest());
         }
     }
 }
