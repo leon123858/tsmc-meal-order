@@ -1,3 +1,4 @@
+using core;
 using Microsoft.AspNetCore.Mvc;
 using order.Exceptions;
 using order.Model;
@@ -18,23 +19,23 @@ public class OrderController : ControllerBase
     }
 
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Response<IEnumerable<Order>>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ApiResponse<IEnumerable<Order>>))]
     public IActionResult GetOrders()
     {
         var orders = _orderService.GetOrders();
-        return Ok(new Response<IEnumerable<Order>> { Data = orders });
+        return Ok(new ApiResponse<IEnumerable<Order>> { Data = orders });
     }
 
     [HttpGet("{id}")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Response<Order>))]
-    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(Response<object>))]
-    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Response<object>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ApiResponse<Order>))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ApiResponse<object>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ApiResponse<object>))]
     public IActionResult GetOrder(string id)
     {
         try
         {
             var order = _orderService.GetOrder(Guid.Parse(id));
-            return Ok(new Response<Order> { Data = order });
+            return Ok(new ApiResponse<Order> { Data = order });
         }
         catch (OrderNotFoundException e)
         {
@@ -47,8 +48,8 @@ public class OrderController : ControllerBase
     }
 
     [HttpPost("create")]
-    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(Response<Order>))]
-    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Response<object>))]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(ApiResponse<Order>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ApiResponse<object>))]
     public IActionResult CreateOrder([FromBody] Order? order)
     {
         if (order == null)
@@ -56,13 +57,13 @@ public class OrderController : ControllerBase
 
         _orderService.CreateOrder(order);
 
-        return CreatedAtAction(nameof(GetOrder), new { id = order.Id }, new Response<Order> { Data = order });
+        return CreatedAtAction(nameof(GetOrder), new { id = order.Id }, new ApiResponse<Order> { Data = order });
     }
 
     [HttpPut("update/{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(Response<object>))]
-    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Response<object>))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ApiResponse<object>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ApiResponse<object>))]
     public IActionResult UpdateOrder(string id, [FromBody] Order? updatedOrder)
     {
         if (updatedOrder == null)
@@ -85,8 +86,8 @@ public class OrderController : ControllerBase
 
     [HttpPut("confirm/{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(Response<object>))]
-    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Response<object>))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ApiResponse<object>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ApiResponse<object>))]
     public IActionResult ConfirmOrder(string id)
     {
         try
@@ -106,8 +107,8 @@ public class OrderController : ControllerBase
 
     [HttpDelete("delete/{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(Response<object>))]
-    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Response<object>))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ApiResponse<object>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ApiResponse<object>))]
     public IActionResult DeleteOrder(string id)
     {
         try
