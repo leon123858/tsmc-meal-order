@@ -1,4 +1,8 @@
 {
+    "schemes": [
+        "http",
+        "https"
+    ],
     "swagger": "2.0",
     "info": {
         "description": "this the user service for meal order system",
@@ -10,14 +14,14 @@
             "name": "Apache 2.0",
             "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
         },
-        "version": "1.0"
+        "version": "2.0"
     },
     "host": "127.0.0.1:8080",
     "basePath": "/api/user",
     "paths": {
         "/create": {
             "post": {
-                "description": "create an user account, who can log in by username and password",
+                "description": "create a user account, who can log in by username and password",
                 "consumes": [
                     "application/json"
                 ],
@@ -81,7 +85,48 @@
                 }
             }
         },
-        "/sync": {
+        "/login": {
+            "post": {
+                "description": "login by JWT token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "login api",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "JWT token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "body",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.UserCoreInformation"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "$ref": "#/definitions/model.StringResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sync/:event": {
             "post": {
                 "description": "同步 event, 由 infra handle 傳入 cloud run, 若非 200 回傳, 會觸發重試",
                 "consumes": [
@@ -164,6 +209,19 @@
                 "result": {
                     "description": "true: success, false: error",
                     "type": "boolean"
+                }
+            }
+        },
+        "model.UserCoreInformation": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "description": "email",
+                    "type": "string"
+                },
+                "uid": {
+                    "description": "user id (uid in this system)",
+                    "type": "string"
                 }
             }
         },

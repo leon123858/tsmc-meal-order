@@ -1,3 +1,4 @@
 package utils
 
-const GCP_PROJECT_ID = "tw-rd-ca-leon-lin"
+const GcpProjectId = "tw-rd-ca-leon-lin"
+const GcpRunUrlHost = "user-kt6w747drq-de.a.run.app"

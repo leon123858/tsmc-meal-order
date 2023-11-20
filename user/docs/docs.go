@@ -23,7 +23,7 @@ const docTemplate = `{
     "paths": {
         "/create": {
             "post": {
-                "description": "create an user account, who can log in by username and password",
+                "description": "create a user account, who can log in by username and password",
                 "consumes": [
                     "application/json"
                 ],
@@ -87,7 +87,48 @@ const docTemplate = `{
                 }
             }
         },
-        "/sync": {
+        "/login": {
+            "post": {
+                "description": "login by JWT token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "login api",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "JWT token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "body",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.UserCoreInformation"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "$ref": "#/definitions/model.StringResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sync/:event": {
             "post": {
                 "description": "同步 event, 由 infra handle 傳入 cloud run, 若非 200 回傳, 會觸發重試",
                 "consumes": [
@@ -170,6 +211,19 @@ const docTemplate = `{
                 "result": {
                     "description": "true: success, false: error",
                     "type": "boolean"
+                }
+            }
+        },
+        "model.UserCoreInformation": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "description": "email",
+                    "type": "string"
+                },
+                "uid": {
+                    "description": "user id (uid in this system)",
+                    "type": "string"
                 }
             }
         },
@@ -314,10 +368,10 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0",
+	Version:          "2.0",
 	Host:             "127.0.0.1:8080",
 	BasePath:         "/api/user",
-	Schemes:          []string{},
+	Schemes:          []string{"http", "https"},
 	Title:            "meal order user API",
 	Description:      "this the user service for meal order system",
 	InfoInstanceName: "swagger",
