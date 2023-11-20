@@ -1,4 +1,6 @@
-﻿namespace menu.Models.Data
+﻿using core.Model;
+
+namespace menu.Models.Data
 {
     public static class MenuList
     {

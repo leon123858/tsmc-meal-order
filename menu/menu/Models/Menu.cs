@@ -1,4 +1,6 @@
-﻿namespace menu.Models
+﻿using core.Model;
+
+namespace menu.Models
 {
     public class Menu
     {

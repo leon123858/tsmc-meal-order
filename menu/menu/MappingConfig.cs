@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using menu.Models.DTO;
 using menu.Models;
+using core.Model;
 
 namespace menu
 {
