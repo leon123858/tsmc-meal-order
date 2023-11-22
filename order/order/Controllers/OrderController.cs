@@ -60,31 +60,7 @@ public class OrderController : ControllerBase
         return CreatedAtAction(nameof(GetOrder), new { id = order.Id }, new ApiResponse<Order> { Data = order });
     }
 
-    [HttpPut("update/{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ApiResponse<object>))]
-    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ApiResponse<object>))]
-    public IActionResult UpdateOrder(string id, [FromBody] Order? updatedOrder)
-    {
-        if (updatedOrder == null)
-            return BadRequest(ApiResponse.BadRequest("Invalid order data"));
-
-        try
-        {
-            _orderService.UpdateOrder(Guid.Parse(id), updatedOrder);
-            return NoContent();
-        }
-        catch (OrderNotFoundException e)
-        {
-            return NotFound(ApiResponse.NotFound());
-        }
-        catch (Exception e)
-        {
-            return BadRequest(ApiResponse.BadRequest());
-        }
-    }
-
-    [HttpPut("confirm/{id}")]
+    [HttpPost("confirm/{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ApiResponse<object>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ApiResponse<object>))]
@@ -105,7 +81,7 @@ public class OrderController : ControllerBase
         }
     }
 
-    [HttpDelete("delete/{id}")]
+    [HttpPost("delete/{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ApiResponse<object>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ApiResponse<object>))]
