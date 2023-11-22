@@ -1,4 +1,6 @@
-﻿namespace order.Model;
+﻿using core.Model;
+
+namespace order.Model;
 
 public class Order
 {

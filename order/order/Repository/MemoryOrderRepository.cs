@@ -1,4 +1,5 @@
-﻿using order.Exceptions;
+﻿using core.Model;
+using order.Exceptions;
 using order.Model;
 
 namespace order.Repository;
@@ -9,9 +10,9 @@ public class MemoryOrderRepository : IOrderRepository
 
     public MemoryOrderRepository()
     {
-        var meal1 = new FoodItem { Id = 1, Name = "Burger", Price = 9.99m, Description = "Juicy beef burger with cheese and veggies" };
-        var meal2 = new FoodItem { Id = 2, Name = "Pizza", Price = 12.99m, Description = "Delicious pizza with assorted toppings" };
-        var meal3 = new FoodItem { Id = 3, Name = "Salad", Price = 6.99m, Description = "Fresh garden salad with dressing" };
+        var meal1 = new FoodItem { Name = "Burger", Price = 100, Description = "Juicy beef burger with cheese and veggies" };
+        var meal2 = new FoodItem { Name = "Pizza", Price = 120, Description = "Delicious pizza with assorted toppings" };
+        var meal3 = new FoodItem { Name = "Salad", Price = 130, Description = "Fresh garden salad with dressing" };
 
         var order1 = new Order
         {

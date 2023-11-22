@@ -1,4 +1,5 @@
-﻿using order.Attributes;
+﻿using core.Model;
+using order.Attributes;
 using order.Model;
 
 namespace order.DTO;
