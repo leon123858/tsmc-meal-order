@@ -1,0 +1,40 @@
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 1;
+}
+
+.selectionContainer {
+  display: flex;
+  align-items: center;
+  /* justify-content: flex-start; */
+  background-color: grey;
+  top: 0;
+  width: 100%;
+  padding: 5px;
+}
+
+.segment {
+  margin-left: 20px;
+  padding: 10px;
+  width: 212px;
+  background-color: rgb(199, 197, 197);
+}
+
+.main {
+  left: 0;
+}
+
+.dishContainer {
+  padding-top: 65px;
+  padding-right: 25px;
+}
+
+.dailyhistory {
+  /* margin: 0px 0px 0px -6px; */
+  padding-top: 45px;
+  width: 100%;  
+}

@@ -1,0 +1,18 @@
+.container {
+    margin: 0 auto 20px 10px;
+    width: 100%;
+    position: relative;
+}
+
+.hr_meal {
+	margin-top: 5px;
+	border: 1px solid #2c2b2b11;
+	margin: 6px -20px 10px;
+}
+
+.hr_date {
+	margin-top: 5px;
+	border: 2px solid #2c2b2b1e;
+	margin: 6px -20px 10px;
+}
+
