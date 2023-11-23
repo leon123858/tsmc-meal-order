@@ -19,3 +19,8 @@
     border: 3px solid gray;
     padding: 10px;
 }
+
+.blueButton {
+    background-color: #80c7f7;
+    color: black;
+  }

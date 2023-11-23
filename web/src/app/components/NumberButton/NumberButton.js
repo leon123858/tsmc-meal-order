@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { InputNumber, Button, Radio } from 'antd';
 
 import styles from "./NumberButton.module.css";
+import Link from 'next/link';
 
 const NumberButton = () => {
     const [value, setValue] = useState(1);
@@ -27,9 +28,11 @@ return (
         </div>
         
         <div className={styles.sendButton}>
-            <Radio.Button value="default" className={styles.blueButton}>
-                送出
-            </Radio.Button>
+            <Link href="/routers/Home">
+                <Radio.Button value="default" className={styles.blueButton}>
+                    送出
+                </Radio.Button>
+            </Link>
         </div>
     </div>
 );

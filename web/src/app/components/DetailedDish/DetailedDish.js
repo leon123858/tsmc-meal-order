@@ -11,8 +11,8 @@ const DetailedDish = ({ price = 0 }) => {
             <div className={styles.textContainer}>
                 <h2>DISH NAME</h2>
                 <div className={styles.ingredientContainer}>
-                    <div className={styles.circle}>牛</div>
-                    <div className={styles.circle}>牛</div> <br />
+                    <div className={styles.circle}>蝦</div>
+                    <div className={styles.circle}>魚</div> <br />
                 </div>
                 <p>$ {price}</p>
             </div>

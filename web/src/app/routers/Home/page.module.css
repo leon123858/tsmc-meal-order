@@ -58,3 +58,12 @@
   background-color: #80c7f7;
   color: black;
 }
+
+.dish {
+  width: 100%;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+  font-size: inherit;
+}

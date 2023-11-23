@@ -1,3 +1,5 @@
+'use client';
+import Link from "next/link";
 import BackButton from "../../components/BackButton/BackButton";
 import DetailedDish from "../../components/DetailedDish/DetailedDish";
 import NumberButton from "../../components/NumberButton/NumberButton";
@@ -9,7 +11,9 @@ export default function Description() {
     return (
         <div className={styles.container}>
             <header className={styles.header}>
-                <BackButton />
+                <Link href={"/routers/Home"}>
+                   <BackButton />
+                </Link>
             </header>
 
             <main>

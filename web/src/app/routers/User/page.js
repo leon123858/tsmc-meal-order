@@ -3,6 +3,7 @@ import BackButton from "../../components/BackButton/BackButton";
 import Link from 'next/link'
 import { UserOutlined } from "@ant-design/icons";
 import { Select } from "antd";
+import { Radio } from 'antd';
 
 import styles from "./page.module.css";
 
@@ -28,7 +29,7 @@ export default function User() {
                     <div>
                         <Select
                             defaultValue="hsinchu"
-                            style={{ width: 120 }}
+                            style={{ width: 120, marginBottom: 10 }}
                             onChange={handleChange}
                             options={[
                                 { value: "hsinchu", label: "Hsinchu" },
@@ -38,6 +39,10 @@ export default function User() {
                             ]}
                         />
                     </div>
+                    
+                    <Radio.Button value="default" className={styles.blueButton}>
+                        確認
+                    </Radio.Button>
                 </div>
             </main>
         </div>

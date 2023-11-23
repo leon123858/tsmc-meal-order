@@ -43,3 +43,15 @@ display: flex;
 margin-left: auto;
 align-items: flex-end;
 }
+
+.circle {
+    width: 25px;
+    height: 25px;
+    line-height: 25px;
+    border-radius: 50%;
+    font-size: 13px;
+    color: white;
+    text-align: center;
+    background: gray
+    /* background: #80c7f7 */
+  }

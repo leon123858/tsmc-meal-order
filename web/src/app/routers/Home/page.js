@@ -8,6 +8,10 @@ import { Button, Radio } from 'antd';
 
 import styles from "./page.module.css";
 
+const handleButtonClick = (index) => {
+    console.log(`selected ${index}`);
+}
+
 export default function Home() {
     const price = 10, number = 1;
     const [curWindowState, setWindowState] = useState(false);
@@ -23,18 +27,13 @@ export default function Home() {
         
             <main className={styles.main}>
                 <div className={styles.dishContainer}>
-                    <Dish price={price} number={number} />
-                    <Dish price={price} number={number} />
-                    <Dish price={price} number={number} />
-                    <Dish price={price} number={number} />
-                    <Dish price={price} number={number} />
-                    <Dish price={price} number={number} />
-                    <Dish price={price} number={number} />
-                    <Dish price={price} number={number} />
-                    <Dish price={price} number={number} />
-                    <Dish price={price} number={number} />
-                    <Dish price={price} number={number} />
-                    <Dish price={price} number={number} />
+                    {[...Array(10)].map((_, index) => (
+                        <Link href="/routers/Description">
+                            <button key={index} className={styles.dish} onClick={() => handleButtonClick(index)}>
+                                <Dish price={price} number={number} />
+                            </button>
+                        </Link>
+                    ))}
                 </div>
             </main>
 
