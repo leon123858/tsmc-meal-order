@@ -13,17 +13,17 @@ namespace order.Repository
             return new SqlConnection(_connectionString);
         }
 
-        public IEnumerable<Order> GetOrders()
+        public IEnumerable<Order> GetOrders(Guid userId)
         {
             throw new NotImplementedException();
         }
 
-        public Order GetOrder(Guid id)
+        public Order GetOrder(Guid userId, Guid orderId)
         {
             throw new NotImplementedException();
         }
 
-        public void CreateOrder(Order order)
+        public void CreateOrder(Guid userId, Order order)
         {
             throw new NotImplementedException();
         }
@@ -33,12 +33,12 @@ namespace order.Repository
             throw new NotImplementedException();
         }
 
-        public void DeleteOrder(Guid id)
+        public void DeleteOrder(Guid userId, Guid orderId)
         {
             throw new NotImplementedException();
         }
 
-        public void ConfirmOrder(Guid id)
+        public void UpdateOrder(Order order)
         {
             throw new NotImplementedException();
         }

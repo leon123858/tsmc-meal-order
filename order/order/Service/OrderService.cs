@@ -1,4 +1,5 @@
-﻿using order.Model;
+﻿using order.DTO;
+using order.Model;
 using order.Repository;
 
 namespace order.Service;
@@ -12,33 +13,41 @@ public class OrderService
         _orderRepository = orderRepository;
     }
 
-    public IEnumerable<Order> GetOrders()
+    public IEnumerable<Order> GetOrders(User user)
     {
-        return _orderRepository.GetOrders();
+        return _orderRepository.GetOrders(user.Id);
     }
 
-    public Order GetOrder(Guid id)
+    public Order GetOrder(User user, Guid orderId)
     {
-        return _orderRepository.GetOrder(id);
+        return _orderRepository.GetOrder(user.Id, orderId);
     }
 
-    public void CreateOrder(Order order)
+    public Order CreateOrder(User user, OrderDTO order)
     {
-        _orderRepository.CreateOrder(order);
+        var newOrder = new Order
+        {
+            Id = Guid.NewGuid(),
+            Customer = user,
+            Restaurant = new User { Id = order.RestaurantId },
+            FoodItems = order.FoodItems,
+        };
+        
+        _orderRepository.CreateOrder(user.Id, newOrder);
+
+        return newOrder;
     }
 
-    public void UpdateOrder(Guid id, Order updatedOrder)
+    public void ConfirmOrder(User user, Guid orderId)
     {
-        _orderRepository.UpdateOrder(id, updatedOrder);
+        var order = _orderRepository.GetOrder(user.Id, orderId);
+        order.Confirm();
+        
+        _orderRepository.UpdateOrder(order);
     }
 
-    public void ConfirmOrder(Guid id)
+    public void DeleteOrder(User user, Guid orderId)
     {
-        _orderRepository.ConfirmOrder(id);
-    }
-
-    public void DeleteOrder(Guid id)
-    {
-        _orderRepository.DeleteOrder(id);
+        _orderRepository.DeleteOrder(user.Id, orderId);
     }
 }

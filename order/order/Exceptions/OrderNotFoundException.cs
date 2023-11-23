@@ -1,6 +1,3 @@
-﻿namespace order.Exceptions
-{
-    public class OrderNotFoundException : Exception
-    {
-    }
-}
+﻿namespace order.Exceptions;
+
+public class OrderNotFoundException : DataNotFoundException { }

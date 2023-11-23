@@ -2,7 +2,7 @@
 
 namespace order.DTO;
 
-public class FoodItemDTO
+public class FoodItemSqlDTO
 {
     public string Description { get; set; } = "";
     public string Name { get; set; } = "";

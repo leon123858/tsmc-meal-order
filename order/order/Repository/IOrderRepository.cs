@@ -1,13 +1,13 @@
-﻿using order.Model;
+﻿using order.DTO;
+using order.Model;
 
 namespace order.Repository;
 
 public interface IOrderRepository
 {
-    IEnumerable<Order> GetOrders();
-    Order GetOrder(Guid id);
-    void CreateOrder(Order order);
-    void UpdateOrder(Guid id, Order updatedOrder);
-    void DeleteOrder(Guid id);
-    void ConfirmOrder(Guid id);
+    IEnumerable<Order> GetOrders(Guid userId);
+    Order GetOrder(Guid userId, Guid orderId);
+    void CreateOrder(Guid userId, Order order);
+    void DeleteOrder(Guid userId, Guid orderId);
+    void UpdateOrder(Order order);
 }
