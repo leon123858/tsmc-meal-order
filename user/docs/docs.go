@@ -103,7 +103,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "JWT token",
+                        "description": "format:[Bearer JWT_Token]",
                         "name": "Authorization",
                         "in": "header",
                         "required": true

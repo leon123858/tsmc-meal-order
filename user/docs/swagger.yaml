@@ -172,7 +172,7 @@ paths:
       - application/json
       description: login by JWT token
       parameters:
-      - description: JWT token
+      - description: format:[Bearer JWT_Token]
         in: header
         name: Authorization
         required: true
