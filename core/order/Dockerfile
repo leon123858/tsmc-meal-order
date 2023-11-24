@@ -7,11 +7,12 @@ ENV ASPNETCORE_ENVIRONMENT="Production"
 EXPOSE ${PORT}
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
-WORKDIR /src
+WORKDIR /core
+COPY ["core/core.csproj", "core/"]
 COPY ["order/order.csproj", "order/"]
 RUN dotnet restore "order/order.csproj"
 COPY . .
-WORKDIR "/src/order"
+WORKDIR "/core/order"
 RUN dotnet build "order.csproj" -c Release -o /app/build
 
 FROM build AS publish
