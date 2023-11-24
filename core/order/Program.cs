@@ -11,6 +11,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 
+builder.Services.AddSingleton<IUserRepository, MemoryUserRepository>();
 builder.Services.AddSingleton<IOrderRepository, MemoryOrderRepository>();
 builder.Services.AddSingleton<OrderService>();
 
