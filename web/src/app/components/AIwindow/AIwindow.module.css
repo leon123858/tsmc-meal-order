@@ -1,0 +1,15 @@
+.modal_content {
+    height: '500px';
+    overflow-y: 'auto';
+}
+
+.recommend_div {
+    display: flex;
+    justify-content: center;
+}
+
+.recommend_button {
+    width: 100px;
+    background-color: #8c8c8c;
+    color: #ffffff;
+}

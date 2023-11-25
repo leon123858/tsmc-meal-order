@@ -1,0 +1,14 @@
+.container {
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px;
+}
+
+.blueButton {
+    background-color: #80c7f7;
+    color: black;
+  }
+
+.sendButton {
+    margin-left: 10px;
+}

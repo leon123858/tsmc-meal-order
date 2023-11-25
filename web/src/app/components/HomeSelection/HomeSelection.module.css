@@ -1,0 +1,42 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  background-color: grey;
+  top: 0;
+  width: 100%;
+  padding: 10px;
+}
+
+.topRow {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+}
+
+.switchRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-left: 10px;
+}
+
+.datePicker {
+  flex: 1;
+}
+
+.select {
+  display: flex;
+  margin-left: 10px;
+}
+
+.icon {
+  display: flex;
+  margin-left: 10px;
+  align-items: flex-end;
+}
+
+.userButton {
+  background-color: #80c7f7;
+  color: black;
+}

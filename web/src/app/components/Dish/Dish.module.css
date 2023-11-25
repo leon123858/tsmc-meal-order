@@ -1,0 +1,57 @@
+.container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+  
+.container img {
+width: 80px;
+height: 80px;
+max-width: 100%;
+max-height: 100%;
+}
+
+.imageContainer {
+flex: 0 0 auto;
+margin-right: 20px;
+}
+
+.textContainer {
+flex: 1 1 auto; /* Allow the text container to grow */
+display: flex; /* Create a nested flex container */
+flex-direction: column; /* Stack items vertically */
+align-items: flex-start; /* Align items to the top */
+justify-content: space-between; /* Distribute space equally between items */
+}
+
+.switchContainer {
+display: flex;
+gap: 10px;
+}
+
+.textContainer h3,
+.textContainer p {
+    margin: 0;
+}
+
+.switchContainer {
+    margin-right: 5px;
+}
+
+.priceContainer {
+display: flex;
+margin-left: auto;
+align-items: flex-end;
+}
+
+.circle {
+    width: 25px;
+    height: 25px;
+    line-height: 25px;
+    border-radius: 50%;
+    font-size: 13px;
+    color: white;
+    text-align: center;
+    background: gray
+    /* background: #80c7f7 */
+  }
