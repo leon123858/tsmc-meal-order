@@ -14,7 +14,7 @@ const uploadImage = async () => {
         // Create FormData
         const formData = new FormData();
         formData.set('image', imageBlob, Math.random() + '.jpg');
-
+        // can get jwt from firebase SDK in client
         const JWT = "jwt token now"
 
         // Make a POST request with fetch
