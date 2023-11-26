@@ -28,10 +28,12 @@ export default function Home() {
             <main className={styles.main}>
                 <div className={styles.dishContainer}>
                     {[...Array(10)].map((_, index) => (
-                        <Link href="/routers/Description">
-                            <button key={index} className={styles.dish} onClick={() => handleButtonClick(index)}>
-                                <Dish price={price} number={number} />
+                        <Link key={index} href="/routers/Description">
+                        <div>
+                            <button className={styles.dish} onClick={() => handleButtonClick(index)}>
+                            <Dish price={price} number={number} />
                             </button>
+                        </div>
                         </Link>
                     ))}
                 </div>

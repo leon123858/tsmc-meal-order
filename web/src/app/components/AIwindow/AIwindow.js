@@ -35,9 +35,9 @@ const AIwindow = ({curWindowState, setWindowState}) => {
                     // >
                     //     送出
                     // </Button>,
-                    <div className={styles.recommend_div}>                
+                    <div key={"recommend"} className={styles.recommend_div}>                
                         <Button 
-                            key="recommend" 
+                            // key="recommend" 
                             className={styles.recommend_button}
                             onClick={() => setWindowState(false)}
                         >

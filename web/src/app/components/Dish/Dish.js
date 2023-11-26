@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import styles from './Dish.module.css';
 
 const Dish = ({ price = 0, number = -1 }) => {
@@ -6,7 +7,13 @@ const Dish = ({ price = 0, number = -1 }) => {
       <main>
           <div className={styles.container}>
                 <div className={styles.imageContainer}>
-                    <img src="https://www.w3schools.com/howto/img_avatar.png" alt="Avatar" />
+                    <Image
+                        src="/images/tsmc.png"
+                        alt="Avatar"
+                        width={50}
+                        height={50}
+                        priority
+                    />
                 </div>
                 <div className={styles.textContainer}>
                     <h3>DISH NAME</h3>

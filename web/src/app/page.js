@@ -2,6 +2,7 @@
 import { auth } from './firebase';
 import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 import styles from './page.module.css';
 
@@ -13,7 +14,7 @@ const Login = () => {
         try {
             const result = await signInWithPopup(auth, provider);
             const user = result.user;
-            // Redirect or perform actions after successful login
+            console.error('Google Sign In Success:', user);
             router.push('routers/Home');
         } catch (error) {
             console.error('Google Sign In Error:', error.message);
@@ -23,7 +24,13 @@ const Login = () => {
     return (
       <div>
         <main className={styles.main}>
-          <img src="/images/tsmc.png" alt="TSMC Logo" style={{ width: '100px', height: '100px' }} />
+          <Image
+            src="/images/tsmc.png"
+            alt="TSMC Logo"
+            width={100}
+            height={100}
+            priority
+          />
           <h1>Meal Order</h1>
           <button onClick={handleGoogleLogin}>Sign in with Google</button>
         </main>

@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import styles from './DetailedDish.module.css';
 
 const DetailedDish = ({ price = 0 }) => {
@@ -6,7 +7,13 @@ const DetailedDish = ({ price = 0 }) => {
     <main>
         <div className={styles.container}>
             <div className={styles.imageContainer}>
-                <img src="https://www.w3schools.com/howto/img_avatar.png" alt="Avatar" />
+                <Image
+                    src="/images/tsmc.png"
+                    alt="Avatar"
+                    width={50}
+                    height={50}
+                    priority
+                />
             </div>
             <div className={styles.textContainer}>
                 <h2>DISH NAME</h2>
