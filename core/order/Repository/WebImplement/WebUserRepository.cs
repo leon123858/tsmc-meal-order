@@ -1,29 +1,30 @@
 using core;
 using Newtonsoft.Json;
 using order.DTO;
+using order.DTO.Web;
 using order.Exceptions;
 using order.Model;
 
-namespace order.Repository;
+namespace order.Repository.WebImplement;
 
 public class WebUserRepository : IUserRepository
 {
     private const string Url = "https://user-kt6w747drq-de.a.run.app";
+    private readonly WebUtils _webUtils;
     
-    public User GetUser(Guid userId)
+    public WebUserRepository()
     {
-        var url = $"{Url}/get?uid={userId}";
+        _webUtils = new WebUtils(Url);
+    }
+    
+    public async Task<User> GetUser(Guid userId)
+    {
+        var endPoint = $"/get?uid={userId}";
+        
         try
         {
-            using var client = new HttpClient();
-        
-            var response = client.GetAsync(url).Result;
-            if (!response.IsSuccessStatusCode)
-                throw new Exception("Unknown error.");
+            var apiResponse = await _webUtils.GetAsync<UserWebDTO>(endPoint);
             
-            var json = response.Content.ReadAsStringAsync().Result;
-            var apiResponse = JsonConvert.DeserializeObject<ApiResponse<UserWebDTO>>(json);
-
             if (apiResponse is { Result: true })
                 return apiResponse.Data;
 

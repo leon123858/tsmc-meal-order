@@ -1,9 +1,8 @@
 ﻿using core.Model;
-using order.DTO;
 using order.Exceptions;
 using order.Model;
 
-namespace order.Repository;
+namespace order.Repository.TestImplement;
 
 public class MemoryOrderRepository : IOrderRepository
 {
@@ -37,27 +36,28 @@ public class MemoryOrderRepository : IOrderRepository
         _orders.Add(order2);
     }
 
-    public IEnumerable<Order> GetOrders(Guid userId)
+    public Task<IEnumerable<Order>> GetOrders(Guid userId)
     {
-        return _orders.Where(_ => _.Customer.Id == userId);
+        return Task.FromResult(_orders.Where(_ => _.Customer.Id == userId));
     }
 
-    public Order GetOrder(Guid userId, Guid orderId)
+    public Task<Order> GetOrder(Guid userId, Guid orderId)
     {
         var order = _orders.FirstOrDefault(_ => _.Id == orderId && _.Customer.Id == userId);
 
         if (order == null)
             throw new OrderNotFoundException();
 
-        return order;
+        return Task.FromResult(order);
     }
 
-    public void CreateOrder(Guid userId, Order order)
+    public Task CreateOrder(Guid userId, Order order)
     {
         _orders.Add(order);
+        return Task.CompletedTask;
     }
 
-    public void DeleteOrder(Guid userId, Guid orderId)
+    public Task DeleteOrder(Guid userId, Guid orderId)
     {
         var order = _orders.FirstOrDefault(o => o.Id == orderId && o.Customer.Id == userId);
 
@@ -65,9 +65,11 @@ public class MemoryOrderRepository : IOrderRepository
             throw new OrderNotFoundException();
 
         _orders.Remove(order);
+        
+        return Task.CompletedTask;
     }
 
-    public void UpdateOrder(Order order)
+    public Task UpdateOrder(Order order)
     {
         var index = _orders.FindIndex(_ => _.Id == order.Id);
 
@@ -75,5 +77,7 @@ public class MemoryOrderRepository : IOrderRepository
             throw new OrderNotFoundException();
 
         _orders[index] = order;
+        
+        return Task.CompletedTask;
     }
 }

@@ -1,8 +1,8 @@
 ﻿using order.Attributes;
 
-namespace order.Repository;
+namespace order.Repository.SqlImplement;
 
-public class RepositoryUtils
+public class SqlUtils
 {
     public static string GetUpdateSql(object obj)
     {

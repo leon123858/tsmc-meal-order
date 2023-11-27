@@ -2,7 +2,7 @@
 using System.Data.SqlClient;
 using order.Model;
 
-namespace order.Repository
+namespace order.Repository.SqlImplement
 {
     public class SqlOrderRepository : IOrderRepository
     {
@@ -13,17 +13,17 @@ namespace order.Repository
             return new SqlConnection(_connectionString);
         }
 
-        public IEnumerable<Order> GetOrders(Guid userId)
+        public Task<IEnumerable<Order>> GetOrders(Guid userId)
         {
             throw new NotImplementedException();
         }
 
-        public Order GetOrder(Guid userId, Guid orderId)
+        public Task<Order> GetOrder(Guid userId, Guid orderId)
         {
             throw new NotImplementedException();
         }
 
-        public void CreateOrder(Guid userId, Order order)
+        public Task CreateOrder(Guid userId, Order order)
         {
             throw new NotImplementedException();
         }
@@ -33,12 +33,12 @@ namespace order.Repository
             throw new NotImplementedException();
         }
 
-        public void DeleteOrder(Guid userId, Guid orderId)
+        public Task DeleteOrder(Guid userId, Guid orderId)
         {
             throw new NotImplementedException();
         }
 
-        public void UpdateOrder(Order order)
+        public Task UpdateOrder(Order order)
         {
             throw new NotImplementedException();
         }

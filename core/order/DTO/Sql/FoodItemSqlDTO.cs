@@ -1,6 +1,4 @@
-﻿using order.Attributes;
-
-namespace order.DTO;
+﻿namespace order.DTO.Sql;
 
 public class FoodItemSqlDTO
 {

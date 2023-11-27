@@ -2,7 +2,7 @@
 using System.Data;
 using Dapper;
 
-namespace order.Repository;
+namespace order.Repository.SqlImplement;
 
 public static class DapperExtension
 {
@@ -52,11 +52,11 @@ public static class DapperExtension
         if (obj is IEnumerable enumerable and not (string or IEnumerable<KeyValuePair<string, object>>))
             foreach (var o in enumerable)
             {
-                sql = RepositoryUtils.GetUpdateSql(o);
+                sql = SqlUtils.GetUpdateSql(o);
                 break;
             }
         else
-            sql = RepositoryUtils.GetUpdateSql(obj);
+            sql = SqlUtils.GetUpdateSql(obj);
 
         if (string.IsNullOrWhiteSpace(sql)) return 0;
 
@@ -72,11 +72,11 @@ public static class DapperExtension
         if (obj is IEnumerable enumerable and not (string or IEnumerable<KeyValuePair<string, object>>))
             foreach (var o in enumerable)
             {
-                sql = RepositoryUtils.GetInsertSql(o);
+                sql = SqlUtils.GetInsertSql(o);
                 break;
             }
         else
-            sql = RepositoryUtils.GetInsertSql(obj);
+            sql = SqlUtils.GetInsertSql(obj);
 
         if (string.IsNullOrWhiteSpace(sql)) return 0;
 
@@ -92,11 +92,11 @@ public static class DapperExtension
         if (obj is IEnumerable enumerable and not (string or IEnumerable<KeyValuePair<string, object>>))
             foreach (var o in enumerable)
             {
-                sql = RepositoryUtils.GetDeleteSql(o);
+                sql = SqlUtils.GetDeleteSql(o);
                 break;
             }
         else
-            sql = RepositoryUtils.GetDeleteSql(obj);
+            sql = SqlUtils.GetDeleteSql(obj);
 
         if (string.IsNullOrWhiteSpace(sql)) return 0;
 

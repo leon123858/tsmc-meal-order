@@ -5,9 +5,10 @@ namespace order.Repository;
 
 public interface IOrderRepository
 {
-    IEnumerable<Order> GetOrders(Guid userId);
-    Order GetOrder(Guid userId, Guid orderId);
-    void CreateOrder(Guid userId, Order order);
-    void DeleteOrder(Guid userId, Guid orderId);
-    void UpdateOrder(Order order);
+    // change all the methods to async
+    Task<IEnumerable<Order>> GetOrders(Guid userId);
+    Task<Order> GetOrder(Guid userId, Guid orderId);
+    Task CreateOrder(Guid userId, Order order);
+    Task DeleteOrder(Guid userId, Guid orderId);
+    Task UpdateOrder(Order order);
 }

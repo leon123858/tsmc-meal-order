@@ -1,5 +1,7 @@
 using order;
 using order.Repository;
+using order.Repository.TestImplement;
+using order.Repository.WebImplement;
 using order.Service;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +15,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddSingleton<IUserRepository, MemoryUserRepository>();
 builder.Services.AddSingleton<IOrderRepository, MemoryOrderRepository>();
+builder.Services.AddSingleton<IFoodItemRepository, WebFoodItemRepository>();
 builder.Services.AddSingleton<OrderService>();
 
 

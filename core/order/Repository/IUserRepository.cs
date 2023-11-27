@@ -4,5 +4,5 @@ namespace order.Repository;
 
 public interface IUserRepository
 {
-    User GetUser(Guid userId);
+    Task<User> GetUser(Guid userId);
 }

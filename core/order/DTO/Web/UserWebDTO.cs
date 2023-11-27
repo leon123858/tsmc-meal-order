@@ -1,6 +1,6 @@
 using order.Model;
 
-namespace order.DTO;
+namespace order.DTO.Web;
 
 public class UserWebDTO
 {
