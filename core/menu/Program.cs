@@ -3,13 +3,13 @@ using menu;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using menu.Models;
-using menu.Models.Data;
 using menu.Models.DTO;
 using FluentValidation;
 using System.Net;
 using Microsoft.AspNetCore.Http;
 using core;
 using core.Model;
+using menu.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +17,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(typeof(MappingConfig));
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+builder.Services.Configure<MenuDatabaseSettings>(
+    builder.Configuration.GetSection("MenuDatabase")
+);
+builder.Services.AddSingleton<MenuService>();
 
 var app = builder.Build();
 
@@ -26,10 +30,10 @@ app.UseSwagger();
 app.UseSwaggerUI();
 // }
 
-app.MapGet("/api/menu", (ILogger<Program> _logger) =>
+app.MapGet("/api/menu", async (MenuService _menuService, ILogger < Program> _logger) =>
 {
-    _logger.Log(LogLevel.Information, "Getting all menus.");
-    return Results.Ok(new ApiResponse<IEnumerable<Menu>> { Data = MenuList.menuList });
+    var menus = await _menuService.GetAsync();
+    return Results.Ok(new ApiResponse<IEnumerable<Menu>> { Data = menus });
 })
 .WithName("GetMenus")
 .Produces<ApiResponse<IEnumerable<Menu>>>(StatusCodes.Status200OK)
@@ -38,11 +42,9 @@ app.MapGet("/api/menu", (ILogger<Program> _logger) =>
     Summary = "Get all the menus."
 });
 
-app.MapGet("/api/menu/{menuId:Guid}", (Guid menuId) =>
+app.MapGet("/api/menu/{menuId}", async (string menuId, MenuService _menuService) =>
 {
-    // todo : refactor to mongo db
-    Menu? menu = MenuList.menuList.FirstOrDefault(m => m.Id == menuId);
-
+    Menu? menu = await _menuService.GetAsync(menuId);
     if (menu != null)
         return Results.Ok(new ApiResponse<Menu> { Data = menu });
     else
@@ -56,7 +58,7 @@ app.MapGet("/api/menu/{menuId:Guid}", (Guid menuId) =>
     Summary = "Get the menu with the specified ower id, if exist."
 });
 
-app.MapPost("/api/menu/", async ([FromBody] MenuCreateDto menuCreateDto, ILogger<Program> _logger, IMapper _mapper, IValidator<MenuCreateDto> _validator) =>
+app.MapPost("/api/menu/", async ([FromBody] MenuCreateDto menuCreateDto, MenuService _menuService, ILogger<Program> _logger, IMapper _mapper, IValidator<MenuCreateDto> _validator) =>
 {
     var validResult = await _validator.ValidateAsync(menuCreateDto);
     if (!validResult.IsValid)
@@ -65,16 +67,21 @@ app.MapPost("/api/menu/", async ([FromBody] MenuCreateDto menuCreateDto, ILogger
         return Results.BadRequest(ApiResponse.BadRequest(errorMsg));
     }
 
-    // todo: get location of the user from UserService
-
+    Menu? oldMenu = await _menuService.GetAsync(menuCreateDto.Id);
     Menu menu = _mapper.Map<Menu>(menuCreateDto);
+    if (oldMenu != null)
+    {
+        await _menuService.UpdateAsync(menu);
+    }
+    else
+    {
+        // todo: get real location of the user from UserService
+        string tmpLocation = "Taipei";
+        menu.Location = tmpLocation;
+        await _menuService.CreateAsync(menu);
+    }
+
     MenuDto menuDto = _mapper.Map<MenuDto>(menu);
-
-    // todo : refactor to mongo db
-    MenuList.menuList.Add(menu);
-
-
-    _logger.Log(LogLevel.Information, "Create a new menu with id: {menu.Id}", menu.Id);
     return Results.Ok(new ApiResponse<MenuDto>{ Data = menuDto });
 })
 .WithName("CreateMenu")
@@ -86,75 +93,16 @@ app.MapPost("/api/menu/", async ([FromBody] MenuCreateDto menuCreateDto, ILogger
     Summary = "Create the menu."
 });
 
-app.MapPut("/api/menu/", async ([FromBody] MenuUpdateDto menuUpdateDto, ILogger<Program> _logger, IMapper _mapper, IValidator<MenuUpdateDto> _validator) =>
+app.MapGet("/api/menu/{menuId}/foodItem/{itemIdx:int}", async (MenuService _menuService, IMapper _mapper, string menuId, int itemIdx) =>
 {
-    var validResult = await _validator.ValidateAsync(menuUpdateDto);
-    if (!validResult.IsValid)
-    {
-        string errorMsg = validResult.Errors.FirstOrDefault()!.ToString();
-        return Results.BadRequest(ApiResponse.BadRequest(errorMsg));
-    }
-    
-    Menu newMenu = _mapper.Map<Menu>(menuUpdateDto);
-
-    // todo : refactor to mongo db
-    Menu? menu = MenuList.menuList.FirstOrDefault(m => m.Id == newMenu.Id);
-    if (menu == null)
-        return Results.NotFound(ApiResponse.NotFound());
-
-    menu.Name = newMenu.Name;
-    menu.FoodItems = newMenu.FoodItems;
-    MenuDto menuDto = _mapper.Map<MenuDto>(menu);
-
-    _logger.Log(LogLevel.Information, "Update a menu with id: {menu.Id}", menu.Id);
-    return Results.Ok(new ApiResponse<MenuDto> { Data = menuDto });
-})
-.WithName("UpdateMenu")
-.Accepts<MenuUpdateDto>("application/json")
-.Produces<ApiResponse<MenuDto>>(StatusCodes.Status200OK)
-.Produces<ApiResponse<object>>(StatusCodes.Status400BadRequest)
-.Produces<ApiResponse<object>>(StatusCodes.Status404NotFound)
-.WithOpenApi(operation => new(operation)
-{
-    Summary = "Update the menu, if exist."
-});
-
-app.MapDelete("/api/menu/{menuId:Guid}", (Guid menuId) =>
-{
-    // todo : refactor to mongo db
-    Menu? menu = MenuList.menuList.FirstOrDefault(m => m.Id == menuId);
-
-    if (menu != null)
-    {
-        MenuList.menuList.Remove(menu);
-        return Results.Ok(new ApiResponse<object>());
-    }
-    else
-    {
-        return Results.NotFound(ApiResponse.NotFound());
-    }
-})
-.WithName("DeleteMenu")
-.Produces<ApiResponse<object>>(StatusCodes.Status200OK)
-.Produces<ApiResponse<object>>(StatusCodes.Status404NotFound)
-.WithOpenApi(operation => new(operation)
-{
-    Summary = "Delete the menu with the specified id, if exist."
-});
-
-app.MapGet("/api/menu/{menuId:Guid}/foodItem/{itemIdx:int}", (IMapper _mapper, Guid menuId, int itemIdx) =>
-{
-    // todo : refactor to mongo db
-    Menu? menu = MenuList.menuList.FirstOrDefault(m => m.Id == menuId); // for now, the menuId is the same as the owerId
+    Menu? menu = await _menuService.GetAsync(menuId);
     if (menu != null && itemIdx < menu.FoodItems.Count)
     {
         FoodItemDto foodItemDto = _mapper.Map<FoodItemDto>(menu.FoodItems[itemIdx]);
         return Results.Ok(new ApiResponse<FoodItemDto> { Data = foodItemDto });
     }
     else
-    {
         return Results.NotFound(ApiResponse.NotFound());
-    }
 })
 .WithName("GetMenuItem")
 .Produces<ApiResponse<FoodItemDto>>(StatusCodes.Status200OK)
