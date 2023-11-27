@@ -11,9 +11,11 @@ public class MemoryOrderRepository : IOrderRepository
     public MemoryOrderRepository()
     {
         var fakeUser = new User { Id = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6") };
-        
-        var meal1 = new FoodItem { Name = "Burger", Price = 100, Description = "Juicy beef burger with cheese and veggies" };
-        var meal2 = new FoodItem { Name = "Pizza", Price = 120, Description = "Delicious pizza with assorted toppings" };
+
+        var meal1 = new FoodItem
+            { Name = "Burger", Price = 100, Description = "Juicy beef burger with cheese and veggies" };
+        var meal2 = new FoodItem
+            { Name = "Pizza", Price = 120, Description = "Delicious pizza with assorted toppings" };
         var meal3 = new FoodItem { Name = "Salad", Price = 130, Description = "Fresh garden salad with dressing" };
 
         var order1 = new Order
@@ -21,7 +23,7 @@ public class MemoryOrderRepository : IOrderRepository
             Id = Guid.NewGuid(),
             Customer = fakeUser,
             Restaurant = new User { Id = Guid.NewGuid() },
-            FoodItems = new List<FoodItem> { meal1, meal2 },
+            FoodItems = new List<FoodItem> { meal1, meal2 }
         };
 
         var order2 = new Order
@@ -29,7 +31,7 @@ public class MemoryOrderRepository : IOrderRepository
             Id = Guid.NewGuid(),
             Customer = fakeUser,
             Restaurant = new User { Id = Guid.NewGuid() },
-            FoodItems = new List<FoodItem> { meal3 },
+            FoodItems = new List<FoodItem> { meal3 }
         };
 
         _orders.Add(order1);
@@ -65,7 +67,7 @@ public class MemoryOrderRepository : IOrderRepository
             throw new OrderNotFoundException();
 
         _orders.Remove(order);
-        
+
         return Task.CompletedTask;
     }
 
@@ -77,7 +79,7 @@ public class MemoryOrderRepository : IOrderRepository
             throw new OrderNotFoundException();
 
         _orders[index] = order;
-        
+
         return Task.CompletedTask;
     }
 }

@@ -8,7 +8,7 @@ public class MemoryUserRepository : IUserRepository
     {
         return Task.FromResult(new User
         {
-            Id = userId,
+            Id = userId
         });
     }
 }

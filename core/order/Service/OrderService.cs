@@ -1,5 +1,4 @@
 ﻿using core.Model;
-using order.DTO;
 using order.DTO.Web;
 using order.Model;
 using order.Repository;
@@ -8,8 +7,8 @@ namespace order.Service;
 
 public class OrderService
 {
-    private readonly IOrderRepository _orderRepository;
     private readonly IFoodItemRepository _foodItemRepository;
+    private readonly IOrderRepository _orderRepository;
 
     public OrderService(IOrderRepository orderRepository, IFoodItemRepository foodItemRepository)
     {
@@ -30,21 +29,21 @@ public class OrderService
     public async Task<Order> CreateOrder(User user, OrderWebDTO orderWeb)
     {
         var foodItems = new List<FoodItem>();
-        
+
         foreach (var foodItemId in orderWeb.FoodItemIds)
         {
             var foodItem = await _foodItemRepository.GetFoodItem(orderWeb.RestaurantId, foodItemId);
             foodItems.Add(foodItem);
         }
-        
+
         var newOrder = new Order
         {
             Id = Guid.NewGuid(),
             Customer = user,
             Restaurant = new User { Id = orderWeb.RestaurantId },
-            FoodItems = foodItems,
+            FoodItems = foodItems
         };
-        
+
         await _orderRepository.CreateOrder(user.Id, newOrder);
 
         return newOrder;
@@ -54,7 +53,7 @@ public class OrderService
     {
         var order = await _orderRepository.GetOrder(user.Id, orderId);
         order.Confirm();
-        
+
         await _orderRepository.UpdateOrder(order);
     }
 

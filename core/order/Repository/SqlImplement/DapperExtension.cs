@@ -22,7 +22,7 @@ public static class DapperExtension
 
         if (!className.EndsWith("DTO")) throw new ArgumentException("class is not DTO.");
         var tableName = className[..^3];
-        string sql = @$"Select Isnull(Max(ID),0) + 1 from {tableName};";
+        var sql = @$"Select Isnull(Max(ID),0) + 1 from {tableName};";
 
         var response = await source.QuerySingleOrDefaultAsync<int>(sql);
         return response;

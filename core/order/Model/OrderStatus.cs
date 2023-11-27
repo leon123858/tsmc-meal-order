@@ -5,5 +5,5 @@ public enum OrderStatus
     Init,
     Preparing,
     Abort,
-    Canceled,
+    Canceled
 }

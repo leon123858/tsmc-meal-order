@@ -20,7 +20,7 @@ public class WebFoodItemRepository : IFoodItemRepository
         try
         {
             var apiResponse = await _webUtils.GetAsync<FoodItem>(endPoint);
-            
+
             if (apiResponse is { Result: true })
                 return apiResponse.Data;
 

@@ -1,6 +1,5 @@
 using core;
 using Microsoft.AspNetCore.Mvc;
-using order.DTO;
 using order.DTO.Web;
 using order.Exceptions;
 using order.Model;
@@ -32,9 +31,9 @@ public class OrderController : ControllerBase
         {
             var userGuid = Guid.Parse(userId);
             var user = await _userRepository.GetUser(userGuid);
-            
+
             var orders = await _orderService.GetOrders(user);
-            
+
             return Ok(new ApiResponse<IEnumerable<Order>> { Data = orders });
         }
         catch (DataNotFoundException e)
@@ -57,10 +56,10 @@ public class OrderController : ControllerBase
         {
             var userGuid = Guid.Parse(userId);
             var user = await _userRepository.GetUser(userGuid);
-            
+
             var orderGuid = Guid.Parse(orderId);
             var order = await _orderService.GetOrder(user, orderGuid);
-            
+
             return Ok(new ApiResponse<Order> { Data = order });
         }
         catch (DataNotFoundException e)
@@ -89,7 +88,8 @@ public class OrderController : ControllerBase
 
             var newOrder = await _orderService.CreateOrder(user, order);
 
-            return CreatedAtAction(nameof(GetOrder), new { userId = userId, orderId = newOrder.Id }, new ApiResponse<Order> { Data = newOrder });
+            return CreatedAtAction(nameof(GetOrder), new { userId, orderId = newOrder.Id },
+                new ApiResponse<Order> { Data = newOrder });
         }
         catch (DataNotFoundException e)
         {
@@ -111,9 +111,9 @@ public class OrderController : ControllerBase
         {
             var userGuid = Guid.Parse(userId);
             var user = await _userRepository.GetUser(userGuid);
-            
+
             await _orderService.ConfirmOrder(user, Guid.Parse(orderId));
-            
+
             return NoContent();
         }
         catch (DataNotFoundException e)
@@ -138,7 +138,7 @@ public class OrderController : ControllerBase
             var user = await _userRepository.GetUser(userGuid);
 
             await _orderService.DeleteOrder(user, Guid.Parse(orderId));
-            
+
             return NoContent();
         }
         catch (DataNotFoundException e)
