@@ -17,6 +17,8 @@ public class OrderSqlDTO
         return new Order
         {
             Id = sqlDto.Id,
+            Customer = new User { Id = sqlDto.UserId },
+            Restaurant = new User { Id = sqlDto.RestaurantId },
             Status = (OrderStatus)sqlDto.Status,
             OrderDate = sqlDto.OrderDate,
             CreateTime = sqlDto.CreateTime

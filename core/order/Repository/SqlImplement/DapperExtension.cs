@@ -6,18 +6,6 @@ namespace order.Repository.SqlImplement;
 
 public static class DapperExtension
 {
-    public static async Task<int> GetLastestID<T>(this IDbConnection source)
-    {
-        var className = typeof(T).Name;
-
-        if (!className.EndsWith("DTO")) throw new ArgumentException("class is not DTO.");
-        var tableName = className[..^6].ToLower();
-        var sql = @$"Select Isnull(Max(ID),0) + 1 from {tableName};";
-
-        var response = await source.QuerySingleOrDefaultAsync<int>(sql);
-        return response;
-    }
-
     public static async Task<IEnumerable<T>> QueryAllSetAsync<T>(this IDbConnection source, string condition = null)
     {
         var className = typeof(T).Name;
@@ -32,8 +20,7 @@ public static class DapperExtension
         return response;
     }
 
-    public static async Task<int> ExecuteUpdateAsync(this IDbConnection connection, object obj,
-        dynamic? conditionParam = null)
+    public static async Task<int> ExecuteUpdateAsync(this IDbConnection connection, object obj, IDbTransaction? transaction = null)
     {
         if (obj == null) throw new ArgumentNullException(nameof(obj));
 
@@ -50,10 +37,10 @@ public static class DapperExtension
 
         if (string.IsNullOrWhiteSpace(sql)) return 0;
 
-        return await connection.ExecuteAsync(sql, obj);
+        return await connection.ExecuteAsync(sql, obj, transaction: transaction);
     }
 
-    public static async Task<int> ExecuteInsertAsync(this IDbConnection connection, object obj)
+    public static async Task<int> ExecuteInsertAsync(this IDbConnection connection, object obj, IDbTransaction? transaction = null)
     {
         if (obj == null) throw new ArgumentNullException(nameof(obj));
 
@@ -70,26 +57,6 @@ public static class DapperExtension
 
         if (string.IsNullOrWhiteSpace(sql)) return 0;
 
-        return await connection.ExecuteAsync(sql, obj);
-    }
-
-    public static async Task<int> ExecuteDeleteAsync(this IDbConnection connection, object obj)
-    {
-        if (obj == null) throw new ArgumentNullException(nameof(obj));
-
-        var sql = string.Empty;
-
-        if (obj is IEnumerable enumerable and not (string or IEnumerable<KeyValuePair<string, object>>))
-            foreach (var o in enumerable)
-            {
-                sql = SqlUtils.GetDeleteSql(o);
-                break;
-            }
-        else
-            sql = SqlUtils.GetDeleteSql(obj);
-
-        if (string.IsNullOrWhiteSpace(sql)) return 0;
-
-        return await connection.ExecuteAsync(sql, obj);
+        return await connection.ExecuteAsync(sql, obj, transaction: transaction);
     }
 }

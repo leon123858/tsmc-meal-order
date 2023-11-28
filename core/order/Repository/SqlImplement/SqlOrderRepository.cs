@@ -36,6 +36,7 @@ public class SqlOrderRepository : IOrderRepository
     public async Task CreateOrder(Order order)
     {
         await using var conn = new SqlConnection(_connectionString);
+        var transaction = conn.BeginTransaction();
 
         var orderDto = (OrderSqlDTO)order;
 
@@ -47,13 +48,23 @@ public class SqlOrderRepository : IOrderRepository
             foodItemDtos.Add(foodItemDto);
         }
 
-        await conn.ExecuteInsertAsync(orderDto);
-        await conn.ExecuteInsertAsync(foodItemDtos);
+        try
+        {
+            await conn.ExecuteInsertAsync(orderDto);
+            await conn.ExecuteInsertAsync(foodItemDtos);
+            
+            transaction.Commit();
+        }
+        catch (Exception e)
+        {
+            transaction.Rollback();
+        }
     }
 
     public async Task UpdateOrder(Order order)
     {
         await using var conn = new SqlConnection(_connectionString);
+        var transaction = conn.BeginTransaction();
 
         var orderDto = (OrderSqlDTO)order;
 
@@ -65,8 +76,17 @@ public class SqlOrderRepository : IOrderRepository
             foodItemDtos.Add(foodItemDto);
         }
 
-        await conn.ExecuteUpdateAsync(orderDto);
-        await conn.ExecuteUpdateAsync(foodItemDtos);
+        try
+        {
+            await conn.ExecuteUpdateAsync(orderDto, transaction);
+            await conn.ExecuteUpdateAsync(foodItemDtos, transaction);
+            
+            transaction.Commit();
+        }
+        catch (Exception e)
+        {
+            transaction.Rollback();
+        }
     }
 
     private async Task<IEnumerable<Order>> GetOrderImp(string sql)
