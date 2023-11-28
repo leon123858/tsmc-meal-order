@@ -9,9 +9,9 @@ public class WebUtils
     private const int TimeoutSec = 10;
     private readonly string _domainUrl;
 
-    public WebUtils(string domainUrl)
+    public WebUtils(string? domainUrl)
     {
-        _domainUrl = domainUrl;
+        _domainUrl = domainUrl ?? throw new ArgumentNullException(nameof(domainUrl));
     }
 
     public async Task<ApiResponse<T>?> GetAsync<T>(string endpoint)

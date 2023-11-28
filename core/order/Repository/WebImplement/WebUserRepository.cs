@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Options;
+using order.Config;
 using order.DTO.Web;
 using order.Exceptions;
 using order.Model;
@@ -6,12 +8,11 @@ namespace order.Repository.WebImplement;
 
 public class WebUserRepository : IUserRepository
 {
-    private const string Url = "https://user-kt6w747drq-de.a.run.app";
     private readonly WebUtils _webUtils;
 
-    public WebUserRepository()
+    public WebUserRepository(IOptions<WebConfig> config)
     {
-        _webUtils = new WebUtils(Url);
+        _webUtils = new WebUtils(config.Value.UserUrl);
     }
 
     public async Task<User> GetUser(Guid userId)

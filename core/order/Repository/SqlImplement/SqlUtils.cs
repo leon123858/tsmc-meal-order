@@ -16,7 +16,7 @@ public class SqlUtils
 
         if (!className.EndsWith("DTO")) throw new ArgumentException("class is not DTO.");
 
-        var tableName = className[..^3];
+        var tableName = className[..^6].ToLower();
 
         var updateSql = $"UPDATE {tableName} SET ";
         var updateKey = new List<string>();
@@ -64,7 +64,7 @@ public class SqlUtils
 
         if (!className.EndsWith("DTO")) throw new ArgumentException("class is not DTO.");
 
-        var tableName = className[..^3];
+        var tableName = className[..^6].ToLower();
 
         var deleteSql = $"Delete {tableName} ";
         var updateKey = new List<string>();
@@ -101,7 +101,7 @@ public class SqlUtils
 
         if (!className.EndsWith("DTO")) throw new ArgumentException("class is not DTO.");
 
-        var tableName = className[..^3];
+        var tableName = className[..^6].ToLower();
 
         var insertSql = $"INSERT INTO {tableName} (";
 

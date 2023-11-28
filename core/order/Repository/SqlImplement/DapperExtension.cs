@@ -6,22 +6,12 @@ namespace order.Repository.SqlImplement;
 
 public static class DapperExtension
 {
-    public static async Task<int> QueryNewId<T>(this IDbConnection connection)
-    {
-        var className = typeof(T).Name;
-
-        var sql = $"Select Isnull(Max(ID),0) + 1 from dbo.{className};";
-        var response = await connection.QuerySingleOrDefaultAsync<int>(sql);
-
-        return response;
-    }
-
     public static async Task<int> GetLastestID<T>(this IDbConnection source)
     {
         var className = typeof(T).Name;
 
         if (!className.EndsWith("DTO")) throw new ArgumentException("class is not DTO.");
-        var tableName = className[..^3];
+        var tableName = className[..^6].ToLower();
         var sql = @$"Select Isnull(Max(ID),0) + 1 from {tableName};";
 
         var response = await source.QuerySingleOrDefaultAsync<int>(sql);
@@ -34,7 +24,7 @@ public static class DapperExtension
 
         if (!className.EndsWith("DTO")) throw new ArgumentException("class is not DTO.");
 
-        var tableName = className[..^3];
+        var tableName = className[..^6].ToLower();
 
         var sql = $"Select * from {tableName} {condition};";
 

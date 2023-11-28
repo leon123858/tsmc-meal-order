@@ -1,16 +1,17 @@
 using core.Model;
+using Microsoft.Extensions.Options;
+using order.Config;
 using order.Exceptions;
 
 namespace order.Repository.WebImplement;
 
 public class WebFoodItemRepository : IFoodItemRepository
 {
-    private const string Url = "http://localhost:5182";
     private readonly WebUtils _webUtils;
 
-    public WebFoodItemRepository()
+    public WebFoodItemRepository(IOptions<WebConfig> config)
     {
-        _webUtils = new WebUtils(Url);
+        _webUtils = new WebUtils(config.Value.MenuUrl);
     }
 
     public async Task<FoodItem> GetFoodItem(Guid menuId, int itemIdx)

@@ -10,10 +10,15 @@ public class Order
     public User Restaurant { get; set; }
     public List<FoodItem> FoodItems { get; set; }
     public DateTime OrderDate { get; set; }
-    public DateTime CreateTime { get; set; }
+    public DateTime CreateTime { get; set; } = DateTime.Now;
 
     public void Confirm()
     {
         Status = OrderStatus.Preparing;
+    }
+
+    public void Cancel()
+    {
+        Status = OrderStatus.Canceled;
     }
 }

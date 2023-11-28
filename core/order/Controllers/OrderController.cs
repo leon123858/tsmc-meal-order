@@ -22,7 +22,7 @@ public class OrderController : ControllerBase
     }
 
     [HttpGet("{userId}")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ApiResponse<IEnumerable<Order>>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ApiResponse<IEnumerable<OrderWebDTO>>))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ApiResponse<object>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ApiResponse<object>))]
     public async Task<IActionResult> GetOrders(string userId)
@@ -33,12 +33,17 @@ public class OrderController : ControllerBase
             var user = await _userRepository.GetUser(userGuid);
 
             var orders = await _orderService.GetOrders(user);
+            var orderDtos = orders.Select(_ => (OrderWebDTO)_);
 
-            return Ok(new ApiResponse<IEnumerable<Order>> { Data = orders });
+            return Ok(new ApiResponse<IEnumerable<OrderWebDTO>> { Data = orderDtos });
         }
         catch (DataNotFoundException e)
         {
             return NotFound(ApiResponse.NotFound());
+        }
+        catch (FormatException e)
+        {
+            return BadRequest(ApiResponse.BadRequest("Invalid userId"));
         }
         catch (Exception e)
         {
@@ -66,6 +71,10 @@ public class OrderController : ControllerBase
         {
             return NotFound(ApiResponse.NotFound());
         }
+        catch (FormatException e)
+        {
+            return BadRequest(ApiResponse.BadRequest("Invalid Id"));
+        }
         catch (Exception e)
         {
             return BadRequest(ApiResponse.BadRequest());
@@ -76,7 +85,7 @@ public class OrderController : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(ApiResponse<Order>))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ApiResponse<object>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ApiResponse<object>))]
-    public async Task<IActionResult> CreateOrder(string userId, [FromBody] OrderWebDTO? order)
+    public async Task<IActionResult> CreateOrder(string userId, [FromBody] CreateOrderWebDTO? order)
     {
         if (order == null)
             return BadRequest(ApiResponse.BadRequest("Invalid order data"));
@@ -94,6 +103,10 @@ public class OrderController : ControllerBase
         catch (DataNotFoundException e)
         {
             return NotFound(ApiResponse.NotFound());
+        }
+        catch (FormatException e)
+        {
+            return BadRequest(ApiResponse.BadRequest("Invalid userId"));
         }
         catch (Exception e)
         {
@@ -120,6 +133,10 @@ public class OrderController : ControllerBase
         {
             return NotFound(ApiResponse.NotFound());
         }
+        catch (FormatException e)
+        {
+            return BadRequest(ApiResponse.BadRequest("Invalid Id"));
+        }
         catch (Exception e)
         {
             return BadRequest(ApiResponse.BadRequest());
@@ -144,6 +161,10 @@ public class OrderController : ControllerBase
         catch (DataNotFoundException e)
         {
             return NotFound(ApiResponse.NotFound());
+        }
+        catch (FormatException e)
+        {
+            return BadRequest(ApiResponse.BadRequest("Invalid Id"));
         }
         catch (Exception e)
         {

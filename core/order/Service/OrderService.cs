@@ -26,13 +26,13 @@ public class OrderService
         return await _orderRepository.GetOrder(user.Id, orderId);
     }
 
-    public async Task<Order> CreateOrder(User user, OrderWebDTO orderWeb)
+    public async Task<Order> CreateOrder(User user, CreateOrderWebDTO createOrderWeb)
     {
         var foodItems = new List<FoodItem>();
 
-        foreach (var foodItemId in orderWeb.FoodItemIds)
+        foreach (var foodItemId in createOrderWeb.FoodItemIds)
         {
-            var foodItem = await _foodItemRepository.GetFoodItem(orderWeb.RestaurantId, foodItemId);
+            var foodItem = await _foodItemRepository.GetFoodItem(createOrderWeb.RestaurantId, foodItemId);
             foodItems.Add(foodItem);
         }
 
@@ -40,11 +40,12 @@ public class OrderService
         {
             Id = Guid.NewGuid(),
             Customer = user,
-            Restaurant = new User { Id = orderWeb.RestaurantId },
+            OrderDate = createOrderWeb.OrderDate,
+            Restaurant = new User { Id = createOrderWeb.RestaurantId },
             FoodItems = foodItems
         };
 
-        await _orderRepository.CreateOrder(user.Id, newOrder);
+        await _orderRepository.CreateOrder(newOrder);
 
         return newOrder;
     }
@@ -59,6 +60,9 @@ public class OrderService
 
     public async Task DeleteOrder(User user, Guid orderId)
     {
-        await _orderRepository.DeleteOrder(user.Id, orderId);
+        var order = await _orderRepository.GetOrder(user.Id, orderId);
+        order.Cancel();
+
+        await _orderRepository.UpdateOrder(order);
     }
 }

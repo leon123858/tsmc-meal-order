@@ -53,21 +53,9 @@ public class MemoryOrderRepository : IOrderRepository
         return Task.FromResult(order);
     }
 
-    public Task CreateOrder(Guid userId, Order order)
+    public Task CreateOrder(Order order)
     {
         _orders.Add(order);
-        return Task.CompletedTask;
-    }
-
-    public Task DeleteOrder(Guid userId, Guid orderId)
-    {
-        var order = _orders.FirstOrDefault(o => o.Id == orderId && o.Customer.Id == userId);
-
-        if (order == null)
-            throw new OrderNotFoundException();
-
-        _orders.Remove(order);
-
         return Task.CompletedTask;
     }
 

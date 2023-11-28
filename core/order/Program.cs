@@ -1,3 +1,4 @@
+using order.Config;
 using order.Repository;
 using order.Repository.TestImplement;
 using order.Repository.WebImplement;
@@ -11,12 +12,14 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.Configure<DatabaseConfig>(builder.Configuration.GetSection("Database"));
+builder.Services.Configure<WebConfig>(builder.Configuration.GetSection("WebApi"));
 
 builder.Services.AddSingleton<IUserRepository, MemoryUserRepository>();
+//builder.Services.AddSingleton<IOrderRepository, SqlOrderRepository>();
 builder.Services.AddSingleton<IOrderRepository, MemoryOrderRepository>();
 builder.Services.AddSingleton<IFoodItemRepository, WebFoodItemRepository>();
 builder.Services.AddSingleton<OrderService>();
-
 
 var app = builder.Build();
 
