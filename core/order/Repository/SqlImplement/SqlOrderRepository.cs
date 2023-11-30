@@ -11,9 +11,11 @@ namespace order.Repository.SqlImplement;
 public class SqlOrderRepository : IOrderRepository
 {
     private readonly string _connectionString;
+    private readonly ILogger<SqlOrderRepository> _logger;
 
-    public SqlOrderRepository(IOptions<DatabaseConfig> config)
+    public SqlOrderRepository(IOptions<DatabaseConfig> config, ILogger<SqlOrderRepository> logger)
     {
+        _logger = logger;
         var secretPassword = Environment.GetEnvironmentVariable("SQL_PASSWORD") ?? config.Value.Password;
         _connectionString =
             $"Host={config.Value.Host};Username={config.Value.UserName};Password={secretPassword};Database={config.Value.DatabaseName}";
@@ -57,6 +59,7 @@ public class SqlOrderRepository : IOrderRepository
         }
         catch (Exception e)
         {
+            _logger.LogError("Create order failed, Exception: {Message}", e.Message);
             transaction.Rollback();
         }
     }
@@ -85,6 +88,7 @@ public class SqlOrderRepository : IOrderRepository
         }
         catch (Exception e)
         {
+            _logger.LogError("Update order failed, Exception: {Message}", e.Message);
             transaction.Rollback();
         }
     }

@@ -14,11 +14,13 @@ public class OrderController : ControllerBase
 {
     private readonly OrderService _orderService;
     private readonly IUserRepository _userRepository;
+    private readonly ILogger<OrderController> _logger;
 
-    public OrderController(OrderService orderService, IUserRepository userRepository)
+    public OrderController(OrderService orderService, IUserRepository userRepository, ILogger<OrderController> logger)
     {
         _orderService = orderService;
         _userRepository = userRepository;
+        _logger = logger;
     }
 
     [HttpGet("{userId}")]
@@ -39,14 +41,17 @@ public class OrderController : ControllerBase
         }
         catch (DataNotFoundException e)
         {
+            _logger.LogError("Data not found, Exception: {Message}", e.Message);
             return NotFound(ApiResponse.NotFound());
         }
         catch (FormatException e)
         {
+            _logger.LogError("Invalid userId, Exception: {Message}", e.Message);
             return BadRequest(ApiResponse.BadRequest("Invalid userId"));
         }
         catch (Exception e)
         {
+            _logger.LogError("Unknown, Exception: {Message}", e.Message);
             return BadRequest(ApiResponse.BadRequest());
         }
     }
@@ -69,14 +74,17 @@ public class OrderController : ControllerBase
         }
         catch (DataNotFoundException e)
         {
+            _logger.LogError("Data not found, Exception: {Message}", e.Message);
             return NotFound(ApiResponse.NotFound());
         }
         catch (FormatException e)
         {
+            _logger.LogError("Invalid Id, Exception: {Message}", e.Message);
             return BadRequest(ApiResponse.BadRequest("Invalid Id"));
         }
         catch (Exception e)
         {
+            _logger.LogError("Unknown, Exception: {Message}", e.Message);
             return BadRequest(ApiResponse.BadRequest());
         }
     }
@@ -102,14 +110,17 @@ public class OrderController : ControllerBase
         }
         catch (DataNotFoundException e)
         {
+            _logger.LogError("Data not found, Exception: {Message}", e.Message);
             return NotFound(ApiResponse.NotFound());
         }
         catch (FormatException e)
         {
+            _logger.LogError("Invalid userId, Exception: {Message}", e.Message);
             return BadRequest(ApiResponse.BadRequest("Invalid userId"));
         }
         catch (Exception e)
         {
+            _logger.LogError("Unknown, Exception: {Message}", e.Message);
             return BadRequest(ApiResponse.BadRequest());
         }
     }
@@ -131,14 +142,17 @@ public class OrderController : ControllerBase
         }
         catch (DataNotFoundException e)
         {
+            _logger.LogError("Data not found, Exception: {Message}", e.Message);
             return NotFound(ApiResponse.NotFound());
         }
         catch (FormatException e)
         {
+            _logger.LogError("Invalid Id, Exception: {Message}", e.Message);
             return BadRequest(ApiResponse.BadRequest("Invalid Id"));
         }
         catch (Exception e)
         {
+            _logger.LogError("Unknown, Exception: {Message}", e.Message);
             return BadRequest(ApiResponse.BadRequest());
         }
     }
@@ -160,14 +174,17 @@ public class OrderController : ControllerBase
         }
         catch (DataNotFoundException e)
         {
+            _logger.LogError("Data not found, Exception: {Message}", e.Message);
             return NotFound(ApiResponse.NotFound());
         }
         catch (FormatException e)
         {
+            _logger.LogError("Invalid Id, Exception: {Message}", e.Message);
             return BadRequest(ApiResponse.BadRequest("Invalid Id"));
         }
         catch (Exception e)
         {
+            _logger.LogError("Unknown, Exception: {Message}", e.Message);
             return BadRequest(ApiResponse.BadRequest());
         }
     }
