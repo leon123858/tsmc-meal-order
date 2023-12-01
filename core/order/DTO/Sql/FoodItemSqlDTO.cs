@@ -1,7 +1,10 @@
-﻿using core.Model;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using core.Model;
+using order.Attributes;
 
 namespace order.DTO.Sql;
 
+[Table("foodItem")]
 public class FoodItemSqlDTO
 {
     public Guid OrderId { get; set; }

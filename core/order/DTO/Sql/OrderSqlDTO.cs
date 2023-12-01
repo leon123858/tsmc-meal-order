@@ -1,8 +1,10 @@
-﻿using order.Attributes;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using order.Attributes;
 using order.Model;
 
 namespace order.DTO.Sql;
 
+[Table("myOrder")]
 public class OrderSqlDTO
 {
     [UpdateKey] public Guid Id { get; set; }
