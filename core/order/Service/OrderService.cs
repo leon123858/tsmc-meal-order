@@ -1,4 +1,5 @@
-﻿using order.DTO;
+﻿using core.Model;
+using order.DTO.Web;
 using order.Model;
 using order.Repository;
 
@@ -6,48 +7,83 @@ namespace order.Service;
 
 public class OrderService
 {
+    private readonly IFoodItemRepository _foodItemRepository;
     private readonly IOrderRepository _orderRepository;
+    private readonly MailService _mailService;
 
-    public OrderService(IOrderRepository orderRepository)
+    public OrderService(IOrderRepository orderRepository, IFoodItemRepository foodItemRepository, MailService mailService)
     {
         _orderRepository = orderRepository;
+        _foodItemRepository = foodItemRepository;
+        _mailService = mailService;
     }
 
-    public IEnumerable<Order> GetOrders(User user)
+    public async Task<IEnumerable<Order>> GetOrders(User user)
     {
-        return _orderRepository.GetOrders(user.Id);
+        return await _orderRepository.GetOrders(user.Id);
     }
 
-    public Order GetOrder(User user, Guid orderId)
+    public async Task<Order> GetOrder(User user, Guid orderId)
     {
-        return _orderRepository.GetOrder(user.Id, orderId);
+        var order = await _orderRepository.GetOrder(orderId);
+        
+        if (order.Customer.Id != user.Id)
+            throw new Exception("User is not the owner of the order");
+        
+        return order;
     }
 
-    public Order CreateOrder(User user, OrderDTO order)
+    public async Task<Order> CreateOrder(User user, User restaurant, CreateOrderWebDTO createOrderWeb)
     {
+        var foodItems = new List<FoodItem>();
+
+        foreach (var foodItemId in createOrderWeb.FoodItemIds)
+        {
+            var foodItem = await _foodItemRepository.GetFoodItem(createOrderWeb.MenuId, foodItemId);
+            foodItems.Add(foodItem);
+        }
+
         var newOrder = new Order
         {
             Id = Guid.NewGuid(),
             Customer = user,
-            Restaurant = new User { Id = order.RestaurantId },
-            FoodItems = order.FoodItems,
+            Restaurant = restaurant,
+            OrderDate = createOrderWeb.OrderDate,
+            FoodItems = foodItems
         };
+
+        await _orderRepository.CreateOrder(newOrder);
         
-        _orderRepository.CreateOrder(user.Id, newOrder);
+        _mailService.SendOrderCreatedMail(newOrder);
 
         return newOrder;
     }
 
-    public void ConfirmOrder(User user, Guid orderId)
+    public async Task ConfirmOrder(User restaurant, Guid orderId)
     {
-        var order = _orderRepository.GetOrder(user.Id, orderId);
-        order.Confirm();
+        var order = await _orderRepository.GetOrder(orderId);
         
-        _orderRepository.UpdateOrder(order);
+        if (order.Restaurant.Id != restaurant.Id)
+            throw new Exception("User is not the owner of the order");
+        
+        order.Confirm();
+
+        await _orderRepository.UpdateOrder(order);
+        
+        _mailService.SendOrderConfirmedMail(order);
     }
 
-    public void DeleteOrder(User user, Guid orderId)
+    public async Task DeleteOrder(User user, Guid orderId)
     {
-        _orderRepository.DeleteOrder(user.Id, orderId);
+        var order = await _orderRepository.GetOrder(orderId);
+        
+        if (order.Customer.Id != user.Id)
+            throw new Exception("User is not the owner of the order");
+        
+        order.Cancel();
+
+        await _orderRepository.UpdateOrder(order);
+        
+        _mailService.SendOrderDeletedMail(order);
     }
 }

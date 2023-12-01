@@ -11,11 +11,11 @@ public static class ApiResponse
 {
     public static ApiResponse<object> BadRequest(string message = "Unknown Error.")
     {
-        return new ApiResponse<object>() { Result = false, Message = message };
+        return new ApiResponse<object> { Result = false, Message = message };
     }
-    
+
     public static ApiResponse<object> NotFound()
     {
-        return new ApiResponse<object>() { Result = false, Message = "Data Not Exist." };
+        return new ApiResponse<object> { Result = false, Message = "Data Not Exist." };
     }
 }
