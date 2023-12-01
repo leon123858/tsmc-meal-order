@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Http;
 using core;
 using core.Model;
 using menu.Services;
+using menu.Clients;
+using menu.Config;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,10 +19,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(typeof(MappingConfig));
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
-builder.Services.Configure<MenuDatabaseSettings>(
-    builder.Configuration.GetSection("MenuDatabase")
-);
+builder.Services.Configure<MenuDatabaseConfig>(builder.Configuration.GetSection("MenuDatabase"));
+builder.Services.Configure<WebConfig>(builder.Configuration.GetSection("WebApi"));
 builder.Services.AddSingleton<MenuService>();
+builder.Services.AddSingleton<IUserClient ,UserClient>();
 
 var app = builder.Build();
 
@@ -32,10 +34,10 @@ app.UseSwaggerUI();
 
 app.MapGet("/api/menu", async (MenuService _menuService, ILogger < Program> _logger) =>
 {
-    var menus = await _menuService.GetAsync();
+    var menus = await _menuService.GetAllAsync();
     return Results.Ok(new ApiResponse<IEnumerable<Menu>> { Data = menus });
 })
-.WithName("GetMenus")
+.WithName("GetAllMenus")
 .Produces<ApiResponse<IEnumerable<Menu>>>(StatusCodes.Status200OK)
 .WithOpenApi(operation => new(operation)
 {
@@ -44,13 +46,13 @@ app.MapGet("/api/menu", async (MenuService _menuService, ILogger < Program> _log
 
 app.MapGet("/api/menu/{menuId}", async (string menuId, MenuService _menuService) =>
 {
-    Menu? menu = await _menuService.GetAsync(menuId);
+    Menu? menu = await _menuService.GetByIdAsync(menuId);
     if (menu != null)
         return Results.Ok(new ApiResponse<Menu> { Data = menu });
-    else
-        return Results.NotFound(ApiResponse.NotFound());
+    
+    return Results.NotFound(ApiResponse.NotFound());
 })
-.WithName("GetMenu")
+.WithName("GetMenuById")
 .Produces<ApiResponse<object>>(StatusCodes.Status200OK)
 .Produces<ApiResponse<object>>(StatusCodes.Status404NotFound)
 .WithOpenApi(operation => new(operation)
@@ -58,7 +60,27 @@ app.MapGet("/api/menu/{menuId}", async (string menuId, MenuService _menuService)
     Summary = "Get the menu with the specified ower id, if exist."
 });
 
-app.MapPost("/api/menu/", async ([FromBody] MenuCreateDto menuCreateDto, MenuService _menuService, ILogger<Program> _logger, IMapper _mapper, IValidator<MenuCreateDto> _validator) =>
+app.MapGet("/api/menu/user/{userId}", async (string userId, MenuService _menuService, IUserClient _userClient, ILogger<Program> _logger) =>
+{
+    var user = await _userClient.GetUserAsync(userId);
+    if (user != null)
+    {
+        var menus = await _menuService.GetByLocationAsync(user.Place);
+        if (menus != null)
+            return Results.Ok(new ApiResponse<IEnumerable<Menu>> { Data = menus });
+    }
+
+    return Results.NotFound(ApiResponse.NotFound());
+})
+.WithName("GetMenuForUser")
+.Produces<ApiResponse<object>>(StatusCodes.Status200OK)
+.Produces<ApiResponse<object>>(StatusCodes.Status404NotFound)
+.WithOpenApi(operation => new(operation)
+{
+    Summary = "Get all the menus with the same location as the specified user id, if exist."
+});
+
+app.MapPost("/api/menu/", async ([FromBody] MenuCreateDTO menuCreateDto, MenuService _menuService, IUserClient _userClient, ILogger<Program> _logger, IMapper _mapper, IValidator<MenuCreateDTO> _validator) =>
 {
     var validResult = await _validator.ValidateAsync(menuCreateDto);
     if (!validResult.IsValid)
@@ -66,28 +88,33 @@ app.MapPost("/api/menu/", async ([FromBody] MenuCreateDto menuCreateDto, MenuSer
         string errorMsg = validResult.Errors.FirstOrDefault()!.ToString();
         return Results.BadRequest(ApiResponse.BadRequest(errorMsg));
     }
+  
+    var user = await _userClient.GetUserAsync(menuCreateDto.Id);
+    if (user == null)
+    {
+        return Results.NotFound(ApiResponse.NotFound());
+    }
 
-    Menu? oldMenu = await _menuService.GetAsync(menuCreateDto.Id);
+    Menu? oldMenu = await _menuService.GetByIdAsync(menuCreateDto.Id);
     Menu menu = _mapper.Map<Menu>(menuCreateDto);
+    menu.Location = user.Place;
+    MenuDTO menuDto = _mapper.Map<MenuDTO>(menu);
     if (oldMenu != null)
     {
         await _menuService.UpdateAsync(menu);
     }
     else
     {
-        // todo: get real location of the user from UserService
-        string tmpLocation = "Taipei";
-        menu.Location = tmpLocation;
         await _menuService.CreateAsync(menu);
     }
 
-    MenuDto menuDto = _mapper.Map<MenuDto>(menu);
-    return Results.Ok(new ApiResponse<MenuDto>{ Data = menuDto });
+    return Results.Ok(new ApiResponse<MenuDTO>{ Data = menuDto });
 })
 .WithName("CreateMenu")
-.Accepts<MenuCreateDto>("application/json")
-.Produces<ApiResponse<MenuDto>>(StatusCodes.Status201Created)
+.Accepts<MenuCreateDTO>("application/json")
+.Produces<ApiResponse<MenuDTO>>(StatusCodes.Status201Created)
 .Produces<ApiResponse<object>>(StatusCodes.Status400BadRequest)
+.Produces<ApiResponse<object>>(StatusCodes.Status404NotFound)
 .WithOpenApi(operation => new(operation)
 {
     Summary = "Create the menu."
@@ -95,17 +122,17 @@ app.MapPost("/api/menu/", async ([FromBody] MenuCreateDto menuCreateDto, MenuSer
 
 app.MapGet("/api/menu/{menuId}/foodItem/{itemIdx:int}", async (MenuService _menuService, IMapper _mapper, string menuId, int itemIdx) =>
 {
-    Menu? menu = await _menuService.GetAsync(menuId);
+    Menu? menu = await _menuService.GetByIdAsync(menuId);
     if (menu != null && itemIdx < menu.FoodItems.Count)
     {
-        FoodItemDto foodItemDto = _mapper.Map<FoodItemDto>(menu.FoodItems[itemIdx]);
-        return Results.Ok(new ApiResponse<FoodItemDto> { Data = foodItemDto });
+        FoodItemDTO foodItemDto = _mapper.Map<FoodItemDTO>(menu.FoodItems[itemIdx]);
+        return Results.Ok(new ApiResponse<FoodItemDTO> { Data = foodItemDto });
     }
     else
         return Results.NotFound(ApiResponse.NotFound());
 })
 .WithName("GetMenuItem")
-.Produces<ApiResponse<FoodItemDto>>(StatusCodes.Status200OK)
+.Produces<ApiResponse<FoodItemDTO>>(StatusCodes.Status200OK)
 .Produces<ApiResponse<object>>(StatusCodes.Status404NotFound)
 .WithOpenApi(operation => new(operation)
 {

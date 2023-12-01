@@ -1,6 +1,6 @@
-﻿namespace menu.Models
+﻿namespace menu.Config
 {
-    public class MenuDatabaseSettings
+    public class MenuDatabaseConfig
     {
         public string ConnectionString { get; set; } = null!;
 
