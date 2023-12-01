@@ -16,7 +16,7 @@ public class WebFoodItemRepository : IFoodItemRepository
 
     public async Task<FoodItem> GetFoodItem(string menuId, int itemIdx)
     {
-        var endPoint = $"/api/menu/{menuId}/foodItem/{itemIdx}";
+        var endPoint = $"/{menuId}/foodItem/{itemIdx}";
 
         try
         {

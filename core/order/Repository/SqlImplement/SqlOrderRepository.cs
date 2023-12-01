@@ -24,14 +24,14 @@ public class SqlOrderRepository : IOrderRepository
     public async Task<IEnumerable<Order>> GetOrders(string userId)
     {
         var sql =
-            @$"SELECT o.*, f.* FROM [order] AS o LEFT JOIN foodItem AS f on o.Id = f.OrderId WHERE o.UserId = '{userId}'";
+            @$"SELECT o.*, f.* FROM [myOrder] AS o LEFT JOIN foodItem AS f on o.Id = f.OrderId WHERE o.UserId = '{userId}'";
         return await GetOrderImp(sql);
     }
 
     public async Task<Order> GetOrder(Guid orderId)
     {
         var sql =
-            @$"SELECT o.*, f.* FROM [order] AS o LEFT JOIN foodItem AS f on o.Id = f.OrderId WHERE o.Id = '{orderId}'";
+            @$"SELECT o.*, f.* FROM [myOrder] AS o LEFT JOIN foodItem AS f on o.Id = f.OrderId WHERE o.Id = '{orderId}'";
         return (await GetOrderImp(sql)).First();
     }
 
