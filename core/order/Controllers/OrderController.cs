@@ -88,9 +88,10 @@ public class OrderController : ControllerBase
 
         try
         {
-            var user = await _userRepository.GetUser(userId);
+            var user = _userRepository.GetUser(userId);
+            var restaurant = _userRepository.GetUser(order.MenuId);
 
-            var newOrder = await _orderService.CreateOrder(user, order);
+            var newOrder = await _orderService.CreateOrder(await user, await restaurant, order);
 
             return CreatedAtAction(nameof(GetOrder), new { userId, orderId = newOrder.Id },
                 new ApiResponse<Order> { Data = newOrder });

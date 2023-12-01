@@ -33,7 +33,7 @@ public class OrderService
         return order;
     }
 
-    public async Task<Order> CreateOrder(User user, CreateOrderWebDTO createOrderWeb)
+    public async Task<Order> CreateOrder(User user, User restaurant, CreateOrderWebDTO createOrderWeb)
     {
         var foodItems = new List<FoodItem>();
 
@@ -47,8 +47,7 @@ public class OrderService
         {
             Id = Guid.NewGuid(),
             Customer = user,
-            // TODO get restaurant from menu
-            Restaurant = new User() { Id = "4bCkldMFxoh5kP9byf7GUFsiF2t2" },
+            Restaurant = restaurant,
             OrderDate = createOrderWeb.OrderDate,
             FoodItems = foodItems
         };

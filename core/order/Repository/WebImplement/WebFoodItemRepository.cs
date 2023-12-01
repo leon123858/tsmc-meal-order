@@ -14,7 +14,7 @@ public class WebFoodItemRepository : IFoodItemRepository
         _webUtils = new WebUtils(config.Value.MenuUrl);
     }
 
-    public async Task<FoodItem> GetFoodItem(Guid menuId, int itemIdx)
+    public async Task<FoodItem> GetFoodItem(string menuId, int itemIdx)
     {
         var endPoint = $"/api/menu/{menuId}/foodItem/{itemIdx}";
 
