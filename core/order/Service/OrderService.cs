@@ -9,11 +9,13 @@ public class OrderService
 {
     private readonly IFoodItemRepository _foodItemRepository;
     private readonly IOrderRepository _orderRepository;
+    private readonly MailService _mailService;
 
-    public OrderService(IOrderRepository orderRepository, IFoodItemRepository foodItemRepository)
+    public OrderService(IOrderRepository orderRepository, IFoodItemRepository foodItemRepository, MailService mailService)
     {
         _orderRepository = orderRepository;
         _foodItemRepository = foodItemRepository;
+        _mailService = mailService;
     }
 
     public async Task<IEnumerable<Order>> GetOrders(User user)
@@ -52,6 +54,8 @@ public class OrderService
         };
 
         await _orderRepository.CreateOrder(newOrder);
+        
+        _mailService.SendOrderCreatedMail(newOrder);
 
         return newOrder;
     }
@@ -66,6 +70,8 @@ public class OrderService
         order.Confirm();
 
         await _orderRepository.UpdateOrder(order);
+        
+        _mailService.SendOrderConfirmedMail(order);
     }
 
     public async Task DeleteOrder(User user, Guid orderId)
@@ -78,5 +84,7 @@ public class OrderService
         order.Cancel();
 
         await _orderRepository.UpdateOrder(order);
+        
+        _mailService.SendOrderDeletedMail(order);
     }
 }

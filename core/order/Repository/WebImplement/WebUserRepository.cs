@@ -9,10 +9,12 @@ namespace order.Repository.WebImplement;
 public class WebUserRepository : IUserRepository
 {
     private readonly WebUtils _webUtils;
+    private ILogger<WebUserRepository> _logger;
 
-    public WebUserRepository(IOptions<WebConfig> config)
+    public WebUserRepository(IOptions<WebConfig> config, ILogger<WebUserRepository> logger)
     {
         _webUtils = new WebUtils(config.Value.UserUrl);
+        _logger = logger;
     }
 
     public async Task<User> GetUser(string userId)
@@ -30,7 +32,7 @@ public class WebUserRepository : IUserRepository
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            _logger.LogError("Get user error: {Error}", e.Message);
             throw;
         }
     }

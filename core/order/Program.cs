@@ -21,6 +21,7 @@ builder.Services.AddSingleton<IUserRepository, WebUserRepository>();
 builder.Services.AddSingleton<IOrderRepository, SqlOrderRepository>(); 
 //builder.Services.AddSingleton<IOrderRepository, MemoryOrderRepository>();
 builder.Services.AddSingleton<IFoodItemRepository, WebFoodItemRepository>();
+builder.Services.AddSingleton<MailService>();
 builder.Services.AddSingleton<OrderService>();
 
 var app = builder.Build();
