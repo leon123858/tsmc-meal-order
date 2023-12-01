@@ -3,7 +3,7 @@ using menu.Models.DTO;
 
 namespace menu.Validations
 {
-    public class MenuCreateValidator: AbstractValidator<MenuCreateDto>
+    public class MenuCreateValidator: AbstractValidator<MenuCreateDTO>
     {
         public MenuCreateValidator()
         {

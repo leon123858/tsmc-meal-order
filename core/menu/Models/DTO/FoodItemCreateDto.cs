@@ -1,6 +1,6 @@
 ﻿namespace menu.Models.DTO
 {
-    public class FoodItemCreateDto
+    public class FoodItemCreateDTO
     {
         public string Description { get; set; } = "";
         public string Name { get; set; } = "";

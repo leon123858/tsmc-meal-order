@@ -8,12 +8,13 @@ namespace menu
     public class MappingConfig: Profile
     {
         public MappingConfig() {
-            CreateMap<Menu, MenuDto>().ReverseMap();
-            CreateMap<Menu, MenuCreateDto>().ReverseMap();
-            CreateMap<Menu, MenuUpdateDto>().ReverseMap();
+            CreateMap<Menu, MenuDTO>().ReverseMap();
+            CreateMap<Menu, MenuCreateDTO>().ReverseMap();
             
-            CreateMap<FoodItem, FoodItemCreateDto>().ReverseMap();
-            CreateMap<FoodItem, FoodItemDto>().ReverseMap();
+            CreateMap<FoodItem, FoodItemCreateDTO>().ReverseMap();
+            CreateMap<FoodItem, FoodItemDTO>().ReverseMap();
+
+            CreateMap<User, UserDTO>().ReverseMap();
         }
     }
 }

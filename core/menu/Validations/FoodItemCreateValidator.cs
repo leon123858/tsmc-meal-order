@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace menu.Validations
 {
-    public class FoodItemCreateValidator : AbstractValidator<FoodItemCreateDto>
+    public class FoodItemCreateValidator : AbstractValidator<FoodItemCreateDTO>
     {
         public FoodItemCreateValidator()
         {
