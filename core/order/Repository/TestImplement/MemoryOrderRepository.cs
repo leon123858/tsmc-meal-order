@@ -10,7 +10,7 @@ public class MemoryOrderRepository : IOrderRepository
 
     public MemoryOrderRepository()
     {
-        var fakeUser = new User { Id = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6") };
+        var fakeUser = new User { Id = "Kkyb8oszawYXhfP6GpTNRb711F02" };
 
         var meal1 = new FoodItem
             { Name = "Burger", Price = 100, Description = "Juicy beef burger with cheese and veggies" };
@@ -22,7 +22,7 @@ public class MemoryOrderRepository : IOrderRepository
         {
             Id = Guid.NewGuid(),
             Customer = fakeUser,
-            Restaurant = new User { Id = Guid.NewGuid() },
+            Restaurant = new User { Id = "4bCkldMFxoh5kP9byf7GUFsiF2t2" },
             FoodItems = new List<FoodItem> { meal1, meal2 }
         };
 
@@ -30,7 +30,7 @@ public class MemoryOrderRepository : IOrderRepository
         {
             Id = Guid.NewGuid(),
             Customer = fakeUser,
-            Restaurant = new User { Id = Guid.NewGuid() },
+            Restaurant = new User { Id = "4bCkldMFxoh5kP9byf7GUFsiF2t2" },
             FoodItems = new List<FoodItem> { meal3 }
         };
 
@@ -38,14 +38,14 @@ public class MemoryOrderRepository : IOrderRepository
         _orders.Add(order2);
     }
 
-    public Task<IEnumerable<Order>> GetOrders(Guid userId)
+    public Task<IEnumerable<Order>> GetOrders(string userId)
     {
         return Task.FromResult(_orders.Where(_ => _.Customer.Id == userId));
     }
 
-    public Task<Order> GetOrder(Guid userId, Guid orderId)
+    public Task<Order> GetOrder(Guid orderId)
     {
-        var order = _orders.FirstOrDefault(_ => _.Id == orderId && _.Customer.Id == userId);
+        var order = _orders.FirstOrDefault(_ => _.Id == orderId);
 
         if (order == null)
             throw new OrderNotFoundException();

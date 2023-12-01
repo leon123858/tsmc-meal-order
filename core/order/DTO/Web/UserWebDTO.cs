@@ -14,7 +14,7 @@ public class UserWebDTO
     {
         return new User
         {
-            Id = Guid.Parse(webDto.uid),
+            Id = webDto.uid,
             Email = webDto.email,
             Name = webDto.name,
             Place = webDto.place,

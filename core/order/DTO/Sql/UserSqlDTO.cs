@@ -4,7 +4,7 @@ namespace order.DTO.Sql;
 
 public class UserSqlDTO
 {
-    public Guid Id { get; set; }
+    public string Id { get; set; }
     public string Email { get; set; }
 
     public static implicit operator User(UserSqlDTO sqlDto)

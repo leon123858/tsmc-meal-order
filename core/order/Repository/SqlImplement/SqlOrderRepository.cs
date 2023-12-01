@@ -18,27 +18,28 @@ public class SqlOrderRepository : IOrderRepository
         _logger = logger;
         var secretPassword = Environment.GetEnvironmentVariable("SQL_PASSWORD") ?? config.Value.Password;
         _connectionString =
-            $"Host={config.Value.Host};Username={config.Value.UserName};Password={secretPassword};Database={config.Value.DatabaseName}";
+            $"Persist Security Info=False;User ID={config.Value.UserName};Password={secretPassword};Server={config.Value.Host};Database={config.Value.DatabaseName};";
     }
 
-    public async Task<IEnumerable<Order>> GetOrders(Guid userId)
+    public async Task<IEnumerable<Order>> GetOrders(string userId)
     {
         var sql =
             @$"SELECT o.*, f.* FROM [order] AS o LEFT JOIN foodItem AS f on o.Id = f.OrderId WHERE o.UserId = '{userId}'";
         return await GetOrderImp(sql);
     }
 
-    public async Task<Order> GetOrder(Guid userId, Guid orderId)
+    public async Task<Order> GetOrder(Guid orderId)
     {
         var sql =
-            @$"SELECT o.*, f.* FROM [order] AS o LEFT JOIN foodItem AS f on o.Id = f.OrderId WHERE o.UserId = '{userId}' AND o.Id = '{orderId}'";
+            @$"SELECT o.*, f.* FROM [order] AS o LEFT JOIN foodItem AS f on o.Id = f.OrderId WHERE o.Id = '{orderId}'";
         return (await GetOrderImp(sql)).First();
     }
 
     public async Task CreateOrder(Order order)
     {
         await using var conn = new SqlConnection(_connectionString);
-        var transaction = conn.BeginTransaction();
+        conn.Open();
+        await using var transaction = conn.BeginTransaction();
 
         var orderDto = (OrderSqlDTO)order;
 
@@ -52,8 +53,8 @@ public class SqlOrderRepository : IOrderRepository
 
         try
         {
-            await conn.ExecuteInsertAsync(orderDto);
-            await conn.ExecuteInsertAsync(foodItemDtos);
+            await conn.ExecuteInsertAsync(orderDto, transaction);
+            await conn.ExecuteInsertAsync(foodItemDtos, transaction);
             
             transaction.Commit();
         }
@@ -61,28 +62,21 @@ public class SqlOrderRepository : IOrderRepository
         {
             _logger.LogError("Create order failed, Exception: {Message}", e.Message);
             transaction.Rollback();
+            throw;
         }
     }
 
     public async Task UpdateOrder(Order order)
     {
         await using var conn = new SqlConnection(_connectionString);
-        var transaction = conn.BeginTransaction();
+        conn.Open();
+        await using var transaction = conn.BeginTransaction();
 
         var orderDto = (OrderSqlDTO)order;
-
-        var foodItemDtos = new List<FoodItemSqlDTO>();
-        foreach (var foodItem in order.FoodItems)
-        {
-            var foodItemDto = (FoodItemSqlDTO)foodItem;
-            foodItemDto.OrderId = order.Id;
-            foodItemDtos.Add(foodItemDto);
-        }
 
         try
         {
             await conn.ExecuteUpdateAsync(orderDto, transaction);
-            await conn.ExecuteUpdateAsync(foodItemDtos, transaction);
             
             transaction.Commit();
         }
@@ -90,6 +84,7 @@ public class SqlOrderRepository : IOrderRepository
         {
             _logger.LogError("Update order failed, Exception: {Message}", e.Message);
             transaction.Rollback();
+            throw;
         }
     }
 
@@ -108,6 +103,9 @@ public class SqlOrderRepository : IOrderRepository
                 {
                     var newOrder = (Order)orderSqlDto;
 
+                    if (newFoodItemDto != null)
+                        newOrder.FoodItems.Add(newFoodItemDto);
+                    
                     orderDictionary.Add(orderSqlDto.Id, newOrder);
                     return newOrder;
                 }
@@ -116,7 +114,7 @@ public class SqlOrderRepository : IOrderRepository
                     existingOrder.FoodItems.Add(newFoodItemDto);
 
                 return existingOrder;
-            }, splitOn: "Id");
+            }, splitOn: "OrderId");
 
         return orderDictionary.Values.ToList();
     }

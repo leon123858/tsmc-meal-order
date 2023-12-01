@@ -15,7 +15,7 @@ public class WebUserRepository : IUserRepository
         _webUtils = new WebUtils(config.Value.UserUrl);
     }
 
-    public async Task<User> GetUser(Guid userId)
+    public async Task<User> GetUser(string userId)
     {
         var endPoint = $"/get?uid={userId}";
 

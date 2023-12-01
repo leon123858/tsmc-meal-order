@@ -23,7 +23,12 @@ public class OrderService
 
     public async Task<Order> GetOrder(User user, Guid orderId)
     {
-        return await _orderRepository.GetOrder(user.Id, orderId);
+        var order = await _orderRepository.GetOrder(orderId);
+        
+        if (order.Customer.Id != user.Id)
+            throw new Exception("User is not the owner of the order");
+        
+        return order;
     }
 
     public async Task<Order> CreateOrder(User user, CreateOrderWebDTO createOrderWeb)
@@ -32,7 +37,7 @@ public class OrderService
 
         foreach (var foodItemId in createOrderWeb.FoodItemIds)
         {
-            var foodItem = await _foodItemRepository.GetFoodItem(createOrderWeb.RestaurantId, foodItemId);
+            var foodItem = await _foodItemRepository.GetFoodItem(createOrderWeb.MenuId, foodItemId);
             foodItems.Add(foodItem);
         }
 
@@ -40,8 +45,9 @@ public class OrderService
         {
             Id = Guid.NewGuid(),
             Customer = user,
+            // TODO get restaurant from menu
+            Restaurant = new User() { Id = "4bCkldMFxoh5kP9byf7GUFsiF2t2" },
             OrderDate = createOrderWeb.OrderDate,
-            Restaurant = new User { Id = createOrderWeb.RestaurantId },
             FoodItems = foodItems
         };
 
@@ -50,9 +56,13 @@ public class OrderService
         return newOrder;
     }
 
-    public async Task ConfirmOrder(User user, Guid orderId)
+    public async Task ConfirmOrder(User restaurant, Guid orderId)
     {
-        var order = await _orderRepository.GetOrder(user.Id, orderId);
+        var order = await _orderRepository.GetOrder(orderId);
+        
+        if (order.Restaurant.Id != restaurant.Id)
+            throw new Exception("User is not the owner of the order");
+        
         order.Confirm();
 
         await _orderRepository.UpdateOrder(order);
@@ -60,7 +70,11 @@ public class OrderService
 
     public async Task DeleteOrder(User user, Guid orderId)
     {
-        var order = await _orderRepository.GetOrder(user.Id, orderId);
+        var order = await _orderRepository.GetOrder(orderId);
+        
+        if (order.Customer.Id != user.Id)
+            throw new Exception("User is not the owner of the order");
+        
         order.Cancel();
 
         await _orderRepository.UpdateOrder(order);

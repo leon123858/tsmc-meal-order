@@ -8,20 +8,20 @@ GRANT SELECT, INSERT, UPDATE ON SCHEMA::dbo TO db_user;
 
 Create table [user]
 (
-    Id    UNIQUEIDENTIFIER PRIMARY KEY,
+    Id    NVARCHAR(50) PRIMARY KEY,
     Email NVARCHAR(100),
 )
 
 Create table [order]
 (
     Id           UNIQUEIDENTIFIER PRIMARY KEY,
-    UserId       UNIQUEIDENTIFIER NOT NULL,
-    RestaurantId UNIQUEIDENTIFIER NOT NULL,
+    UserId       NVARCHAR(50) NOT NULL,
+    RestaurantId NVARCHAR(50) NOT NULL,
     Status       INT              NOT NULL,
     OrderDate    DATETIME         NOT NULL,
     CreateTime   DATETIME         NOT NULL,
-    CONSTRAINT FK_order_user FOREIGN KEY (UserId) REFERENCES [user] (Id),
-    CONSTRAINT FK_order_restaurant FOREIGN KEY (RestaurantId) REFERENCES [user] (Id)
+    --CONSTRAINT FK_order_user FOREIGN KEY (UserId) REFERENCES [user] (Id),
+    --CONSTRAINT FK_order_restaurant FOREIGN KEY (RestaurantId) REFERENCES [user] (Id)
 )
 
 Create table foodItem

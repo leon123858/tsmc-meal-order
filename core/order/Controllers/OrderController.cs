@@ -31,8 +31,7 @@ public class OrderController : ControllerBase
     {
         try
         {
-            var userGuid = Guid.Parse(userId);
-            var user = await _userRepository.GetUser(userGuid);
+            var user = await _userRepository.GetUser(userId);
 
             var orders = await _orderService.GetOrders(user);
             var orderDtos = orders.Select(_ => (OrderWebDTO)_);
@@ -44,11 +43,6 @@ public class OrderController : ControllerBase
             _logger.LogError("Data not found, Exception: {Message}", e.Message);
             return NotFound(ApiResponse.NotFound());
         }
-        catch (FormatException e)
-        {
-            _logger.LogError("Invalid userId, Exception: {Message}", e.Message);
-            return BadRequest(ApiResponse.BadRequest("Invalid userId"));
-        }
         catch (Exception e)
         {
             _logger.LogError("Unknown, Exception: {Message}", e.Message);
@@ -57,30 +51,24 @@ public class OrderController : ControllerBase
     }
 
     [HttpGet("{userId}/{orderId}")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ApiResponse<Order>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ApiResponse<OrderWebDTO>))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ApiResponse<object>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ApiResponse<object>))]
     public async Task<IActionResult> GetOrder(string userId, string orderId)
     {
         try
         {
-            var userGuid = Guid.Parse(userId);
-            var user = await _userRepository.GetUser(userGuid);
+            var user = await _userRepository.GetUser(userId);
 
             var orderGuid = Guid.Parse(orderId);
             var order = await _orderService.GetOrder(user, orderGuid);
 
-            return Ok(new ApiResponse<Order> { Data = order });
+            return Ok(new ApiResponse<OrderWebDTO> { Data = (OrderWebDTO)order });
         }
         catch (DataNotFoundException e)
         {
             _logger.LogError("Data not found, Exception: {Message}", e.Message);
             return NotFound(ApiResponse.NotFound());
-        }
-        catch (FormatException e)
-        {
-            _logger.LogError("Invalid Id, Exception: {Message}", e.Message);
-            return BadRequest(ApiResponse.BadRequest("Invalid Id"));
         }
         catch (Exception e)
         {
@@ -90,7 +78,7 @@ public class OrderController : ControllerBase
     }
 
     [HttpPost("create/{userId}")]
-    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(ApiResponse<Order>))]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(ApiResponse<OrderWebDTO>))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ApiResponse<object>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ApiResponse<object>))]
     public async Task<IActionResult> CreateOrder(string userId, [FromBody] CreateOrderWebDTO? order)
@@ -100,8 +88,7 @@ public class OrderController : ControllerBase
 
         try
         {
-            var userGuid = Guid.Parse(userId);
-            var user = await _userRepository.GetUser(userGuid);
+            var user = await _userRepository.GetUser(userId);
 
             var newOrder = await _orderService.CreateOrder(user, order);
 
@@ -113,11 +100,6 @@ public class OrderController : ControllerBase
             _logger.LogError("Data not found, Exception: {Message}", e.Message);
             return NotFound(ApiResponse.NotFound());
         }
-        catch (FormatException e)
-        {
-            _logger.LogError("Invalid userId, Exception: {Message}", e.Message);
-            return BadRequest(ApiResponse.BadRequest("Invalid userId"));
-        }
         catch (Exception e)
         {
             _logger.LogError("Unknown, Exception: {Message}", e.Message);
@@ -125,18 +107,17 @@ public class OrderController : ControllerBase
         }
     }
 
-    [HttpPost("confirm/{userId}/{orderId}")]
+    [HttpPost("confirm/{restaurantId}/{orderId}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ApiResponse<object>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ApiResponse<object>))]
-    public async Task<IActionResult> ConfirmOrder(string userId, string orderId)
+    public async Task<IActionResult> ConfirmOrder(string restaurantId, string orderId)
     {
         try
         {
-            var userGuid = Guid.Parse(userId);
-            var user = await _userRepository.GetUser(userGuid);
+            var restaurant = await _userRepository.GetUser(restaurantId);
 
-            await _orderService.ConfirmOrder(user, Guid.Parse(orderId));
+            await _orderService.ConfirmOrder(restaurant, Guid.Parse(orderId));
 
             return NoContent();
         }
@@ -144,11 +125,6 @@ public class OrderController : ControllerBase
         {
             _logger.LogError("Data not found, Exception: {Message}", e.Message);
             return NotFound(ApiResponse.NotFound());
-        }
-        catch (FormatException e)
-        {
-            _logger.LogError("Invalid Id, Exception: {Message}", e.Message);
-            return BadRequest(ApiResponse.BadRequest("Invalid Id"));
         }
         catch (Exception e)
         {
@@ -165,8 +141,7 @@ public class OrderController : ControllerBase
     {
         try
         {
-            var userGuid = Guid.Parse(userId);
-            var user = await _userRepository.GetUser(userGuid);
+            var user = await _userRepository.GetUser(userId);
 
             await _orderService.DeleteOrder(user, Guid.Parse(orderId));
 
@@ -176,11 +151,6 @@ public class OrderController : ControllerBase
         {
             _logger.LogError("Data not found, Exception: {Message}", e.Message);
             return NotFound(ApiResponse.NotFound());
-        }
-        catch (FormatException e)
-        {
-            _logger.LogError("Invalid Id, Exception: {Message}", e.Message);
-            return BadRequest(ApiResponse.BadRequest("Invalid Id"));
         }
         catch (Exception e)
         {

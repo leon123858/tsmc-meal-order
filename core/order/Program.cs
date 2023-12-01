@@ -1,5 +1,6 @@
 using order.Config;
 using order.Repository;
+using order.Repository.SqlImplement;
 using order.Repository.TestImplement;
 using order.Repository.WebImplement;
 using order.Service;
@@ -16,8 +17,9 @@ builder.Services.Configure<DatabaseConfig>(builder.Configuration.GetSection("Dat
 builder.Services.Configure<WebConfig>(builder.Configuration.GetSection("WebApi"));
 
 builder.Services.AddSingleton<IUserRepository, MemoryUserRepository>();
-//builder.Services.AddSingleton<IOrderRepository, SqlOrderRepository>();
-builder.Services.AddSingleton<IOrderRepository, MemoryOrderRepository>();
+//builder.Services.AddSingleton<IUserRepository, WebUserRepository>();
+builder.Services.AddSingleton<IOrderRepository, SqlOrderRepository>(); 
+//builder.Services.AddSingleton<IOrderRepository, MemoryOrderRepository>();
 builder.Services.AddSingleton<IFoodItemRepository, WebFoodItemRepository>();
 builder.Services.AddSingleton<OrderService>();
 
