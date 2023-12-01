@@ -1,3 +1,5 @@
 namespace order.Exceptions;
 
-public class UserNotFoundException : DataNotFoundException { }
+public class UserNotFoundException : DataNotFoundException
+{
+}

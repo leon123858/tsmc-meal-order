@@ -16,13 +16,13 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="..\.dockerignore">
-        <Link>.dockerignore</Link>
-      </Content>
+        <Content Include="..\.dockerignore">
+            <Link>.dockerignore</Link>
+        </Content>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\core\core\core.csproj" />
+        <ProjectReference Include="..\..\core\core\core.csproj" />
     </ItemGroup>
 
 </Project>

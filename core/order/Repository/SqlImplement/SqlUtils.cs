@@ -1,8 +1,8 @@
 ﻿using order.Attributes;
 
-namespace order.Repository;
+namespace order.Repository.SqlImplement;
 
-public class RepositoryUtils
+public class SqlUtils
 {
     public static string GetUpdateSql(object obj)
     {
@@ -16,9 +16,9 @@ public class RepositoryUtils
 
         if (!className.EndsWith("DTO")) throw new ArgumentException("class is not DTO.");
 
-        var tableName = className[..^3];
+        var tableName = className[..^6].ToLower();
 
-        var updateSql = $"UPDATE {tableName} SET ";
+        var updateSql = $"UPDATE [{tableName}] SET ";
         var updateKey = new List<string>();
 
         var properties = type.GetProperties();
@@ -52,58 +52,15 @@ public class RepositoryUtils
         return GetUpdateSql(typeof(T));
     }
 
-    public static string GetDeleteSql(object obj)
-    {
-        var type = obj.GetType();
-        return GetDeleteSql(type);
-    }
-
-    public static string GetDeleteSql(Type type)
-    {
-        var className = type.Name;
-
-        if (!className.EndsWith("DTO")) throw new ArgumentException("class is not DTO.");
-
-        var tableName = className[..^3];
-
-        var deleteSql = $"Delete {tableName} ";
-        var updateKey = new List<string>();
-
-        var properties = type.GetProperties();
-
-        foreach (var property in properties)
-        {
-            if (!property.IsDefined(typeof(UpdateKeyAttribute), false)) continue;
-            updateKey.Add(property.Name);
-        }
-
-        if (!updateKey.Any()) throw new ArgumentException("class has no update key!");
-
-        deleteSql = deleteSql.TrimEnd(',');
-        deleteSql += " WHERE 1 = 1 ";
-
-        foreach (var key in updateKey)
-            deleteSql += $"AND {key} = @{key} ";
-
-        deleteSql += ";";
-
-        return deleteSql;
-    }
-
-    public static string GetDeleteSql<T>()
-    {
-        return GetDeleteSql(typeof(T));
-    }
-
     public static string GetInsertSql(Type type)
     {
         var className = type.Name;
 
         if (!className.EndsWith("DTO")) throw new ArgumentException("class is not DTO.");
 
-        var tableName = className[..^3];
+        var tableName = className[..^6].ToLower();
 
-        var insertSql = $"INSERT INTO {tableName} (";
+        var insertSql = $"INSERT INTO [{tableName}] (";
 
         var properties = type.GetProperties();
 
