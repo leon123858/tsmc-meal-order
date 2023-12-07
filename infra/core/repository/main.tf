@@ -22,7 +22,7 @@ resource "google_secret_manager_secret_iam_member" "policy" {
   secret_id = google_secret_manager_secret.github_token_secret.id
   role      = "roles/secretmanager.secretAccessor"
   # account name is "Cloud Build Service Agent"
-  member = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-cloudbuild.iam.gserviceaccount.com"
+  member    = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-cloudbuild.iam.gserviceaccount.com"
 
   depends_on = [google_secret_manager_secret_version.github_token_secret_version]
 }
