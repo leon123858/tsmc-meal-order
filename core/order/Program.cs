@@ -37,8 +37,6 @@ app.UseSwaggerUI();
 // do not need to use https
 // app.UseHttpsRedirection();
 
-app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();

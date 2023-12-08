@@ -31,7 +31,6 @@ var app = builder.Build();
 // {
 app.UseSwagger();
 app.UseSwaggerUI();
-app.UseAuthorization();
 // }
 
 app.MapGet("/api/menu", async (MenuService _menuService, ILogger < Program> _logger) =>
