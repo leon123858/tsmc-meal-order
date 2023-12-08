@@ -5,7 +5,7 @@ provider "google" {
 
 // source code repository
 module "repository" {
-  source     = "./repository"
+  source     = "./components/repository"
   name       = "meal-service"
   region     = var.region
   git_url    = var.git_url
@@ -50,7 +50,7 @@ resource "google_project_iam_member" "sa4" {
 
 // init cloud run
 module "mail-run" {
-  source       = "./run"
+  source       = "./components/run"
   service_name = "mail"
   region       = var.region
   service_env  = {
@@ -100,7 +100,7 @@ resource "google_project_iam_member" "build_r2" {
 
 // cloud build run
 module "build_mail" {
-  source           = "./build_run"
+  source           = "./components/build_run"
   name             = module.mail-run.name
   region           = var.region
   docker_file_path = "mail/mail/Dockerfile"
