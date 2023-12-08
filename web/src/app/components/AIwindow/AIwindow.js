@@ -22,19 +22,6 @@ const AIwindow = ({curAIWindowState, setAIWindowState}) => {
                 onOk={() => setAIWindowState(false)}
                 onCancel={() => setAIWindowState(false)}
                 footer={[
-                    // <Button 
-                    // key="back" 
-                    // onClick={() => setAIWindowState(false)}
-                    // >
-                    // 取消
-                    // </Button>,
-                    // <Button 
-                    //     key="submit" 
-                    //     type="primary" 
-                    //     onClick={() => setAIWindowState(false)}
-                    // >
-                    //     送出
-                    // </Button>,
                     <div key={"recommend"} className={styles.recommend_div}>                
                         <Button 
                             // key="recommend" 
