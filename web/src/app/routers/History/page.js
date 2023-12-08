@@ -1,11 +1,12 @@
 'use client';
 import styles from './page.module.css';
 import { Segmented } from 'antd';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import Link from 'next/link'
 import DailyHistory from '../../components/DailyHistory/DailyHistory'
 import BackButton from "../../components/BackButton/BackButton";
-
+import { UserContext } from '../../store/userContext';
+import { OrderAPI } from '../../global';
 
 // 將資料依照日期分組
 function groupByDate (curOrderData) {
@@ -25,8 +26,8 @@ function groupByDate (curOrderData) {
 
 
 // 從 API 取資料，並設定抓回來的資料
-async function fetchOrderData(setOrderData, status) {
-    const res = await fetch("http://localhost:4000/datas");
+async function fetchOrderData(setOrderData, status, userID) {
+    const res = await fetch(`${OrderAPI}/`);
     var data = await res.json();
     data = data.filter(item => item.status == status);
     setOrderData(groupByDate(data));
@@ -41,11 +42,12 @@ export default function History() {
     };
     const [curHistoryState, setHistoryState] = useState("已訂購");
     const [curOrderData, setOrderData] = useState([]);
+    const { userID } = useContext(UserContext); 
     
     // 當狀態改變時，取新的歷史 order
     useEffect(() => {
         const status = HistoryTypes[curHistoryState];
-        fetchOrderData(setOrderData, status);
+        fetchOrderData(setOrderData, status, userID);
     }, [curHistoryState, HistoryTypes])
 
 

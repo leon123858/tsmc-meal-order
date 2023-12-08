@@ -15,7 +15,7 @@ async function sendOrderData(dish, number, date, userID, setDesWindowState) {
         "orderDate": date,
         "foodItemIds": foodItems
     }
-    const response = await fetch(`${OrderAPI}/api/orders/create/${userID}`, {
+    const response = await fetch(`${OrderAPI}/create/${userID}`, {
         method: 'POST',
         headers: {
             'Accept': 'application/json',
@@ -53,7 +53,7 @@ const DescriptionWindow = ({curDesWindowState, setDesWindowState, dish}) => {
                             <Button 
                                 // key="recommend" 
                                 className={styles.recommend_button}
-                                onClick={() => sendOrderData(dish, 1, "2023-12-08", "aaa", setDesWindowState)}
+                                onClick={() => sendOrderData(dish, 1, "2023-12-08", userID, setDesWindowState)}
                             >
                                 送出
                             </Button>

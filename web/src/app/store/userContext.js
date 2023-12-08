@@ -6,16 +6,36 @@ import { onAuthStateChanged } from 'firebase/auth'
 const UserContext = createContext({
     userID: "",
     isLogin: false,
+    place: "Hsinchu",
+    username: "user"
 });
 
 function UserProvider({ children }) {
     const [userID, setUserID] = useState("");
     const [isLogin, setLogin] = useState(false);
+    const [place, setPlace] = useState("Hsinchu");
+    const [username, setUsername] = useState("user");
+
+    useEffect(() => {
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                setLogin(true);
+                setUserID(user.uid);
+                setUsername(user.displayName)
+            } else {
+                setLogin(false);
+            }
+        })
+    }, []);
 
 
     const defaultValue = {
         userID: userID,
         isLogin: isLogin,
+        place: place,
+        username: username,
+        setPlace: setPlace,
+        setUsername: setUsername
     };
 
     return (

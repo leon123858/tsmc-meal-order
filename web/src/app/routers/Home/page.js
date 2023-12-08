@@ -1,6 +1,7 @@
 'use client';
 import Link from 'next/link'
 import { useState, useEffect, useContext } from 'react';
+import { MenuAPI } from '../../global'
 import Dish from "../../components/Dish/Dish";
 import HomeSelection from "../../components/HomeSelection/HomeSelection";
 import AIwindow from "../../components/AIwindow/AIwindow";
@@ -26,7 +27,8 @@ function getDish (menuData) {
 }
 
 async function fetchMenuData(setMenuData, location) {
-    const res = await fetch("http://localhost:4000/menu");
+    const res = await fetch(`${MenuAPI}`);
+    // const res = await fetch(`${MenuAPI}/menu`);
     var data = await res.json();
     data = data.filter(item => item.location == location);
     setMenuData(getDish(data));
@@ -42,7 +44,6 @@ function filterData(curMenuData, setFilterData, curFilterState) {
             Dishes.push(dish);
         }
     });
-    console.log(curMenuData);
     setFilterData(Dishes);
 }
 
@@ -71,7 +72,7 @@ export default function Home() {
         fetchMenuData(setMenuData, location);
         console.log(curMenuData);
         filterData(curMenuData, setFilterData, curFilterState);
-    }, [location, curFilterState, curMenuData])
+    }, [location, curFilterState])
 
     const handleDishButton = (dish) => {
         setSelectDish(dish);

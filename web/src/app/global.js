@@ -1,3 +1,3 @@
-export const OrderAPI = "http://localhost:4000";
-export const MenuAPI = "http://localhost:4000";
-export const UserAPI = "http://localhost:8080";
+export const OrderAPI = "https://order-kt6w747drq-de.a.run.app/api/orders";
+export const MenuAPI = "https://menu-kt6w747drq-de.a.run.app/api/menu";
+export const UserAPI = "http://user-kt6w747drq-de.a.run.app/api/user";
