@@ -94,7 +94,7 @@ public class OrderController : ControllerBase
             var newOrder = await _orderService.CreateOrder(await user, await restaurant, order);
 
             return CreatedAtAction(nameof(GetOrder), new { userId, orderId = newOrder.Id },
-                new ApiResponse<Order> { Data = newOrder });
+                new ApiResponse<OrderWebDTO> { Data = (OrderWebDTO)newOrder });
         }
         catch (DataNotFoundException e)
         {
