@@ -12,18 +12,28 @@ using core.Model;
 using menu.Services;
 using menu.Clients;
 using menu.Config;
+using Microsoft.AspNetCore.Cors;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddCors();
 builder.Services.AddAutoMapper(typeof(MappingConfig));
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.Configure<MenuDatabaseConfig>(builder.Configuration.GetSection("MenuDatabase"));
 builder.Services.Configure<WebConfig>(builder.Configuration.GetSection("WebApi"));
 builder.Services.AddSingleton<MenuService>();
 builder.Services.AddSingleton<IUserClient ,UserClient>();
+builder.Services.AddAuthentication();
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(builder =>
+    {
+        builder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader();
+    });
+});
 
 var app = builder.Build();
 
@@ -31,6 +41,7 @@ var app = builder.Build();
 // {
 app.UseSwagger();
 app.UseSwaggerUI();
+app.UseCors();
 // }
 
 app.MapGet("/api/menu", async (MenuService _menuService, ILogger < Program> _logger) =>
