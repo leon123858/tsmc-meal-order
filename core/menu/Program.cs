@@ -24,6 +24,16 @@ builder.Services.Configure<MenuDatabaseConfig>(builder.Configuration.GetSection(
 builder.Services.Configure<WebConfig>(builder.Configuration.GetSection("WebApi"));
 builder.Services.AddSingleton<MenuService>();
 builder.Services.AddSingleton<IUserClient ,UserClient>();
+builder.Services.AddAuthentication();
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(builder =>
+    {
+        builder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader();
+    });
+});
 
 var app = builder.Build();
 
@@ -31,7 +41,7 @@ var app = builder.Build();
 // {
 app.UseSwagger();
 app.UseSwaggerUI();
-// }
+app.UseCors();
 
 app.MapGet("/api/menu", async (MenuService _menuService, ILogger < Program> _logger) =>
 {
