@@ -5,28 +5,28 @@
 }
   
 .container img {
-width: 80px;
-height: 80px;
-max-width: 100%;
-max-height: 100%;
+    width: 80px;
+    height: 80px;
+    max-width: 100%;
+    max-height: 100%;
 }
 
 .imageContainer {
-flex: 0 0 auto;
-margin-right: 20px;
+    flex: 0 0 auto;
+    margin-right: 20px;
 }
 
 .textContainer {
-flex: 1 1 auto; /* Allow the text container to grow */
-display: flex; /* Create a nested flex container */
-flex-direction: column; /* Stack items vertically */
-align-items: flex-start; /* Align items to the top */
-justify-content: space-between; /* Distribute space equally between items */
+    flex: 1 1 auto; /* Allow the text container to grow */
+    display: flex; /* Create a nested flex container */
+    flex-direction: column; /* Stack items vertically */
+    align-items: flex-start; /* Align items to the top */
+    justify-content: space-between; /* Distribute space equally between items */
 }
 
 .switchContainer {
-display: flex;
-gap: 10px;
+    display: flex;
+    gap: 10px;
 }
 
 .textContainer h3,
@@ -39,9 +39,13 @@ gap: 10px;
 }
 
 .priceContainer {
-display: flex;
-margin-left: auto;
-align-items: flex-end;
+    display: flex;
+    margin-left: auto;
+    align-items: center;
+}
+
+.priceContent {
+    text-align: center; /* 如果需要水平方向置中 */
 }
 
 .circle {
@@ -54,4 +58,4 @@ align-items: flex-end;
     text-align: center;
     background: gray
     /* background: #80c7f7 */
-  }
+} 

@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { ConfigProvider, Button, Modal, Switch } from 'antd';
 import styles from './AIwindow.module.css';
 
-const AIwindow = ({curWindowState, setWindowState}) => {
+const AIwindow = ({curAIWindowState, setAIWindowState}) => {
   return (
     <>
         <ConfigProvider
@@ -18,20 +18,20 @@ const AIwindow = ({curWindowState, setWindowState}) => {
             <Modal
                 width="100vw"
                 className={styles.modal_content}
-                open={curWindowState}
-                onOk={() => setWindowState(false)}
-                onCancel={() => setWindowState(false)}
+                open={curAIWindowState}
+                onOk={() => setAIWindowState(false)}
+                onCancel={() => setAIWindowState(false)}
                 footer={[
                     // <Button 
                     // key="back" 
-                    // onClick={() => setWindowState(false)}
+                    // onClick={() => setAIWindowState(false)}
                     // >
                     // 取消
                     // </Button>,
                     // <Button 
                     //     key="submit" 
                     //     type="primary" 
-                    //     onClick={() => setWindowState(false)}
+                    //     onClick={() => setAIWindowState(false)}
                     // >
                     //     送出
                     // </Button>,
@@ -39,13 +39,13 @@ const AIwindow = ({curWindowState, setWindowState}) => {
                         <Button 
                             // key="recommend" 
                             className={styles.recommend_button}
-                            onClick={() => setWindowState(false)}
+                            onClick={() => setAIWindowState(false)}
                         >
                             推薦
                         </Button>
                     </div>
                 ]}
-                >
+            >
                 <div>
                     <b
                         face="monospace" 

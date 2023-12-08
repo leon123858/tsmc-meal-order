@@ -24,10 +24,10 @@ const NumberButton = () => {
     };
   
     const router = useRouter();
-    const handleButtonClick = async () => {
-      console.log('choose', value);
-      router.push('/routers/Home'); // Corrected the path by adding a slash
-    };
+    // const handleButtonClick = async () => {
+    //   console.log('choose', value);
+    //   router.push('/routers/Home'); // Corrected the path by adding a slash
+    // };
   
     return (
       <div className={styles.container}>
@@ -37,11 +37,11 @@ const NumberButton = () => {
           <Button onClick={increment}>+</Button>
         </div>
   
-        <div className={styles.sendButton}>
+        {/* <div className={styles.sendButton}>
           <Radio.Button value="default" className={styles.blueButton} onClick={handleButtonClick}>
             送出
           </Radio.Button>
-        </div>
+        </div> */}
       </div>
     );
   };
