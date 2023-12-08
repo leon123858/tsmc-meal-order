@@ -6,18 +6,53 @@ import Link from 'next/link'
 import DailyHistory from '../../components/DailyHistory/DailyHistory'
 import BackButton from "../../components/BackButton/BackButton";
 
-export default function History() {
-    const HistoryTypes = [
-        "已訂購",
-        "已取消",
-        "已完成"
-    ];
-    const [curHistoryState, setHistoryState] = useState("已訂購");
-    
-    useEffect(() => {
-        // window.alert(curHistoryState)
-    }, [curHistoryState])
 
+// 將資料依照日期分組
+function groupByDate (curOrderData) {
+    const groupedData = {};
+    curOrderData.forEach(item => {
+        const orderDate = item.orderDate.split('T')[0];
+
+        if (!groupedData[orderDate]) {
+            groupedData[orderDate] = [];
+        }
+
+        groupedData[orderDate].push(item);
+    });
+
+    return groupedData;
+}
+
+
+// 從 API 取資料，並設定抓回來的資料
+async function fetchOrderData(setOrderData, status) {
+    const res = await fetch("http://localhost:4000/datas");
+    var data = await res.json();
+    data = data.filter(item => item.status == status);
+    setOrderData(groupByDate(data));
+}
+
+
+export default function History() {
+    const HistoryTypes = {
+        "已訂購": 0,
+        "已取消": 1,
+        "已完成": 2
+    };
+    const [curHistoryState, setHistoryState] = useState("已訂購");
+    const [curOrderData, setOrderData] = useState([]);
+    
+    // 當狀態改變時，取新的歷史 order
+    useEffect(() => {
+        const status = HistoryTypes[curHistoryState];
+        fetchOrderData(setOrderData, status);
+    }, [curHistoryState, HistoryTypes])
+
+
+    // 取出所有 date，並按照降序排列
+    const dateKeys = Object.keys(curOrderData);
+    dateKeys.sort((a, b) => b - a);
+    
     return (
         <div>
 
@@ -30,7 +65,7 @@ export default function History() {
                     </div>
                     
                     <Segmented
-                        options={HistoryTypes}
+                        options={Object.keys(HistoryTypes)}
                         value={curHistoryState}
                         onChange={setHistoryState}
                         className={styles.segment}
@@ -40,24 +75,18 @@ export default function History() {
 
             <main className={styles.main}>
                 <div className={styles.dishContainer}>
-                    <DailyHistory 
-                        curHistoryState={curHistoryState}
-                        date={"2023/11/08"}
-                    />
-                    <DailyHistory 
-                        curHistoryState={curHistoryState}
-                        date={"2023/11/07"}
-                    />
-                    <DailyHistory 
-                        curHistoryState={curHistoryState}
-                        date={"2023/11/06"}
-                    />
-                    <DailyHistory 
-                        curHistoryState={curHistoryState}
-                        date={"2023/11/05"}
-                    />
+                    {
+                        dateKeys.map((datakey, index) => (
+                            <DailyHistory
+                                key={index}
+                                data={curOrderData[datakey]}
+                                date={datakey}
+                            />
+                        ))
+                    }
                 </div>
             </main>
+            
         </div>
     );
 }

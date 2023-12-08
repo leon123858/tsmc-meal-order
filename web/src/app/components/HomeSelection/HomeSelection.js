@@ -1,21 +1,27 @@
 import { DatePicker, Select, Switch, Button } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
+import { useContext } from 'react'
+import { FilterContext } from '../../store/filterContext'
 import Link from 'next/link'
 
 import styles from './HomeSelection.module.css';
 
 const categories = ['蛋奶素', '肉類', '海鮮'];
 
-const onChange = (date, dateString) => {
-    console.log(date, dateString);
-  };
+const onChange = (category, checked, setFilterState) => {
+    setFilterState((prevState) => ({
+        ...prevState,
+        [category]: checked
+    }));
+};
 
 const handleChange = (value) => {
     console.log(`selected ${value}`);
-  };
+};
 
 
 const HomeSelection = () => {
+    const { setFilterState } = useContext(FilterContext);
     return (
         <div className={styles.container}>
             <div className={styles.topRow}>
@@ -49,16 +55,12 @@ const HomeSelection = () => {
             </div>
 
             <div className={styles.switchRow}>
-                {/* <Switch checkedChildren="蛋奶素" unCheckedChildren="無蛋奶素" onChange={onChange}/>
-                <Switch checkedChildren="肉類" unCheckedChildren="無肉類" onChange={onChange}/>
-                <Switch checkedChildren="海鮮" unCheckedChildren="無海鮮" onChange={onChange}/> */}
-
                 {categories.map((category, index) => (
                     <Switch
                         key={index}
                         checkedChildren={category}
                         unCheckedChildren={`無${category}`}
-                        onChange={(checked) => onChange(category, checked)}
+                        onChange={(checked) => onChange(category, checked, setFilterState)}
                     />
                 ))}
             </div>
