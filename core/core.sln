@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "core", "core\core.csproj", "{6F17CE9F-8F1B-445C-84E2-00F09966E528}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "menu", "menu\menu.csproj", "{09F7B116-38EA-45F3-A2D7-079FE5A75769}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "order", "order\order.csproj", "{CD273CA0-E936-4FC0-95E9-224C1E2072B8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6F17CE9F-8F1B-445C-84E2-00F09966E528}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F17CE9F-8F1B-445C-84E2-00F09966E528}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F17CE9F-8F1B-445C-84E2-00F09966E528}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F17CE9F-8F1B-445C-84E2-00F09966E528}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09F7B116-38EA-45F3-A2D7-079FE5A75769}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09F7B116-38EA-45F3-A2D7-079FE5A75769}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09F7B116-38EA-45F3-A2D7-079FE5A75769}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09F7B116-38EA-45F3-A2D7-079FE5A75769}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CD273CA0-E936-4FC0-95E9-224C1E2072B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD273CA0-E936-4FC0-95E9-224C1E2072B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD273CA0-E936-4FC0-95E9-224C1E2072B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD273CA0-E936-4FC0-95E9-224C1E2072B8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

@@ -17,7 +17,7 @@ import (
 //	@Tags			user
 //	@Accept			json
 //	@Produce		json
-//	@Param			Authorization	header		string						true	"JWT token"
+//	@Param			Authorization	header		string						true	"format:[Bearer JWT_Token]"
 //	@Param			input			body		model.UserCoreInformation	true	"body"
 //	@Success		200				{object}	model.StringResponse		"success"
 //	@Router			/login [post]

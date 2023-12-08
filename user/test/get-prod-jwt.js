@@ -1,12 +1,12 @@
 const AuthServerAPI = 'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=';
 
 const userData = {
-    email: 'asd111@asdasd.ccy',
-    password: 'string',
+    email: 'test123@tsmc.bunny.com',
+    password: '123456',
 }
 
 async function loginOutSide() {
-    const rawResponse = await fetch(AuthServerAPI + "xxx", {
+    const rawResponse = await fetch(AuthServerAPI + "token", {
         method: 'POST',
         headers: {
             'Accept': 'application/json',
