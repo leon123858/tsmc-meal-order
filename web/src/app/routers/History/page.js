@@ -27,18 +27,20 @@ function groupByDate (curOrderData) {
 
 // 從 API 取資料，並設定抓回來的資料
 async function fetchOrderData(setOrderData, status, userID) {
-    const res = await fetch(`${OrderAPI}/`);
+    console.log(userID);
+    const res = await fetch(`${OrderAPI}/${userID}`);
     var data = await res.json();
-    data = data.filter(item => item.status == status);
+    console.log(data);
+    data = Object.values(data)[0].filter(item => item.status == status);
     setOrderData(groupByDate(data));
 }
 
 
 export default function History() {
     const HistoryTypes = {
-        "已訂購": 0,
-        "已取消": 1,
-        "已完成": 2
+        "已訂購": "Init",
+        "已取消": "Preparing",
+        "已完成": "Canceled"
     };
     const [curHistoryState, setHistoryState] = useState("已訂購");
     const [curOrderData, setOrderData] = useState([]);
@@ -47,8 +49,10 @@ export default function History() {
     // 當狀態改變時，取新的歷史 order
     useEffect(() => {
         const status = HistoryTypes[curHistoryState];
-        fetchOrderData(setOrderData, status, userID);
-    }, [curHistoryState, HistoryTypes])
+        if (userID != "") {
+            fetchOrderData(setOrderData, status, userID);
+        }
+    }, [curHistoryState])
 
 
     // 取出所有 date，並按照降序排列

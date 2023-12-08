@@ -14,7 +14,7 @@ const Login = () => {
     const { userID, username } = useContext(UserContext);
     const handleGoogleLogin = async () => {
         const provider = new GoogleAuthProvider();
-    
+
         try {
             const result = await signInWithPopup(auth, provider);
             const user = result.user;

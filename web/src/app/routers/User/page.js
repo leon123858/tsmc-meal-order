@@ -5,38 +5,39 @@ import Link from 'next/link';
 import { UserOutlined } from '@ant-design/icons';
 import { Select } from 'antd';
 import { Radio } from 'antd';
+import { UserAPI } from '../../global';
+import { UserContext } from '../../store/userContext';
 
 import styles from './page.module.css';
 
 const User = () => {
+    const {userID, username, place, setUsername, setPlace} = useContext(UserContext);
     const [user, setUser] = useState({
-      name: 'daidai',
-      place: 'hsinchu',
-      uid: '9QiSGlDRvtU6S7CFzsk0W5UGkKTt',
+      name: username,
+      place: place,
+      uid: userID,
     });
   
-    const [userName, setUserName] = useState(user.name);
-    const [selectedPlace, setSelectedPlace] = useState(user.place);
-  
     const handleNameChange = (e) => {
-      setUserName(e.target.value);
+      setUsername(e.target.value);
     };
   
     const handlePlaceChange = (value) => {
-      setSelectedPlace(value);
+      setPlace(value);
     };
   
     const handleClick = async () => {
-        const updatedUser = { ...user, name: userName, place: selectedPlace };
+        const updatedUser = { ...user, name: username, place: place };
     
         try {
             // Make a POST request to the update API
-            const response = await fetch('http://localhost:8080/api/user/update', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(updatedUser),
+            const response = await fetch(`${UserAPI}/update`, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatedUser),
             });
     
             if (!response.ok) {
@@ -67,14 +68,14 @@ const User = () => {
             <h3>名字</h3>
             <input
               type="text"
-              value={userName}
+              value={username}
               onChange={handleNameChange}
               placeholder="Enter your name"
             />
             <h3>廠區</h3>
             <div>
               <Select
-                value={selectedPlace}
+                value={place}
                 style={{ width: 120, marginBottom: 10 }}
                 onChange={handlePlaceChange}
                 options={[

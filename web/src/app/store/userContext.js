@@ -7,7 +7,9 @@ const UserContext = createContext({
     userID: "",
     isLogin: false,
     place: "Hsinchu",
-    username: "user"
+    username: "user",
+    setPlace: () => {},
+    setUsername: () => {}
 });
 
 function UserProvider({ children }) {

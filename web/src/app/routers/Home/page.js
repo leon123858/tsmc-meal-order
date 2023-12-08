@@ -9,6 +9,8 @@ import DescriptionWindow from "../../components/DescriptionWindow/DescriptionWin
 
 import { Button, Radio } from 'antd';
 import { FilterContext } from '../../store/filterContext'
+import { UserContext } from '../../store/userContext';
+
 
 import styles from "./page.module.css";
 
@@ -27,10 +29,15 @@ function getDish (menuData) {
 }
 
 async function fetchMenuData(setMenuData, location) {
-    const res = await fetch(`${MenuAPI}`);
+    const res = await fetch(`${MenuAPI}`, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json'
+        }
+    });
     // const res = await fetch(`${MenuAPI}/menu`);
     var data = await res.json();
-    data = data.filter(item => item.location == location);
+    data = Object.values(data)[0].filter(item => item.location == location);
     setMenuData(getDish(data));
 }
 
@@ -54,9 +61,10 @@ export default function Home() {
     const [curSelectDish, setSelectDish] = useState({}); // 設定要傳入給 description window 的菜色
     const [curFilterData, setFilterData] = useState([]); // 儲存被種類過濾後的菜色
     const {curFilterState, setFilterState} = useContext(FilterContext);
+    const { userID, username, place } = useContext(UserContext);
+    console.log(userID, username, place);
     // location 之後換成 user 的 location
-    const location = "Hsinchu";
-
+    const location = "南科18廠";
     // 每次回到 menu 頁時，把 filter 的狀態初始化
     useEffect(() => {
         setFilterState((prevState) => ({
@@ -70,7 +78,6 @@ export default function Home() {
     // 取回 menu，並進行 filter
     useEffect(() => {
         fetchMenuData(setMenuData, location);
-        console.log(curMenuData);
         filterData(curMenuData, setFilterData, curFilterState);
     }, [location, curFilterState])
 
@@ -91,15 +98,15 @@ export default function Home() {
             <main className={styles.main}>
                 <div className={styles.dishContainer}>
                     {
-                        curFilterData.map((dish, index) => ( 
+                        curMenuData.map((dish, index) => ( 
                             <>
                                 <div onClick={() => handleDishButton(dish)}>
                                     <Dish
                                         dish={dish}
                                         isHistory={false}
                                     />
-                                    {index < curFilterData.length - 1 && <hr className={styles.hr_meal} />}
-                                    {index === curFilterData.length - 1 && <hr className={styles.hr_date} />}                 
+                                    {index < curMenuData.length - 1 && <hr className={styles.hr_meal} />}
+                                    {index === curMenuData.length - 1 && <hr className={styles.hr_date} />}                 
                                 </div>
                             </>
                         ))
