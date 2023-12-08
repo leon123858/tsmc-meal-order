@@ -7,6 +7,16 @@ using order.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(builder =>
+    {
+        builder.AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
+
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddCors();
@@ -36,6 +46,8 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 // }
+
+app.UseCors();
 
 // do not need to use https
 // app.UseHttpsRedirection();
