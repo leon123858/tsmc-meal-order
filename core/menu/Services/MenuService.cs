@@ -8,11 +8,19 @@ namespace menu.Services
     public class MenuService
     {
         private readonly IMongoCollection<Menu> _menusCollection;
-        
+        private string _connectionString;
 
         public MenuService(IOptions<MenuDatabaseConfig> databaseSettings)
         {
-            var mongoClient = new MongoClient(databaseSettings.Value.ConnectionString);
+            var secretPassword = Environment.GetEnvironmentVariable("MONGO_PASSWORD") ?? databaseSettings.Value.Password;
+            Console.WriteLine(secretPassword);
+
+            _connectionString =
+                $"mongodb+srv://{databaseSettings.Value.UserName}:{secretPassword}@{databaseSettings.Value.Cluser}";
+
+            Console.WriteLine(_connectionString);
+
+            var mongoClient = new MongoClient(_connectionString);
             var mongoDatabase = mongoClient.GetDatabase(databaseSettings.Value.DatabaseName);
             _menusCollection = mongoDatabase.GetCollection<Menu>(databaseSettings.Value.CollectionName);
         }
