@@ -28,6 +28,13 @@ public class SqlOrderRepository : IOrderRepository
         return await GetOrderImp(sql);
     }
 
+    public async Task<IEnumerable<Order>> GetOrdersByRestaurant(string restaurantId)
+    {
+        var sql =
+            @$"SELECT o.*, f.* FROM [myOrder] AS o LEFT JOIN foodItem AS f on o.Id = f.OrderId WHERE o.RestaurantId = '{restaurantId}'";
+        return await GetOrderImp(sql);
+    }
+
     public async Task<Order> GetOrder(Guid orderId)
     {
         var sql =

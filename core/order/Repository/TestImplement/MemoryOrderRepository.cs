@@ -44,6 +44,11 @@ public class MemoryOrderRepository : IOrderRepository
         return Task.FromResult(_orders.Where(_ => _.Customer.Id == userId));
     }
 
+    public Task<IEnumerable<Order>> GetOrdersByRestaurant(string restaurantId)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task<Order> GetOrder(Guid orderId)
     {
         var order = _orders.FirstOrDefault(_ => _.Id == orderId);

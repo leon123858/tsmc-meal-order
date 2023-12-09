@@ -21,6 +21,9 @@ public class OrderService
 
     public async Task<IEnumerable<Order>> GetOrders(User user)
     {
+        if (user.Type == UserType.admin)
+            return await _orderRepository.GetOrdersByRestaurant(user.Id);
+
         return await _orderRepository.GetOrders(user.Id);
     }
 
@@ -28,7 +31,10 @@ public class OrderService
     {
         var order = await _orderRepository.GetOrder(orderId);
 
-        if (order.Customer.Id != user.Id)
+        if (user.Type == UserType.admin && order.Restaurant.Id != user.Id)
+            throw new Exception("User is not the owner of the order");
+        
+        if (user.Type == UserType.normal && order.Customer.Id != user.Id)
             throw new Exception("User is not the owner of the order");
 
         return order;
@@ -36,7 +42,7 @@ public class OrderService
 
     public async Task<Order> CreateOrder(User user, User restaurant, CreateOrderWebDTO createOrderWeb)
     {
-        var foodItem = await _foodItemRepository.GetFoodItem(createOrderWeb.MenuId, createOrderWeb.FoodItemId);
+        var foodItem = await _foodItemRepository.GetFoodItem(restaurant.Id, createOrderWeb.FoodItemId);
         var orderedFoodItem = new OrderedFoodItem(foodItem, createOrderWeb.Count, createOrderWeb.Description);
 
         var newOrder = new Order
@@ -74,7 +80,10 @@ public class OrderService
     {
         var order = await _orderRepository.GetOrder(orderId);
 
-        if (order.Customer.Id != user.Id)
+        if (user.Type == UserType.admin && order.Restaurant.Id != user.Id)
+            throw new Exception("User is not the owner of the order");
+        
+        if (user.Type == UserType.normal && order.Customer.Id != user.Id)
             throw new Exception("User is not the owner of the order");
 
         order.Cancel();
