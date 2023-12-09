@@ -12,18 +12,19 @@ public class MemoryOrderRepository : IOrderRepository
     {
         var fakeUser = new User { Id = "Kkyb8oszawYXhfP6GpTNRb711F02" };
 
-        var meal1 = new FoodItem
-            { Name = "Burger", Price = 100, Description = "Juicy beef burger with cheese and veggies" };
-        var meal2 = new FoodItem
-            { Name = "Pizza", Price = 120, Description = "Delicious pizza with assorted toppings" };
-        var meal3 = new FoodItem { Name = "Salad", Price = 130, Description = "Fresh garden salad with dressing" };
+        var meal1 = new OrderedFoodItem(new FoodItem
+            { Name = "Burger", Price = 100, Description = "Juicy beef burger with cheese and veggies" }, 1, "");
+        var meal2 = new OrderedFoodItem(new FoodItem
+            { Name = "Pizza", Price = 120, Description = "Delicious pizza with assorted toppings" }, 2, "");
+        var meal3 = new OrderedFoodItem(new FoodItem
+            { Name = "Salad", Price = 130, Description = "Fresh garden salad with dressing" }, 1, "");
 
-        var order1 = new Order
+    var order1 = new Order
         {
             Id = Guid.NewGuid(),
             Customer = fakeUser,
             Restaurant = new User { Id = "4bCkldMFxoh5kP9byf7GUFsiF2t2" },
-            FoodItems = new List<FoodItem> { meal1, meal2 }
+            FoodItems = new List<OrderedFoodItem> { meal1, meal2 }
         };
 
         var order2 = new Order
@@ -31,7 +32,7 @@ public class MemoryOrderRepository : IOrderRepository
             Id = Guid.NewGuid(),
             Customer = fakeUser,
             Restaurant = new User { Id = "4bCkldMFxoh5kP9byf7GUFsiF2t2" },
-            FoodItems = new List<FoodItem> { meal3 }
+            FoodItems = new List<OrderedFoodItem> { meal3 }
         };
 
         _orders.Add(order1);

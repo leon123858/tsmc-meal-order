@@ -23,25 +23,25 @@ public class MailService
     public void SendOrderCreatedMail(Order order)
     {
         SendMail(order.Customer.Email, "餐點訂單已建立",
-            $"以下訂單已建立\r\n日期：{order.OrderDate:yyyy/MM/dd}\r\n餐點：{GetFoodItemsString(order.FoodItems)}");
+            $"以下訂單已建立\r\n日期：{order.OrderDate:yyyy/MM/dd}\r\n\r\n餐點：{GetFoodItemsString(order.FoodItems)}");
     }
 
     public void SendOrderConfirmedMail(Order order)
     {
         SendMail(order.Customer.Email, "餐點訂單已確認",
-            $"以下訂單已確認\r\n日期：{order.OrderDate:yyyy/MM/dd}\r\n餐點：{GetFoodItemsString(order.FoodItems)}");
+            $"以下訂單已確認\r\n日期：{order.OrderDate:yyyy/MM/dd}\r\n\r\n餐點：{GetFoodItemsString(order.FoodItems)}");
     }
 
     public void SendOrderDeletedMail(Order order)
     {
         SendMail(order.Customer.Email, "餐點訂單已刪除",
-            $"以下訂單已取消\r\n日期：{order.OrderDate:yyyy/MM/dd}\r\n餐點：{GetFoodItemsString(order.FoodItems)}");
+            $"以下訂單已取消\r\n日期：{order.OrderDate:yyyy/MM/dd}\r\n\r\n餐點：{GetFoodItemsString(order.FoodItems)}");
     }
 
-    private string GetFoodItemsString(List<FoodItem> orderFoodItems)
+    private string GetFoodItemsString(List<OrderedFoodItem> orderFoodItems)
     {
         var stringBuilder = new StringBuilder();
-        foreach (var foodItem in orderFoodItems) stringBuilder.Append($"{foodItem.Name} x {foodItem.Count} \r\n");
+        foreach (var foodItem in orderFoodItems) stringBuilder.Append($"{foodItem.Snapshot.Name} x {foodItem.Count} : {foodItem.Description} \r\n");
 
         return stringBuilder.ToString();
     }

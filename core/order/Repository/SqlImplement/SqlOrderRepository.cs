@@ -97,7 +97,7 @@ public class SqlOrderRepository : IOrderRepository
         await conn.QueryAsync<OrderSqlDTO, FoodItemSqlDTO, Order>(sql,
             (orderSqlDto, foodItemDto) =>
             {
-                var newFoodItemDto = (FoodItem?)foodItemDto;
+                var newFoodItemDto = (OrderedFoodItem?)foodItemDto;
 
                 if (!orderDictionary.TryGetValue(orderSqlDto.Id, out var existingOrder))
                 {
