@@ -1,4 +1,6 @@
-﻿using menu.Config;
+﻿using core.Model;
+using menu.Config;
+using menu.Exceptions;
 using menu.Models;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
@@ -28,16 +30,35 @@ namespace menu.Services
         public async Task<List<Menu>> GetAllAsync() =>
             await _menusCollection.Find(_ => true).ToListAsync();
 
-        public async Task<Menu?> GetByIdAsync(string id) =>
-            await _menusCollection.Find(m => m.Id == id).FirstOrDefaultAsync();
 
-        public async Task<List<Menu>> GetByLocationAsync(string location) =>
+        public async Task<Menu?> GetMenuAsync(string id)
+        {
+            var menu = await _menusCollection.Find(m => m.Id == id).FirstOrDefaultAsync();
+            if (menu != null)
+            {
+                return menu;
+            }
+
+            throw new MenuNotFoundException();
+        }
+
+        public async Task<List<Menu>> GetMenusByLocationAsync(string location) =>
             await _menusCollection.Find(m => m.Location == location).ToListAsync();
 
-        public async Task CreateAsync(Menu menu) =>
+        public async Task CreateMenuAsync(Menu menu) =>
             await _menusCollection.InsertOneAsync(menu);
 
-        public async Task UpdateAsync(Menu newMenu) =>
+        public async Task UpdateMenuAsync(Menu newMenu) =>
             await _menusCollection.ReplaceOneAsync(m => m.Id == newMenu.Id, newMenu);
+
+        public FoodItem? GetFoodItem(Menu? menu, int itemIdx)
+        {
+            if (itemIdx < menu!.FoodItems.Count)
+            {
+                return menu!.FoodItems[itemIdx];
+            }
+
+            throw new FoodItemNotFoundException();
+        }
     }
 }
