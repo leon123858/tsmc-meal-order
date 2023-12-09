@@ -12,6 +12,7 @@ using core.Model;
 using menu.Services;
 using menu.Clients;
 using menu.Config;
+using menu.Exceptions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -55,13 +56,18 @@ app.MapGet("/api/menu", async (MenuService _menuService, ILogger < Program> _log
     Summary = "Get all the menus."
 });
 
-app.MapGet("/api/menu/{menuId}", async (string menuId, MenuService _menuService) =>
+app.MapGet("/api/menu/{menuId}", async (string menuId, MenuService _menuService, ILogger<Program> _logger) =>
 {
-    Menu? menu = await _menuService.GetByIdAsync(menuId);
-    if (menu != null)
-        return Results.Ok(new ApiResponse<Menu> { Data = menu });
-    
-    return Results.NotFound(ApiResponse.NotFound());
+    try
+    {
+        Menu? menu = await _menuService.GetMenuAsync(menuId);
+        return Results.Ok(new ApiResponse<Menu> { Data = menu! });
+    }
+    catch(MenuNotFoundException e)
+    {
+        _logger.LogError(e.Message);
+        return Results.NotFound(ApiResponse.NotFound());
+    }
 })
 .WithName("GetMenuById")
 .Produces<ApiResponse<object>>(StatusCodes.Status200OK)
@@ -73,15 +79,17 @@ app.MapGet("/api/menu/{menuId}", async (string menuId, MenuService _menuService)
 
 app.MapGet("/api/menu/user/{userId}", async (string userId, MenuService _menuService, IUserClient _userClient, ILogger<Program> _logger) =>
 {
-    var user = await _userClient.GetUserAsync(userId);
-    if (user != null)
+    try
     {
-        var menus = await _menuService.GetByLocationAsync(user.Place);
-        if (menus != null)
-            return Results.Ok(new ApiResponse<IEnumerable<Menu>> { Data = menus });
+        var user = await _userClient.GetUserAsync(userId);
+        var menus = await _menuService.GetMenusByLocationAsync(user!.Place);
+        return Results.Ok(new ApiResponse<IEnumerable<Menu>> { Data = menus });
     }
-
-    return Results.NotFound(ApiResponse.NotFound());
+    catch (UserNotFoundException e)
+    {
+        _logger.LogError(e.Message);
+        return Results.NotFound(ApiResponse.NotFound());
+    }
 })
 .WithName("GetMenuForUser")
 .Produces<ApiResponse<object>>(StatusCodes.Status200OK)
@@ -99,26 +107,32 @@ app.MapPost("/api/menu/", async ([FromBody] MenuCreateDTO menuCreateDto, MenuSer
         string errorMsg = validResult.Errors.FirstOrDefault()!.ToString();
         return Results.BadRequest(ApiResponse.BadRequest(errorMsg));
     }
-  
-    var user = await _userClient.GetUserAsync(menuCreateDto.Id);
-    if (user == null)
+
+    Menu menu = _mapper.Map<Menu>(menuCreateDto);
+    foreach (var foodItem in menu.FoodItems)
     {
+        foodItem.Count = foodItem.CountLimit;
+    }
+
+    try
+    {
+        var user = await _userClient.GetUserAsync(menuCreateDto.Id);
+        menu.Location = user!.Place;
+
+        Menu? oldMenu = await _menuService.GetMenuAsync(menuCreateDto.Id);
+        await _menuService.UpdateMenuAsync(menu);
+    }
+    catch (UserNotFoundException e)
+    {
+        _logger.LogError(e.Message);
         return Results.NotFound(ApiResponse.NotFound());
     }
-
-    Menu? oldMenu = await _menuService.GetByIdAsync(menuCreateDto.Id);
-    Menu menu = _mapper.Map<Menu>(menuCreateDto);
-    menu.Location = user.Place;
+    catch (MenuNotFoundException)
+    {
+        await _menuService.CreateMenuAsync(menu);
+    }
+    
     MenuDTO menuDto = _mapper.Map<MenuDTO>(menu);
-    if (oldMenu != null)
-    {
-        await _menuService.UpdateAsync(menu);
-    }
-    else
-    {
-        await _menuService.CreateAsync(menu);
-    }
-
     return Results.Ok(new ApiResponse<MenuDTO>{ Data = menuDto });
 })
 .WithName("CreateMenu")
@@ -128,19 +142,29 @@ app.MapPost("/api/menu/", async ([FromBody] MenuCreateDTO menuCreateDto, MenuSer
 .Produces<ApiResponse<object>>(StatusCodes.Status404NotFound)
 .WithOpenApi(operation => new(operation)
 {
-    Summary = "Create the menu."
+    Summary = "Create the menu. Note that the tags of each food item cannot be more than 4"
 });
 
-app.MapGet("/api/menu/{menuId}/foodItem/{itemIdx:int}", async (MenuService _menuService, IMapper _mapper, string menuId, int itemIdx) =>
+app.MapGet("/api/menu/{menuId}/foodItem/{itemIdx:int}", async (string menuId, int itemIdx, MenuService _menuService, ILogger<Program> _logger, IMapper _mapper) =>
 {
-    Menu? menu = await _menuService.GetByIdAsync(menuId);
-    if (menu != null && itemIdx < menu.FoodItems.Count)
+    try
     {
-        FoodItemDTO foodItemDto = _mapper.Map<FoodItemDTO>(menu.FoodItems[itemIdx]);
+        Menu? menu = await _menuService.GetMenuAsync(menuId);
+        FoodItem? foodItem = _menuService.GetFoodItem(menu, itemIdx);
+        FoodItemDTO foodItemDto = _mapper.Map<FoodItemDTO>(foodItem);
+
         return Results.Ok(new ApiResponse<FoodItemDTO> { Data = foodItemDto });
     }
-    else
+    catch(MenuNotFoundException e)
+    {
+        _logger.LogError(e.Message);
         return Results.NotFound(ApiResponse.NotFound());
+    }
+    catch(FoodItemNotFoundException e)
+    {
+        _logger.LogError(e.Message);
+        return Results.NotFound(ApiResponse.NotFound());
+    }
 })
 .WithName("GetMenuItem")
 .Produces<ApiResponse<FoodItemDTO>>(StatusCodes.Status200OK)
@@ -148,6 +172,70 @@ app.MapGet("/api/menu/{menuId}/foodItem/{itemIdx:int}", async (MenuService _menu
 .WithOpenApi(operation => new(operation)
 {
     Summary = "Get the i-th item of the menu with the specified id"
+});
+
+app.MapPost("/api/menu/foodItem", async (MenuService _menuService, ILogger<Program> _logger) =>
+{
+    var menus = await _menuService.GetAllAsync();
+    foreach(var menu in menus)
+    {
+        foreach (var item in menu.FoodItems)
+        {
+            item.Count = item.CountLimit;
+        }
+
+        await _menuService.UpdateMenuAsync(menu);
+    }
+
+    return Results.Ok(new ApiResponse<object>());
+})
+.WithName("ResetFoodItemCount")
+.Produces<ApiResponse<object>>(StatusCodes.Status200OK)
+.WithOpenApi(operation => new(operation)
+{
+    Summary = "Reset the count of all foodItems to the given limit"
+});
+
+app.MapPost("/api/menu/{menuId}/foodItem/{itemIdx:int}/{decreaseCount:int}", async (string menuId, int itemIdx, int decreaseCount, MenuService _menuService, ILogger < Program > _logger) =>
+{
+    try
+    {
+        Menu? menu = await _menuService.GetMenuAsync(menuId);
+        FoodItem? foodItem = _menuService.GetFoodItem(menu, itemIdx);
+        foodItem!.Count -= decreaseCount;
+        
+        if (foodItem.Count < 0)
+        {
+            return Results.BadRequest(ApiResponse.BadRequest("food item count should not be negative"));
+        }
+        else if(foodItem.Count > foodItem.CountLimit)
+        {
+            return Results.BadRequest(ApiResponse.BadRequest("food item count exceed the limit."));
+        }
+
+        menu!.FoodItems[itemIdx] = foodItem;
+        await _menuService.UpdateMenuAsync(menu);
+
+        return Results.Ok(new ApiResponse<object>());
+    }
+    catch(MenuNotFoundException e)
+    {
+        _logger.LogError(e.Message);
+        return Results.NotFound(ApiResponse.NotFound());
+    }
+    catch (FoodItemNotFoundException e)
+    {
+        _logger.LogError(e.Message);
+        return Results.NotFound(ApiResponse.NotFound());
+    }
+})
+.WithName("DecreaseFoodItemCount")
+.Produces<ApiResponse<object>>(StatusCodes.Status200OK)
+.Produces<ApiResponse<object>>(StatusCodes.Status400BadRequest)
+.Produces<ApiResponse<object>>(StatusCodes.Status404NotFound)
+.WithOpenApi(operation => new(operation)
+{
+    Summary = "Decrease the count of the given food item by x, which can be a negative number."
 });
 
 app.Run();
