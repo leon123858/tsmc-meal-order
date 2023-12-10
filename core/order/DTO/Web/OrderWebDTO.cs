@@ -9,7 +9,7 @@ public class OrderWebDTO
     public Guid Id { get; set; }
     public User Customer { get; set; }
     public User Restaurant { get; set; }
-    public List<OrderedFoodItem> FoodItems { get; set; }
+    public List<OrderedFoodItemWebDTO> FoodItems { get; set; }
     public DateTime OrderDate { get; set; }
     public DateTime CreateTime { get; set; }
     public string MealType { get; set; }
@@ -22,7 +22,7 @@ public class OrderWebDTO
             Id = order.Id,
             Customer = order.Customer,
             Restaurant = order.Restaurant,
-            FoodItems = order.FoodItems,
+            FoodItems = order.FoodItems.Select(_ => (OrderedFoodItemWebDTO) _).ToList(),
             OrderDate = order.OrderDate,
             CreateTime = order.CreateTime,
             MealType = order.MealType.ToString()

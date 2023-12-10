@@ -13,11 +13,11 @@ public class MemoryOrderRepository : IOrderRepository
         var fakeUser = new User { Id = "Kkyb8oszawYXhfP6GpTNRb711F02" };
 
         var meal1 = new OrderedFoodItem(new FoodItem
-            { Name = "Burger", Price = 100, Description = "Juicy beef burger with cheese and veggies" }, 1, "");
+            { Name = "Burger", Price = 100, Description = "Juicy beef burger with cheese and veggies" }, 0, 1, "");
         var meal2 = new OrderedFoodItem(new FoodItem
-            { Name = "Pizza", Price = 120, Description = "Delicious pizza with assorted toppings" }, 2, "");
+            { Name = "Pizza", Price = 120, Description = "Delicious pizza with assorted toppings" }, 0, 2, "");
         var meal3 = new OrderedFoodItem(new FoodItem
-            { Name = "Salad", Price = 130, Description = "Fresh garden salad with dressing" }, 1, "");
+            { Name = "Salad", Price = 130, Description = "Fresh garden salad with dressing" }, 0, 1, "");
 
     var order1 = new Order
         {

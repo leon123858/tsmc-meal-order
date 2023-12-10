@@ -43,7 +43,7 @@ public class OrderService
     public async Task<Order> CreateOrder(User user, User restaurant, CreateOrderWebDTO createOrderWeb)
     {
         var foodItem = await _foodItemRepository.GetFoodItem(restaurant.Id, createOrderWeb.FoodItemId);
-        var orderedFoodItem = new OrderedFoodItem(foodItem, createOrderWeb.Count, createOrderWeb.Description);
+        var orderedFoodItem = new OrderedFoodItem(foodItem, createOrderWeb.FoodItemId, createOrderWeb.Count, createOrderWeb.Description);
 
         var newOrder = new Order
         {
@@ -56,7 +56,10 @@ public class OrderService
         };
 
         await _orderRepository.CreateOrder(newOrder);
-
+        
+        foreach (var item in newOrder.FoodItems)
+            await _foodItemRepository.AdjustFoodItemStock(restaurant.Id, item.Index, -item.Count);
+        
         _mailService.SendOrderCreatedMail(newOrder);
 
         return newOrder;
@@ -89,6 +92,9 @@ public class OrderService
         order.Cancel();
 
         await _orderRepository.UpdateOrder(order);
+
+        foreach (var foodItem in order.FoodItems)
+            await _foodItemRepository.AdjustFoodItemStock(order.Restaurant.Id, foodItem.Index, foodItem.Count);
 
         _mailService.SendOrderDeletedMail(order);
     }

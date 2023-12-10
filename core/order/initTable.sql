@@ -28,10 +28,12 @@ Create table myOrder
 create table foodItem
 (
     OrderId              uniqueidentifier NOT NULL,
+    Snapshot_Index       int              NOT NULL,
     Snapshot_Description nvarchar(200),
     Snapshot_Name        nvarchar(50)     NOT NULL,
     Snapshot_Price       int              NOT NULL,
     Snapshot_Count       int              NOT NULL,
+    Snapshot_CountLimit  int              NOT NULL,
     Snapshot_ImageUrl    nvarchar(200),
     Snapshot_Tags        nvarchar(200),
     Count                int              NOT NULL,

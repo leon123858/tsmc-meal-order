@@ -14,4 +14,9 @@ public class MemoryFoodItemRepository : IFoodItemRepository
             Tags = new List<string> { "Test", "Food", "Item" }
         });
     }
+
+    public Task AdjustFoodItemStock(string menuId, int itemIndex, int quantity)
+    {
+        return Task.CompletedTask;
+    }
 }
