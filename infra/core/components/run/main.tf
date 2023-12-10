@@ -31,7 +31,7 @@ resource "google_cloud_run_v2_service" "default" {
     dynamic "volumes" {
       for_each = var.cloudsql_instance == "" ?{} : { cloudsql : var.cloudsql_instance }
       content {
-        name               = volumes.key
+        name = volumes.key
         cloud_sql_instance {
           instances = [volumes.value]
         }
