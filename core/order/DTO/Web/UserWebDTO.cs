@@ -18,7 +18,7 @@ public class UserWebDTO
             Email = webDto.email,
             Name = webDto.name,
             Place = webDto.place,
-            UserType = webDto.userType
+            Type = Enum.Parse<UserType>(webDto.userType)
         };
     }
 }
