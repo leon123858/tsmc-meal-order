@@ -43,6 +43,10 @@ public class OrderService
     public async Task<Order> CreateOrder(User user, User restaurant, CreateOrderWebDTO createOrderWeb)
     {
         var foodItem = await _foodItemRepository.GetFoodItem(restaurant.Id, createOrderWeb.FoodItemId);
+        
+        if (foodItem.Count < createOrderWeb.Count)
+            throw new Exception("Not enough food items in stock");
+        
         var orderedFoodItem = new OrderedFoodItem(foodItem, createOrderWeb.FoodItemId, createOrderWeb.Count, createOrderWeb.Description);
 
         var newOrder = new Order
