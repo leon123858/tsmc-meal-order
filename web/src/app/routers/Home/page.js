@@ -40,8 +40,8 @@ function getDish (menuData) {
     return Dishes;
 }
 
-async function fetchMenuData(setMenuData, location) {
-    const res = await fetch(`${MenuAPI}`, {
+async function fetchMenuData(setMenuData, userID) {
+    const res = await fetch(`${MenuAPI}/user/${userID}`, {
         method: 'GET',
         headers: {
             'Accept': 'application/json'
@@ -49,17 +49,23 @@ async function fetchMenuData(setMenuData, location) {
     });
     // const res = await fetch(`${MenuAPI}/menu`);
     var data = await res.json();
-    data = Object.values(data)[0].filter(item => item.location == location);
+    data = Object.values(data)[0];
     setMenuData(getDish(data));
 }
 
 function filterData(curMenuData, setFilterData, curFilterState) {
     const Dishes = [];
+    const MealTypeMapping = {
+        "Dinner": "晚餐",
+        "Breakfast": "早餐",
+        "Lunch": "午餐"
+    }
     curMenuData.forEach(dish => {
-        const filterSeafood = curFilterState["海鮮"] === ["蝦", "魚"].some((tag) => dish["tags"].includes(tag));
-        const filterMeat = curFilterState["肉類"] === ["雞", "豬", "牛", "羊", "鴨", "鵝"].some((tag) => dish["tags"].includes(tag));
-        const filterLactotene = curFilterState["蛋奶素"] === ["牛奶", "蛋"].some((tag) => dish["tags"].includes(tag));
-        if (filterSeafood && filterMeat && filterLactotene) {
+        const filterTime = dish["tags"].includes(MealTypeMapping[curFilterState["餐點時間"]]);
+        const filterSeafood = curFilterState["海鮮"] && dish["tags"].includes("海鮮");
+        const filterMeat = curFilterState["肉類"] && dish["tags"].includes("肉類");
+        const filterLactotene = curFilterState["蛋奶素"] && dish["tags"].includes("蛋奶素");
+        if (filterTime && (filterSeafood || filterMeat || filterLactotene)) {
             Dishes.push(dish);
         }
     });
@@ -69,8 +75,8 @@ function filterData(curMenuData, setFilterData, curFilterState) {
 export default function Home() {
     const [curAIWindowState, setAIWindowState] = useState(false);
     const [curDesWindowState, setDesWindowState] = useState(false);
-    const [curMenuData, setMenuData] = useState([]);
     const [curSelectDish, setSelectDish] = useState({}); // 設定要傳入給 description window 的菜色
+    const [curMenuData, setMenuData] = useState([]);
     const [curFilterData, setFilterData] = useState([]); // 儲存被種類過濾後的菜色
     const [curPlace, setPlace] = useState("None");
     const {curFilterState, setFilterState} = useContext(FilterContext);
@@ -88,7 +94,7 @@ export default function Home() {
         if (userID != "" && curPlace == "") {
             alert("請先設定使用者名稱及地點");
         }
-    }, [userID, curPlace])
+    }, [userID, curPlace]);
 
     // 每次回到 menu 頁時，把 filter 的狀態初始化
     useEffect(() => {
@@ -96,15 +102,21 @@ export default function Home() {
             ...prevState,
             "蛋奶素": false,
             "肉類": false,
-            "海鮮": false
+            "海鮮": false,
+            "餐點時間": "Lunch"
         }));
-    }, [])    
+    }, []);
 
-    // 取回 menu，並進行 filter
+    // 一進來頁面，先 fetch menu 資料
     useEffect(() => {
-        // fetchMenuData(setMenuData, curPlace);
-        // filterData(curMenuData, setFilterData, curFilterState);
-    }, [curPlace, curFilterState])
+        if (userID != "") {
+            fetchMenuData(setMenuData, userID);
+        }
+    }, [userID, curPlace]);
+
+    useEffect(() => {
+        filterData(curMenuData, setFilterData, curFilterState)
+    }, [curFilterState, curMenuData]);
 
     const handleDishButton = (dish) => {
         setSelectDish(dish);
@@ -123,7 +135,7 @@ export default function Home() {
             <main className={styles.main}>
                 <div className={styles.dishContainer}>
                     {
-                        curMenuData.map((dish, index) => ( 
+                        curFilterData.map((dish, index) => ( 
                             <>
                                 <div onClick={() => handleDishButton(dish)}>
                                     <Dish
@@ -132,8 +144,8 @@ export default function Home() {
                                         historyType={""}
                                         setDeleteHistory={() => {}}
                                     />
-                                    {index < curMenuData.length - 1 && <hr className={styles.hr_meal} />}
-                                    {index === curMenuData.length - 1 && <hr className={styles.hr_date} />}                 
+                                    {index < curFilterData.length - 1 && <hr className={styles.hr_meal} />}
+                                    {index === curFilterData.length - 1 && <hr className={styles.hr_date} />}                 
                                 </div>
                             </>
                         ))

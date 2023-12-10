@@ -45,7 +45,7 @@ export default function History() {
     const [curDeleteHistory, setDeleteHistory] = useState(false);
     const { userID } = useContext(UserContext);  
     
-    // 一進來頁面，先 fetch 資料
+    // 一進來頁面，先 fetch order 資料
     useEffect(() => {
         if (userID != "") {
             fetchOrderData(setOrderData, userID);
@@ -68,7 +68,7 @@ export default function History() {
 
     // 取出所有 date，並按照降序排列
     const dateKeys = Object.keys(curFilterOrderData);
-    dateKeys.sort((a, b) => b - a);
+    dateKeys.sort((a, b) => new Date(b) - new Date(a));
     
     return (
         <div>

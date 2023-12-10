@@ -1,6 +1,6 @@
 import { DatePicker, Select, Switch, Button } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
-import { useContext } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { FilterContext } from '../../store/filterContext'
 import Link from 'next/link'
 
@@ -15,29 +15,44 @@ const onChange = (category, checked, setFilterState) => {
     }));
 };
 
-const handleChange = (value) => {
-    console.log(`selected ${value}`);
+const handleChange = (value, setFilterState) => {
+    setFilterState((prevState) => ({
+        ...prevState,
+        "餐點時間": value
+    }));
 };
 
 
 const HomeSelection = () => {
     const { setFilterState } = useContext(FilterContext);
+    const locale = 'en';
+    const [today, setDate] = useState(new Date());
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setDate(new Date());
+        }, 60 * 1000)
+        return () => {
+            clearInterval(today);
+        }
+    }, []);
+
     return (
         <div className={styles.container}>
             <div className={styles.topRow}>
                 <div className={styles.datePicker}>
-                    <DatePicker onChange={onChange} style={{ width: "100%" }} />
+                    <DatePicker showTime={{ defaultValue: today}} />
                 </div>
 
                 <div className={styles.select}>
                     <Select
                         defaultValue="lunch"
                         style={{ width: 120 }}
-                        onChange={handleChange}
+                        onChange={(value) => handleChange(value, setFilterState)}
                         options={[
-                            { value: "breakfast", label: "Breakfast" },
-                            { value: "lunch", label: "Lunch" },
-                            { value: "dinner", label: "Dinner" },
+                            { value: "Breakfast", label: "Breakfast" },
+                            { value: "Lunch", label: "Lunch" },
+                            { value: "Dinner", label: "Dinner" },
                         ]}
                     />
                 </div>
