@@ -81,6 +81,8 @@ module "build_mail" {
   region           = var.region
   docker_file_path = "mail/mail/Dockerfile"
   source_repo      = module.repository.id
+
+  depends_on = [module.cloud_build_builder]
 }
 
 module "build_user" {
@@ -89,4 +91,6 @@ module "build_user" {
   region           = var.region
   docker_file_path = "user/Dockerfile"
   source_repo      = module.repository.id
+
+  depends_on = [module.cloud_build_builder]
 }
