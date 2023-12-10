@@ -23,7 +23,8 @@ builder.Services.AddAutoMapper(typeof(MappingConfig));
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.Configure<MenuDatabaseConfig>(builder.Configuration.GetSection("MenuDatabase"));
 builder.Services.Configure<WebConfig>(builder.Configuration.GetSection("WebApi"));
-builder.Services.AddSingleton<MenuService>();
+builder.Services.AddSingleton<RealMenuService>();
+builder.Services.AddSingleton<TempMenuService>();
 builder.Services.AddSingleton<IUserClient ,UserClient>();
 builder.Services.AddAuthentication();
 builder.Services.AddCors(options =>
@@ -44,24 +45,33 @@ app.UseSwagger();
 app.UseSwaggerUI();
 app.UseCors();
 
-app.MapGet("/api/menu", async (MenuService _menuService, ILogger < Program> _logger) =>
+app.MapGet("/api/menu", async (TempMenuService _menuService, ILogger < Program> _logger) =>
 {
-    var menus = await _menuService.GetAllAsync();
+    var menus = await _menuService.GetAllMenuAsync();
     return Results.Ok(new ApiResponse<IEnumerable<Menu>> { Data = menus });
 })
-.WithName("GetAllMenus")
+.WithName("GetAllTempMenus")
 .Produces<ApiResponse<IEnumerable<Menu>>>(StatusCodes.Status200OK)
 .WithOpenApi(operation => new(operation)
 {
-    Summary = "Get all the menus."
+    Summary = "Get all the temporary menus."
 });
 
-app.MapGet("/api/menu/{menuId}", async (string menuId, MenuService _menuService, ILogger<Program> _logger) =>
+app.MapGet("/api/menu/{menuId}", async (string menuId, RealMenuService _menuService, IUserClient _userClient, ILogger<Program> _logger) =>
 {
     try
     {
-        Menu? menu = await _menuService.GetMenuAsync(menuId);
+        var user = await _userClient.GetUserAsync(menuId);
+        if (user!.UserType != "admin")
+            return Results.BadRequest(ApiResponse.BadRequest("Not an admin user."));
+
+        var menu = await _menuService.GetMenuAsync(menuId);
         return Results.Ok(new ApiResponse<Menu> { Data = menu! });
+    }
+    catch (UserNotFoundException e)
+    {
+        _logger.LogError(e.Message);
+        return Results.NotFound(ApiResponse.NotFound());
     }
     catch(MenuNotFoundException e)
     {
@@ -69,15 +79,16 @@ app.MapGet("/api/menu/{menuId}", async (string menuId, MenuService _menuService,
         return Results.NotFound(ApiResponse.NotFound());
     }
 })
-.WithName("GetMenuById")
+.WithName("GetRealMenuForAdmin")
 .Produces<ApiResponse<object>>(StatusCodes.Status200OK)
+.Produces<ApiResponse<object>>(StatusCodes.Status400BadRequest)
 .Produces<ApiResponse<object>>(StatusCodes.Status404NotFound)
 .WithOpenApi(operation => new(operation)
 {
-    Summary = "Get the menu with the specified ower id, if exist."
+    Summary = "For admin user, get his / her real menu."
 });
 
-app.MapGet("/api/menu/user/{userId}", async (string userId, MenuService _menuService, IUserClient _userClient, ILogger<Program> _logger) =>
+app.MapGet("/api/menu/user/{userId}", async (string userId, TempMenuService _menuService, IUserClient _userClient, ILogger<Program> _logger) =>
 {
     try
     {
@@ -91,15 +102,15 @@ app.MapGet("/api/menu/user/{userId}", async (string userId, MenuService _menuSer
         return Results.NotFound(ApiResponse.NotFound());
     }
 })
-.WithName("GetMenuForUser")
-.Produces<ApiResponse<object>>(StatusCodes.Status200OK)
+.WithName("GetTempMenuForUser")
+.Produces<ApiResponse<IEnumerable<Menu>>>(StatusCodes.Status200OK)
 .Produces<ApiResponse<object>>(StatusCodes.Status404NotFound)
 .WithOpenApi(operation => new(operation)
 {
-    Summary = "Get all the menus with the same location as the specified user id, if exist."
+    Summary = "For normal user, get all the temporary menus with the same location."
 });
 
-app.MapPost("/api/menu/", async ([FromBody] MenuCreateDTO menuCreateDto, MenuService _menuService, IUserClient _userClient, ILogger<Program> _logger, IMapper _mapper, IValidator<MenuCreateDTO> _validator) =>
+app.MapPost("/api/menu/", async ([FromBody] MenuCreateDTO menuCreateDto, RealMenuService _menuService, IUserClient _userClient, ILogger<Program> _logger, IMapper _mapper, IValidator<MenuCreateDTO> _validator) =>
 {
     var validResult = await _validator.ValidateAsync(menuCreateDto);
     if (!validResult.IsValid)
@@ -142,10 +153,10 @@ app.MapPost("/api/menu/", async ([FromBody] MenuCreateDTO menuCreateDto, MenuSer
 .Produces<ApiResponse<object>>(StatusCodes.Status404NotFound)
 .WithOpenApi(operation => new(operation)
 {
-    Summary = "Create the menu. Note that the tags of each food item cannot be more than 4"
+    Summary = "Create a real menu if non-existent, update it otherwise"
 });
 
-app.MapGet("/api/menu/{menuId}/foodItem/{itemIdx:int}", async (string menuId, int itemIdx, MenuService _menuService, ILogger<Program> _logger, IMapper _mapper) =>
+app.MapGet("/api/menu/{menuId}/foodItem/{itemIdx:int}", async (string menuId, int itemIdx, TempMenuService _menuService, ILogger<Program> _logger, IMapper _mapper) =>
 {
     try
     {
@@ -166,37 +177,40 @@ app.MapGet("/api/menu/{menuId}/foodItem/{itemIdx:int}", async (string menuId, in
         return Results.NotFound(ApiResponse.NotFound());
     }
 })
-.WithName("GetMenuItem")
+.WithName("GetTempMenuItem")
 .Produces<ApiResponse<FoodItemDTO>>(StatusCodes.Status200OK)
 .Produces<ApiResponse<object>>(StatusCodes.Status404NotFound)
 .WithOpenApi(operation => new(operation)
 {
-    Summary = "Get the i-th item of the menu with the specified id"
+    Summary = "Get the i-th item of the temporary menu with the specified id"
 });
 
-app.MapPost("/api/menu/foodItem", async (MenuService _menuService, ILogger<Program> _logger) =>
+app.MapPost("/api/menu/sync", async (RealMenuService _realMenu, TempMenuService _tempMenu, ILogger<Program> _logger) =>
 {
-    var menus = await _menuService.GetAllAsync();
+    var menus = await _realMenu.GetAllMenuAsync();
     foreach(var menu in menus)
     {
-        foreach (var item in menu.FoodItems)
+        try
         {
-            item.Count = item.CountLimit;
+            await _tempMenu.GetMenuAsync(menu.Id);
+            await _tempMenu.UpdateMenuAsync(menu);
         }
-
-        await _menuService.UpdateMenuAsync(menu);
+        catch (MenuNotFoundException)
+        {
+            await _tempMenu.CreateMenuAsync(menu);
+        }
     }
 
     return Results.Ok(new ApiResponse<object>());
 })
-.WithName("ResetFoodItemCount")
+.WithName("SyncTempMenu")
 .Produces<ApiResponse<object>>(StatusCodes.Status200OK)
 .WithOpenApi(operation => new(operation)
 {
-    Summary = "Reset the count of all foodItems to the given limit"
+    Summary = "Sync the data of the temp menu, from the real menu"
 });
 
-app.MapPost("/api/menu/{menuId}/foodItem/{itemIdx:int}/{decreaseCount:int}", async (string menuId, int itemIdx, int decreaseCount, MenuService _menuService, ILogger < Program > _logger) =>
+app.MapPost("/api/menu/{menuId}/foodItem/{itemIdx:int}/{decreaseCount:int}", async (string menuId, int itemIdx, int decreaseCount, TempMenuService _menuService, ILogger < Program > _logger) =>
 {
     try
     {
@@ -229,13 +243,13 @@ app.MapPost("/api/menu/{menuId}/foodItem/{itemIdx:int}/{decreaseCount:int}", asy
         return Results.NotFound(ApiResponse.NotFound());
     }
 })
-.WithName("DecreaseFoodItemCount")
+.WithName("DecreaseTempFoodItemCount")
 .Produces<ApiResponse<object>>(StatusCodes.Status200OK)
 .Produces<ApiResponse<object>>(StatusCodes.Status400BadRequest)
 .Produces<ApiResponse<object>>(StatusCodes.Status404NotFound)
 .WithOpenApi(operation => new(operation)
 {
-    Summary = "Decrease the count of the given food item by x, which can be a negative number."
+    Summary = "Decrease the count of the given food item by x, which can be a negative number, on the temporary menu."
 });
 
 app.Run();
