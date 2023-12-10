@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using core.Model;
-using order.Attributes;
 using order.Model;
 
 namespace order.DTO.Sql;

@@ -1,5 +1,4 @@
 using System.Text;
-using core.Model;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using order.Config;
@@ -11,8 +10,8 @@ namespace order.Service;
 
 public class MailService
 {
-    private readonly WebUtils _webUtils;
     private readonly ILogger<MailService> _logger;
+    private readonly WebUtils _webUtils;
 
     public MailService(IOptions<WebConfig> config, ILogger<MailService> logger)
     {
@@ -41,7 +40,8 @@ public class MailService
     private string GetFoodItemsString(List<OrderedFoodItem> orderFoodItems)
     {
         var stringBuilder = new StringBuilder();
-        foreach (var foodItem in orderFoodItems) stringBuilder.Append($"{foodItem.Snapshot.Name} x {foodItem.Count} : {foodItem.Description} \r\n");
+        foreach (var foodItem in orderFoodItems)
+            stringBuilder.Append($"{foodItem.Snapshot.Name} x {foodItem.Count} : {foodItem.Description} \r\n");
 
         return stringBuilder.ToString();
     }
@@ -52,7 +52,7 @@ public class MailService
 
         try
         {
-            var mail = new CreateMailWebDTO() { to = to, subject = subject, body = body };
+            var mail = new CreateMailWebDTO { to = to, subject = subject, body = body };
             var mailJson = JsonConvert.SerializeObject(mail);
 
             var apiResponse = await _webUtils.PostAsync<MailResponseWebDTO>(endPoint, mailJson);

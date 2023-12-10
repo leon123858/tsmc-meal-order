@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.OpenApi.Extensions;
 using order.Attributes;
 
 namespace order.Repository.SqlImplement;
@@ -17,7 +16,7 @@ public class SqlUtils
         var tableAttribute = (TableAttribute)Attribute.GetCustomAttribute(type, typeof(TableAttribute));
 
         if (tableAttribute == null) throw new ArgumentException("class has no table attribute!");
-        
+
         var tableName = tableAttribute.Name;
 
         var updateSql = $"UPDATE [{tableName}] SET ";
@@ -59,7 +58,7 @@ public class SqlUtils
         var tableAttribute = (TableAttribute)Attribute.GetCustomAttribute(type, typeof(TableAttribute));
 
         if (tableAttribute == null) throw new ArgumentException("class has no table attribute!");
-        
+
         var tableName = tableAttribute.Name;
 
         var insertSql = $"INSERT INTO [{tableName}] (";

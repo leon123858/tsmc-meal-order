@@ -19,7 +19,7 @@ public class MemoryOrderRepository : IOrderRepository
         var meal3 = new OrderedFoodItem(new FoodItem
             { Name = "Salad", Price = 130, Description = "Fresh garden salad with dressing" }, 0, 1, "");
 
-    var order1 = new Order
+        var order1 = new Order
         {
             Id = Guid.NewGuid(),
             Customer = fakeUser,

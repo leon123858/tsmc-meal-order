@@ -1,5 +1,4 @@
 ﻿using System.Transactions;
-using core.Model;
 using order.DTO.Web;
 using order.Model;
 using order.Repository;
@@ -9,8 +8,8 @@ namespace order.Service;
 public class OrderService
 {
     private readonly IFoodItemRepository _foodItemRepository;
-    private readonly IOrderRepository _orderRepository;
     private readonly MailService _mailService;
+    private readonly IOrderRepository _orderRepository;
 
     public OrderService(IOrderRepository orderRepository, IFoodItemRepository foodItemRepository,
         MailService mailService)
@@ -59,7 +58,7 @@ public class OrderService
             Restaurant = restaurant,
             OrderDate = createOrderWeb.OrderDate,
             MealType = Enum.Parse<MealType>(createOrderWeb.MealType),
-            FoodItems = new List<OrderedFoodItem> { orderedFoodItem },
+            FoodItems = new List<OrderedFoodItem> { orderedFoodItem }
         };
 
         await _orderRepository.CreateOrder(newOrder);

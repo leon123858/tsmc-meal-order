@@ -1,4 +1,3 @@
-using core.Model;
 using order.Model;
 
 namespace order.DTO.Web;
@@ -22,7 +21,7 @@ public class OrderWebDTO
             Id = order.Id,
             Customer = order.Customer,
             Restaurant = order.Restaurant,
-            FoodItems = order.FoodItems.Select(_ => (OrderedFoodItemWebDTO) _).ToList(),
+            FoodItems = order.FoodItems.Select(_ => (OrderedFoodItemWebDTO)_).ToList(),
             OrderDate = order.OrderDate,
             CreateTime = order.CreateTime,
             MealType = order.MealType.ToString()

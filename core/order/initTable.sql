@@ -17,10 +17,10 @@ Create table myOrder
     Id           UNIQUEIDENTIFIER PRIMARY KEY,
     UserId       NVARCHAR(50) NOT NULL,
     RestaurantId NVARCHAR(50) NOT NULL,
-    Status       INT              NOT NULL,
-    OrderDate    DATETIME         NOT NULL,
-    CreateTime   DATETIME         NOT NULL,
-    MealType     int              NOT NULL
+    Status       INT          NOT NULL,
+    OrderDate    DATETIME     NOT NULL,
+    CreateTime   DATETIME     NOT NULL,
+    MealType     int          NOT NULL
     --CONSTRAINT FK_order_user FOREIGN KEY (UserId) REFERENCES [user] (Id),
     --CONSTRAINT FK_order_restaurant FOREIGN KEY (RestaurantId) REFERENCES [user] (Id)
 )
