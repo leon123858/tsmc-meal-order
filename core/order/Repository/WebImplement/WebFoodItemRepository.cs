@@ -33,4 +33,22 @@ public class WebFoodItemRepository : IFoodItemRepository
             throw;
         }
     }
+
+    public async Task AdjustFoodItemStock(string menuId, int itemIndex, int quantity)
+    {
+        var endPoint = $"/{menuId}/foodItem/{itemIndex}/{-quantity}";
+
+        try
+        {
+            var apiResponse = await _webUtils.PostAsync<string>(endPoint);
+
+            if (apiResponse is { Result: false })
+                throw new FoodItemNotFoundException();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
 }

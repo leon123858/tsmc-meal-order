@@ -4,7 +4,9 @@
     {
         public string DatabaseName { get; set; } = null!;
 
-        public string CollectionName { get; set; } = null!;
+        public string RealCollectionName { get; set; } = null!;
+
+        public string TempCollectionName { get; set; } = null!;
 
         public string Password { get; set; } = null!;
 

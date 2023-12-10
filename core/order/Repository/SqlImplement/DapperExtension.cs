@@ -20,7 +20,8 @@ public static class DapperExtension
         return response;
     }
 
-    public static async Task<int> ExecuteUpdateAsync(this IDbConnection connection, object obj, IDbTransaction? transaction = null)
+    public static async Task<int> ExecuteUpdateAsync(this IDbConnection connection, object obj,
+        IDbTransaction? transaction = null)
     {
         if (obj == null) throw new ArgumentNullException(nameof(obj));
 
@@ -37,10 +38,11 @@ public static class DapperExtension
 
         if (string.IsNullOrWhiteSpace(sql)) return 0;
 
-        return await connection.ExecuteAsync(sql, obj, transaction: transaction);
+        return await connection.ExecuteAsync(sql, obj, transaction);
     }
 
-    public static async Task<int> ExecuteInsertAsync(this IDbConnection connection, object obj, IDbTransaction? transaction = null)
+    public static async Task<int> ExecuteInsertAsync(this IDbConnection connection, object obj,
+        IDbTransaction? transaction = null)
     {
         if (obj == null) throw new ArgumentNullException(nameof(obj));
 
@@ -57,6 +59,6 @@ public static class DapperExtension
 
         if (string.IsNullOrWhiteSpace(sql)) return 0;
 
-        return await connection.ExecuteAsync(sql, obj, transaction: transaction);
+        return await connection.ExecuteAsync(sql, obj, transaction);
     }
 }
