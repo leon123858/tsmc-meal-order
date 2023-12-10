@@ -1,6 +1,6 @@
 resource "google_secret_manager_secret" "secrets" {
   count     = length(var.service_secrets)
-  secret_id = "mail-secret-${var.service_secrets[count.index]}"
+  secret_id = "${var.service_name}-secret-${var.service_secrets[count.index]}"
   replication {
     user_managed {
       replicas {

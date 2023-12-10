@@ -10,6 +10,10 @@ variable "source_repo" {
   description = "value of the source_repo of the builder"
   type        = string
 }
+variable "source_path" {
+  description = "value of the source_path of the builder"
+  type        = string
+}
 variable "docker_file_path" {
   description = "value of the docker_file_path of the builder"
   type        = string

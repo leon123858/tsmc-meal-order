@@ -1,3 +1,3 @@
-output "member" {
-  value = var.service_account
+output "results" {
+  value = google_project_iam_member.build
 }

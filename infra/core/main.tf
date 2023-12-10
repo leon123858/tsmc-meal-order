@@ -46,7 +46,7 @@ module "mail-run" {
   service_account   = google_service_account.run.email
   cloudsql_instance = "tw-rd-ca-leon-lin:asia-east1:meal-dev"
 
-  depends_on = [module.cloud_run_runner]
+  depends_on = [module.cloud_run_runner.results]
 }
 
 module "user-run" {
@@ -56,6 +56,30 @@ module "user-run" {
   service_account = google_service_account.run.email
 
   depends_on = [module.cloud_run_runner]
+}
+
+module "order-run" {
+  source          = "./components/run"
+  service_name    = "order"
+  region          = var.region
+  service_account = google_service_account.run.email
+  service_env     = {
+    ASPNETCORE_ENVIRONMENT = "Production",
+  }
+  service_secrets = ["SQL_PASSWORD"]
+  depends_on      = [module.cloud_run_runner]
+}
+
+module "menu-run" {
+  source          = "./components/run"
+  service_name    = "menu"
+  region          = var.region
+  service_account = google_service_account.run.email
+  service_env     = {
+    ASPNETCORE_ENVIRONMENT = "Production",
+  }
+  service_secrets = ["MONGO_PASSWORD"]
+  depends_on      = [module.cloud_run_runner]
 }
 
 // cloud build set iam
@@ -81,8 +105,9 @@ module "build_mail" {
   region           = var.region
   docker_file_path = "mail/mail/Dockerfile"
   source_repo      = module.repository.id
+  source_path      = "mail"
 
-  depends_on = [module.cloud_build_builder]
+  depends_on = [module.cloud_build_builder.results]
 }
 
 module "build_user" {
@@ -91,6 +116,29 @@ module "build_user" {
   region           = var.region
   docker_file_path = "user/Dockerfile"
   source_repo      = module.repository.id
+  source_path      = "user"
 
-  depends_on = [module.cloud_build_builder]
+  depends_on = [module.cloud_build_builder.results]
+}
+
+module "build_order" {
+  source           = "./components/build_run"
+  name             = module.order-run.name
+  region           = var.region
+  docker_file_path = "core/order/Dockerfile"
+  source_repo      = module.repository.id
+  source_path      = "core"
+
+  depends_on = [module.cloud_build_builder.results]
+}
+
+module "build_menu" {
+  source           = "./components/build_run"
+  name             = module.menu-run.name
+  region           = var.region
+  docker_file_path = "core/menu/Dockerfile"
+  source_repo      = module.repository.id
+  source_path      = "core"
+
+  depends_on = [module.cloud_build_builder.results]
 }
