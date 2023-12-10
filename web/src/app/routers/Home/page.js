@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link'
 import { useState, useEffect, useContext } from 'react';
-import { MenuAPI } from '../../global'
+import { MenuAPI, UserAPI } from '../../global'
 import Dish from "../../components/Dish/Dish";
 import HomeSelection from "../../components/HomeSelection/HomeSelection";
 import AIwindow from "../../components/AIwindow/AIwindow";
@@ -13,6 +13,18 @@ import { UserContext } from '../../store/userContext';
 
 
 import styles from "./page.module.css";
+
+async function fetchUser(userID, setPlace) {
+    const res = await fetch(`${UserAPI}/get?uid=${userID}`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+    var data = await res.json();
+    data = Object.values(data)[2];
+    setPlace(data["place"])
+}
 
 function getDish (menuData) {
     const Dishes = [];
@@ -60,11 +72,24 @@ export default function Home() {
     const [curMenuData, setMenuData] = useState([]);
     const [curSelectDish, setSelectDish] = useState({}); // 設定要傳入給 description window 的菜色
     const [curFilterData, setFilterData] = useState([]); // 儲存被種類過濾後的菜色
+    const [curPlace, setPlace] = useState("None");
     const {curFilterState, setFilterState} = useContext(FilterContext);
-    const { userID, username, place } = useContext(UserContext);
-    console.log(userID, username, place);
-    // location 之後換成 user 的 location
-    const location = "南科18廠";
+    const { userID } = useContext(UserContext);
+
+    // 取得 Location
+    useEffect(() => {
+        if (userID != "") {
+            fetchUser(userID, setPlace);
+        }
+    }, [userID]);
+
+    // 檢查是否為第一次登入的用戶，需先去設定名字及地點
+    useEffect(() => {
+        if (userID != "" && curPlace == "") {
+            alert("請先設定使用者名稱及地點");
+        }
+    }, [userID, curPlace])
+
     // 每次回到 menu 頁時，把 filter 的狀態初始化
     useEffect(() => {
         setFilterState((prevState) => ({
@@ -73,13 +98,13 @@ export default function Home() {
             "肉類": false,
             "海鮮": false
         }));
-    }, [setFilterState])    
+    }, [])    
 
     // 取回 menu，並進行 filter
     useEffect(() => {
-        fetchMenuData(setMenuData, location);
-        filterData(curMenuData, setFilterData, curFilterState);
-    }, [location, curFilterState])
+        // fetchMenuData(setMenuData, curPlace);
+        // filterData(curMenuData, setFilterData, curFilterState);
+    }, [curPlace, curFilterState])
 
     const handleDishButton = (dish) => {
         setSelectDish(dish);
@@ -104,6 +129,8 @@ export default function Home() {
                                     <Dish
                                         dish={dish}
                                         isHistory={false}
+                                        historyType={""}
+                                        setDeleteHistory={() => {}}
                                     />
                                     {index < curMenuData.length - 1 && <hr className={styles.hr_meal} />}
                                     {index === curMenuData.length - 1 && <hr className={styles.hr_date} />}                 

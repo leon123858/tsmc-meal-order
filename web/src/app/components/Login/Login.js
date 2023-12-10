@@ -6,12 +6,10 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
 import styles from './Login.module.css';
-import { UserContext } from '../../store/userContext'
-import React, { useContext } from 'react';
+import React from 'react';
 
 const Login = () => {
     const router = useRouter();
-    const { userID, username } = useContext(UserContext);
     const handleGoogleLogin = async () => {
         const provider = new GoogleAuthProvider();
 
@@ -19,7 +17,6 @@ const Login = () => {
             const result = await signInWithPopup(auth, provider);
             const user = result.user;
             console.info('Google Sign In Success:', user);
-            console.log(userID, username);
             if (user) {                
                 const idToken = await user.getIdToken();
                 // console.log('ID Token:', idToken);

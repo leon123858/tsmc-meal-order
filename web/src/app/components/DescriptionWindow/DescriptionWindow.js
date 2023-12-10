@@ -9,11 +9,13 @@ import { ConfigProvider, Button, Modal } from 'antd';
 import styles from "./DescriptionWindow.module.css";
 
 async function sendOrderData(dish, number, date, userID, setDesWindowState) {
-    const foodItems = Array(number).fill(dish["index"]);
     const orders = {
         "menuId": dish["menuID"],
+        "mealType": "Dinner",
         "orderDate": date,
-        "foodItemIds": foodItems
+        "foodItemId": dish["index"],
+        "count": number,
+        "description": ""
     }
     const response = await fetch(`${OrderAPI}/create/${userID}`, {
         method: 'POST',
@@ -29,7 +31,6 @@ async function sendOrderData(dish, number, date, userID, setDesWindowState) {
 
 const DescriptionWindow = ({curDesWindowState, setDesWindowState, dish}) => {
     const { userID } = useContext(UserContext);
-    console.log(dish["index"]);
     return (
         <>
             <ConfigProvider
@@ -53,7 +54,7 @@ const DescriptionWindow = ({curDesWindowState, setDesWindowState, dish}) => {
                             <Button 
                                 // key="recommend" 
                                 className={styles.recommend_button}
-                                onClick={() => sendOrderData(dish, 1, "2023-12-08", userID, setDesWindowState)}
+                                onClick={() => sendOrderData(dish, 2, "2023-12-09", userID, setDesWindowState)}
                             >
                                 送出
                             </Button>

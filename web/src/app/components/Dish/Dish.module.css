@@ -59,3 +59,8 @@
     background: gray
     /* background: #80c7f7 */
 } 
+
+.blueButton {
+    background-color: #80c7f7;
+    color: white;
+}
