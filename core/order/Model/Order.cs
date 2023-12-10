@@ -1,6 +1,4 @@
-﻿using core.Model;
-
-namespace order.Model;
+﻿namespace order.Model;
 
 public class Order
 {
@@ -17,7 +15,7 @@ public class Order
     {
         if (Status != OrderStatus.Init)
             throw new Exception("Order is not in correct status");
-        
+
         Status = OrderStatus.Preparing;
     }
 
@@ -25,7 +23,7 @@ public class Order
     {
         if (Status != OrderStatus.Init)
             throw new Exception("Order is not in correct status");
-        
+
         Status = OrderStatus.Canceled;
     }
 }

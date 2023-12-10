@@ -1,5 +1,3 @@
-using order.Model;
-
 namespace order.DTO.Web;
 
 public class CreateOrderWebDTO

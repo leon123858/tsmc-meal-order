@@ -9,7 +9,7 @@ namespace order.Repository.WebImplement;
 public class WebUserRepository : IUserRepository
 {
     private readonly WebUtils _webUtils;
-    private ILogger<WebUserRepository> _logger;
+    private readonly ILogger<WebUserRepository> _logger;
 
     public WebUserRepository(IOptions<WebConfig> config, ILogger<WebUserRepository> logger)
     {

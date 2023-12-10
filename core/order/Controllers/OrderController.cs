@@ -2,7 +2,6 @@ using core;
 using Microsoft.AspNetCore.Mvc;
 using order.DTO.Web;
 using order.Exceptions;
-using order.Model;
 using order.Repository;
 using order.Service;
 
@@ -12,9 +11,9 @@ namespace order.Controllers;
 [Route("api/orders")]
 public class OrderController : ControllerBase
 {
+    private readonly ILogger<OrderController> _logger;
     private readonly OrderService _orderService;
     private readonly IUserRepository _userRepository;
-    private readonly ILogger<OrderController> _logger;
 
     public OrderController(OrderService orderService, IUserRepository userRepository, ILogger<OrderController> logger)
     {

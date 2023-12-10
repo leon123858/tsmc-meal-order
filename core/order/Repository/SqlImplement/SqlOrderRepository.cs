@@ -1,5 +1,4 @@
 ﻿using System.Data.SqlClient;
-using core.Model;
 using Dapper;
 using Microsoft.Extensions.Options;
 using order.Config;
@@ -62,7 +61,7 @@ public class SqlOrderRepository : IOrderRepository
         {
             await conn.ExecuteInsertAsync(orderDto, transaction);
             await conn.ExecuteInsertAsync(foodItemDtos, transaction);
-            
+
             transaction.Commit();
         }
         catch (Exception e)
@@ -84,7 +83,7 @@ public class SqlOrderRepository : IOrderRepository
         try
         {
             await conn.ExecuteUpdateAsync(orderDto, transaction);
-            
+
             transaction.Commit();
         }
         catch (Exception e)
@@ -112,7 +111,7 @@ public class SqlOrderRepository : IOrderRepository
 
                     if (newFoodItemDto != null)
                         newOrder.FoodItems.Add(newFoodItemDto);
-                    
+
                     orderDictionary.Add(orderSqlDto.Id, newOrder);
                     return newOrder;
                 }
