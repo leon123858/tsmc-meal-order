@@ -1,4 +1,5 @@
-﻿using core.Model;
+﻿using System.Transactions;
+using core.Model;
 using order.DTO.Web;
 using order.Model;
 using order.Repository;
@@ -33,7 +34,7 @@ public class OrderService
 
         if (user.Type == UserType.admin && order.Restaurant.Id != user.Id)
             throw new Exception("User is not the owner of the order");
-        
+
         if (user.Type == UserType.normal && order.Customer.Id != user.Id)
             throw new Exception("User is not the owner of the order");
 
@@ -42,12 +43,14 @@ public class OrderService
 
     public async Task<Order> CreateOrder(User user, User restaurant, CreateOrderWebDTO createOrderWeb)
     {
+        using var scope = new TransactionScope();
         var foodItem = await _foodItemRepository.GetFoodItem(restaurant.Id, createOrderWeb.FoodItemId);
-        
+
         if (foodItem.Count < createOrderWeb.Count)
             throw new Exception("Not enough food items in stock");
-        
-        var orderedFoodItem = new OrderedFoodItem(foodItem, createOrderWeb.FoodItemId, createOrderWeb.Count, createOrderWeb.Description);
+
+        var orderedFoodItem = new OrderedFoodItem(foodItem, createOrderWeb.FoodItemId, createOrderWeb.Count,
+            createOrderWeb.Description);
 
         var newOrder = new Order
         {
@@ -60,10 +63,12 @@ public class OrderService
         };
 
         await _orderRepository.CreateOrder(newOrder);
-        
+
         foreach (var item in newOrder.FoodItems)
             await _foodItemRepository.AdjustFoodItemStock(restaurant.Id, item.Index, -item.Count);
-        
+
+        scope.Complete();
+
         _mailService.SendOrderCreatedMail(newOrder);
 
         return newOrder;
@@ -89,7 +94,7 @@ public class OrderService
 
         if (user.Type == UserType.admin && order.Restaurant.Id != user.Id)
             throw new Exception("User is not the owner of the order");
-        
+
         if (user.Type == UserType.normal && order.Customer.Id != user.Id)
             throw new Exception("User is not the owner of the order");
 
