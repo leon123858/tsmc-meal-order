@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import BackButton from '../../components/BackButton/BackButton';
 import Link from 'next/link';
 import { UserOutlined } from '@ant-design/icons';
@@ -10,24 +10,47 @@ import { UserContext } from '../../store/userContext';
 
 import styles from './page.module.css';
 
+async function fetchUser(userID, setUser) {
+  const res = await fetch(`${UserAPI}/get?uid=${userID}`, {
+    method: 'GET',
+    headers: {
+      'Accept': 'application/json'
+    }
+  });
+  var data = await res.json();
+  data = Object.values(data)[2];
+  setUser((prevState) => ({
+    ...prevState,
+    "name": data["name"],
+    "place": data["place"],
+    "uid": userID
+  }))
+}
+
 const User = () => {
-    const {userID, username, place, setUsername, setPlace} = useContext(UserContext);
+    const { userID } = useContext(UserContext);
     const [user, setUser] = useState({
-      name: username,
-      place: place,
-      uid: userID,
+      name: "",
+      place: "",
+      uid: "",
     });
   
     const handleNameChange = (e) => {
-      setUsername(e.target.value);
+      setUser((prevState) => ({
+        ...prevState,
+        "name": e.target.value
+      }))
     };
   
     const handlePlaceChange = (value) => {
-      setPlace(value);
+      setUser((prevState) => ({
+        ...prevState,
+        "place": value
+      }))
     };
   
     const handleClick = async () => {
-        const updatedUser = { ...user, name: username, place: place };
+        const updatedUser = { ...user, name: user["name"], place: user["place"] };
     
         try {
             // Make a POST request to the update API
@@ -41,25 +64,29 @@ const User = () => {
             });
     
             if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+              throw new Error(`HTTP error! Status: ${response.status}`);
             }
     
             const data = await response.json();
             console.log('User update successful:', data);
-    
-            // Update the state with the modified user data
-            setUser(updatedUser);
+            alert("修改成功！")
         } catch (error) {
             console.error('User update failed:', error.message);
         }
     };
+
+    useEffect(() => {
+      if (userID != "") {
+        fetchUser(userID, setUser);
+      }
+    }, [userID]);
   
     return (
       <div>
         <header className={styles.header}>
-                <Link href={"/routers/Home"}>
-                   <BackButton />
-                </Link>
+          <Link href={"/routers/Home"}>
+              <BackButton />
+          </Link>
         </header>
 
         <main className={styles.main}>
@@ -68,14 +95,14 @@ const User = () => {
             <h3>名字</h3>
             <input
               type="text"
-              value={username}
+              value={user["name"]}
               onChange={handleNameChange}
               placeholder="Enter your name"
             />
             <h3>廠區</h3>
             <div>
               <Select
-                value={place}
+                value={user["place"]}
                 style={{ width: 120, marginBottom: 10 }}
                 onChange={handlePlaceChange}
                 options={[

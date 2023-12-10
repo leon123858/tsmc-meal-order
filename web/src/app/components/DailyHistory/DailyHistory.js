@@ -7,13 +7,14 @@ function getDish (orderData) {
     orderData.forEach(order => {
         const foodItems = order["foodItems"];
         foodItems.forEach(foodItem => {
+            foodItem["orderID"] = order["id"];
             Dishes.push(foodItem);
         })
     });
     return Dishes;
 }
 
-const DailyHistory = ({ data, date }) => {
+const DailyHistory = ({ data, date, historyType, setDeleteHistory }) => {
 
     const Dishes = getDish(data);
 
@@ -29,6 +30,8 @@ const DailyHistory = ({ data, date }) => {
                         <Dish 
                             dish={dish}
                             isHistory={true}
+                            historyType={historyType}
+                            setDeleteHistory={setDeleteHistory}
                         />
                         {index < Dishes.length - 1 && <hr className={styles.hr_meal} />}
                         {index === Dishes.length - 1 && <hr className={styles.hr_date} />}

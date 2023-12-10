@@ -1,7 +1,7 @@
 'use client';
 import styles from './page.module.css';
 import { Segmented } from 'antd';
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useMemo } from 'react';
 import Link from 'next/link'
 import DailyHistory from '../../components/DailyHistory/DailyHistory'
 import BackButton from "../../components/BackButton/BackButton";
@@ -24,39 +24,50 @@ function groupByDate (curOrderData) {
     return groupedData;
 }
 
-
 // 從 API 取資料，並設定抓回來的資料
-async function fetchOrderData(setOrderData, status, userID) {
-    console.log(userID);
+async function fetchOrderData(setOrderData, userID) {
     const res = await fetch(`${OrderAPI}/${userID}`);
     var data = await res.json();
-    console.log(data);
-    data = Object.values(data)[0].filter(item => item.status == status);
+    data = Object.values(data)[0];
     setOrderData(groupByDate(data));
 }
-
 
 export default function History() {
     const HistoryTypes = {
         "已訂購": "Init",
-        "已取消": "Preparing",
-        "已完成": "Canceled"
+        "已取消": "Canceled",
+        "準備中": "Preparing",
+        "已完成": "Finished"
     };
     const [curHistoryState, setHistoryState] = useState("已訂購");
     const [curOrderData, setOrderData] = useState([]);
-    const { userID } = useContext(UserContext); 
+    const [curFilterOrderData, setFilterOrderData] = useState({});
+    const [curDeleteHistory, setDeleteHistory] = useState(false);
+    const { userID } = useContext(UserContext);  
     
+    // 一進來頁面，先 fetch 資料
+    useEffect(() => {
+        if (userID != "") {
+            fetchOrderData(setOrderData, userID);
+        }
+        setDeleteHistory(false);
+    }, [userID, curDeleteHistory]);
+
     // 當狀態改變時，取新的歷史 order
     useEffect(() => {
+        const filterData = {};
         const status = HistoryTypes[curHistoryState];
-        if (userID != "") {
-            fetchOrderData(setOrderData, status, userID);
-        }
-    }, [curHistoryState])
-
+        Object.entries(curOrderData).forEach(([key, value]) => {
+            const filteritem = value.filter(item => item.status == status);
+            if (filteritem.length !== 0) {
+                filterData[key] = filteritem;
+            }
+        });
+        setFilterOrderData(filterData);
+    }, [curHistoryState, curOrderData]);
 
     // 取出所有 date，並按照降序排列
-    const dateKeys = Object.keys(curOrderData);
+    const dateKeys = Object.keys(curFilterOrderData);
     dateKeys.sort((a, b) => b - a);
     
     return (
@@ -82,11 +93,13 @@ export default function History() {
             <main className={styles.main}>
                 <div className={styles.dishContainer}>
                     {
-                        dateKeys.map((datakey, index) => (
+                        dateKeys.map((datekey, index) => (
                             <DailyHistory
                                 key={index}
-                                data={curOrderData[datakey]}
-                                date={datakey}
+                                data={curFilterOrderData[datekey]}
+                                date={datekey}
+                                historyType={curHistoryState}
+                                setDeleteHistory={setDeleteHistory}
                             />
                         ))
                     }
