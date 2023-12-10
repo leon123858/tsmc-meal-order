@@ -65,6 +65,17 @@ module "mail-run" {
   cloudsql_instance = "tw-rd-ca-leon-lin:asia-east1:meal-dev"
 }
 
+module "user-run" {
+  source       = "./components/run"
+  service_name = "user"
+  region       = var.region
+  service_account = google_service_account.run.email
+  depends_on      = [
+    google_project_iam_member.sa1, google_project_iam_member.sa2, google_project_iam_member.sa3,
+    google_project_iam_member.sa4
+  ]
+}
+
 // cloud build set
 data "google_project" "project" {
 }
@@ -104,5 +115,13 @@ module "build_mail" {
   name             = module.mail-run.name
   region           = var.region
   docker_file_path = "mail/mail/Dockerfile"
+  source_repo      = module.repository.id
+}
+
+module "build_user" {
+  source           = "./components/build_run"
+  name             = module.user-run.name
+  region           = var.region
+  docker_file_path = "user/Dockerfile"
   source_repo      = module.repository.id
 }
