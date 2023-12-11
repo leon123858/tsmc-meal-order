@@ -228,24 +228,24 @@ module "build_storage" {
 
 // pub/sub
 module "user-mq" {
-  source = "./components/mq"
-  push_path = "/api/user/sync/user-create-event"
+  source      = "./components/mq"
+  push_path   = "/api/user/sync/user-create-event"
   service_url = module.user-run.url
-  topic_name = "user-create-topic"
+  topic_name  = "user-create-topic"
 }
 
 module "mail-fail-mq" {
-  source = "./components/mq"
-  push_path = "/api/mail/event/fail-mail-event"
+  source      = "./components/mq"
+  push_path   = "/api/mail/event/fail-mail-event"
   service_url = module.mail-run.url
-  topic_name = "mail-fail-topic"
+  topic_name  = "mail-fail-topic"
 }
 
 module "mail-mq" {
-  source = "./components/mq"
-  push_path = "/api/mail/event/send-mail-event"
-  service_url = module.mail-run.url
-  topic_name = "mail-create-topic"
+  source            = "./components/mq"
+  push_path         = "/api/mail/event/send-mail-event"
+  service_url       = module.mail-run.url
+  topic_name        = "mail-create-topic"
   dead_letter_topic = module.mail-fail-mq.id
 }
 
@@ -259,4 +259,21 @@ module "pubsub-iam" {
   ]
 
   depends_on = [google_service_account.run]
+}
+
+// cloud scheduler
+module "menu-maintain-workflow" {
+  source = "./components/workflow"
+  file   = "menu-day.yaml"
+  name   = "menu-maintain-workflow"
+  region = var.region
+}
+
+module "menu-scheduler" {
+  source        = "./components/scheduler"
+  frequency     = "0 5 * * *"
+  name          = "menu-scheduler"
+  project_id    = var.project_id
+  region        = var.region
+  workflow_name = module.menu-maintain-workflow.name
 }
