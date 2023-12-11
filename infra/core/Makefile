@@ -4,8 +4,10 @@ start:
 	terraform init
 	terraform plan -var-file="terraform.tfvars"
 	terraform apply -var-file="terraform.tfvars"
+
+cd:
 	# trigger all build immediately
-	 bash ./triggerCD.sh
+	bash ./triggerCD.sh
 
 format:
 	terraform fmt -recursive 

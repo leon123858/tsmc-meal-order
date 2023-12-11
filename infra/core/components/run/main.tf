@@ -28,6 +28,11 @@ resource "google_cloud_run_v2_service" "default" {
   template {
     service_account = var.service_account
 
+    scaling {
+      min_instance_count = 0
+      max_instance_count = 1
+    }
+
     dynamic "volumes" {
       for_each = var.cloudsql_instance == "" ?{} : { cloudsql : var.cloudsql_instance }
       content {

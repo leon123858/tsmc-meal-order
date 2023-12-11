@@ -3,6 +3,9 @@ provider "google" {
   region  = var.region
 }
 
+data "google_project" "project" {
+}
+
 // source code repository
 module "repository" {
   source     = "./components/repository"
@@ -28,7 +31,8 @@ module "cloud_run_runner" {
     "roles/cloudsql.admin",
     "roles/firebase.sdkAdminServiceAgent",
     "roles/pubsub.editor",
-    "roles/secretmanager.secretAccessor"
+    "roles/secretmanager.secretAccessor",
+    "roles/storage.admin"
   ]
 
   depends_on = [google_service_account.run]
@@ -55,7 +59,7 @@ module "user-run" {
   region          = var.region
   service_account = google_service_account.run.email
 
-  depends_on = [module.cloud_run_runner]
+  depends_on = [module.cloud_run_runner.results]
 }
 
 module "order-run" {
@@ -67,7 +71,7 @@ module "order-run" {
     ASPNETCORE_ENVIRONMENT = "Production",
   }
   service_secrets = ["SQL_PASSWORD"]
-  depends_on      = [module.cloud_run_runner]
+  depends_on      = [module.cloud_run_runner.results]
 }
 
 module "menu-run" {
@@ -79,13 +83,27 @@ module "menu-run" {
     ASPNETCORE_ENVIRONMENT = "Production",
   }
   service_secrets = ["MONGO_PASSWORD"]
-  depends_on      = [module.cloud_run_runner]
+  depends_on      = [module.cloud_run_runner.results]
+}
+
+// init cloud function
+resource "google_storage_bucket" "function-source" {
+  name                        = "gcf-source-${data.google_project.project.number}" # Every bucket name must be globally unique
+  location                    = "ASIA"
+  uniform_bucket_level_access = true
+}
+
+module "storage-function" {
+  source                = "./components/function"
+  service_name          = "storage"
+  region                = var.region
+  service_account_email = google_service_account.run.email
+  source_bucket         = google_storage_bucket.function-source.name
+
+  depends_on = [module.cloud_run_runner.results]
 }
 
 // cloud build set iam
-data "google_project" "project" {
-}
-
 module "cloud_build_builder" {
   source          = "./components/iam_setting"
   project_id      = var.project_id
@@ -139,6 +157,18 @@ module "build_menu" {
   docker_file_path = "core/menu/Dockerfile"
   source_repo      = module.repository.id
   source_path      = "core"
+
+  depends_on = [module.cloud_build_builder.results]
+}
+
+// cloud build function
+module "build_storage" {
+  source        = "./components/build_function"
+  entry_point   = "storage"
+  function_path = "./functions/storage"
+  region        = var.region
+  service_name  = module.storage-function.name
+  source_repo   = module.repository.id
 
   depends_on = [module.cloud_build_builder.results]
 }
