@@ -1,11 +1,3 @@
-provider "google" {
-  project = var.project_id
-  region  = var.region
-}
-
-data "google_project" "project" {
-}
-
 // source code repository
 module "repository" {
   source     = "./components/repository"
@@ -86,9 +78,19 @@ module "menu-run" {
   depends_on      = [module.cloud_run_runner.results]
 }
 
+module "web-run" {
+  source          = "./components/run"
+  service_name    = "web"
+  region          = var.region
+  service_account = google_service_account.run.email
+
+  depends_on = [module.cloud_run_runner.results]
+}
+
 // init cloud function
 resource "google_storage_bucket" "function-source" {
-  name                        = "gcf-source-${data.google_project.project.number}" # Every bucket name must be globally unique
+  name                        = "gcf-source-${data.google_project.project.number}"
+  # Every bucket name must be globally unique
   location                    = "ASIA"
   uniform_bucket_level_access = true
 }
@@ -101,6 +103,46 @@ module "storage-function" {
   source_bucket         = google_storage_bucket.function-source.name
 
   depends_on = [module.cloud_run_runner.results]
+}
+
+// load balancer
+module "load_balancer" {
+  source        = "./components/load_balancer"
+  bucket        = "meal-order-static"
+  bucket_prefix = "images"
+
+  domain     = var.domain
+  name       = "load-balancer"
+  project_id = var.project_id
+  region     = var.region
+
+  default_service_name = "web"
+  service_map_url      = {
+    "storage" = "/api/storage",
+    "mail"    = "/api/mail",
+    "user"    = "/api/user",
+    "order"   = "/api/order",
+    "menu"    = "/api/menu",
+  }
+  cloud_function_services = {
+    "storage" = module.storage-function.name
+  }
+  cloud_run_services = {
+    "mail"  = module.mail-run.name
+    "user"  = module.user-run.name
+    "order" = module.order-run.name
+    "menu"  = module.menu-run.name
+    "web"   = module.web-run.name
+  }
+
+  depends_on = [
+    module.storage-function,
+    module.mail-run,
+    module.user-run,
+    module.order-run,
+    module.menu-run,
+    module.web-run,
+  ]
 }
 
 // cloud build set iam
@@ -157,6 +199,17 @@ module "build_menu" {
   docker_file_path = "core/menu/Dockerfile"
   source_repo      = module.repository.id
   source_path      = "core"
+
+  depends_on = [module.cloud_build_builder.results]
+}
+
+module "build_web" {
+  source           = "./components/build_run"
+  name             = module.web-run.name
+  region           = var.region
+  docker_file_path = "web/Dockerfile"
+  source_repo      = module.repository.id
+  source_path      = "web"
 
   depends_on = [module.cloud_build_builder.results]
 }

@@ -4,6 +4,9 @@ variable "project_id" {
 variable "region" {
   description = "value of region"
 }
+variable "domain" {
+  description = "value of domain ex: ntuartfest28th.com"
+}
 variable "git_url" {
   default = "get repo url in gethub. ex: https://github.com/leon123858/bi-event-driven-web-connection-PoC"
 }

@@ -1,5 +1,5 @@
 # 定义存储触发器名称的列表
-triggers=("mail-trigger" "user-trigger" "menu-trigger" "order-trigger" "storage-trigger")
+triggers=("mail-trigger" "user-trigger" "menu-trigger" "order-trigger" "storage-trigger" "web-trigger")
 
 # 循环触发每个触发器并行执行
 for trigger in "${triggers[@]}"; do
