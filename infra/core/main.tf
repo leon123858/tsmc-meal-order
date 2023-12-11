@@ -225,3 +225,38 @@ module "build_storage" {
 
   depends_on = [module.cloud_build_builder.results]
 }
+
+// pub/sub
+module "user-mq" {
+  source = "./components/mq"
+  push_path = "/api/user/sync/user-create-event"
+  service_url = module.user-run.url
+  topic_name = "user-create-topic"
+}
+
+module "mail-fail-mq" {
+  source = "./components/mq"
+  push_path = "/api/mail/event/fail-mail-event"
+  service_url = module.mail-run.url
+  topic_name = "mail-fail-topic"
+}
+
+module "mail-mq" {
+  source = "./components/mq"
+  push_path = "/api/mail/event/send-mail-event"
+  service_url = module.mail-run.url
+  topic_name = "mail-create-topic"
+  dead_letter_topic = module.mail-fail-mq.id
+}
+
+module "pubsub-iam" {
+  source          = "./components/iam_setting"
+  project_id      = var.project_id
+  service_account = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
+  roles           = [
+    "roles/pubsub.publisher",
+    "roles/pubsub.subscriber"
+  ]
+
+  depends_on = [google_service_account.run]
+}

@@ -46,7 +46,7 @@ locals {
 
 // cloud armor
 resource "google_compute_security_policy" "policy" {
-  provider = google-beta
+  provider    = google-beta
   name        = "${var.name}-armor-policy"
   description = "throttle rule with enforce_on_key_configs"
 
@@ -62,12 +62,12 @@ resource "google_compute_security_policy" "policy" {
     description = "default rule"
     rate_limit_options {
       conform_action = "allow"
-      exceed_action = "deny(429)"
+      exceed_action  = "deny(429)"
 
       enforce_on_key = ""
 
       rate_limit_threshold {
-        count = 10
+        count        = 10
         interval_sec = 60
       }
 
