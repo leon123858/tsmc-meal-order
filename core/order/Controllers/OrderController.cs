@@ -8,7 +8,7 @@ using order.Service;
 namespace order.Controllers;
 
 [ApiController]
-[Route("api/orders")]
+[Route("api/order")]
 public class OrderController : ControllerBase
 {
     private readonly ILogger<OrderController> _logger;
