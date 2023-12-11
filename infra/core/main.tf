@@ -105,45 +105,45 @@ module "storage-function" {
   depends_on = [module.cloud_run_runner.results]
 }
 
-// load balancer
-module "load_balancer" {
-  source        = "./components/load_balancer"
-  bucket        = "meal-order-static"
-  bucket_prefix = "images"
-
-  domain     = var.domain
-  name       = "load-balancer"
-  project_id = var.project_id
-  region     = var.region
-
-  default_service_name = "web"
-  service_map_url      = {
-    "storage" = "/api/storage",
-    "mail"    = "/api/mail",
-    "user"    = "/api/user",
-    "order"   = "/api/order",
-    "menu"    = "/api/menu",
-  }
-  cloud_function_services = {
-    "storage" = module.storage-function.name
-  }
-  cloud_run_services = {
-    "mail"  = module.mail-run.name
-    "user"  = module.user-run.name
-    "order" = module.order-run.name
-    "menu"  = module.menu-run.name
-    "web"   = module.web-run.name
-  }
-
-  depends_on = [
-    module.storage-function,
-    module.mail-run,
-    module.user-run,
-    module.order-run,
-    module.menu-run,
-    module.web-run,
-  ]
-}
+// load balancer (too expensive just stop it)
+#module "load_balancer" {
+#  source        = "./components/load_balancer"
+#  bucket        = "meal-order-static"
+#  bucket_prefix = "images"
+#
+#  domain     = var.domain
+#  name       = "load-balancer"
+#  project_id = var.project_id
+#  region     = var.region
+#
+#  default_service_name = "web"
+#  service_map_url      = {
+#    "storage" = "/api/storage",
+#    "mail"    = "/api/mail",
+#    "user"    = "/api/user",
+#    "order"   = "/api/order",
+#    "menu"    = "/api/menu",
+#  }
+#  cloud_function_services = {
+#    "storage" = module.storage-function.name
+#  }
+#  cloud_run_services = {
+#    "mail"  = module.mail-run.name
+#    "user"  = module.user-run.name
+#    "order" = module.order-run.name
+#    "menu"  = module.menu-run.name
+#    "web"   = module.web-run.name
+#  }
+#
+#  depends_on = [
+#    module.storage-function,
+#    module.mail-run,
+#    module.user-run,
+#    module.order-run,
+#    module.menu-run,
+#    module.web-run,
+#  ]
+#}
 
 // cloud build set iam
 module "cloud_build_builder" {
