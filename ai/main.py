@@ -10,25 +10,6 @@ from model import MenuItem
 app: FastAPI = FastAPI()
 print("run doc on http://127.0.0.1:8000/docs")
 
-menu_items = [
-    {
-        "MenuId": "4bCkldMFxoh5kP9byf7GUFsiF2t2",
-        "Index": 1,
-        "Description": "美味的牛肉漢堡",
-        "Name": "牛肉漢堡",
-        "Price": 120,
-        "Tags": ["漢堡", "牛肉", "美味"]
-    },
-    {
-        "MenuId": "3tFkP1jB8lN2sR6qZ9hUAsiI4e1t",
-        "Index": 2,
-        "Description": "香濃奶茶配珍珠",
-        "Name": "珍珠奶茶",
-        "Price": 50,
-        "Tags": ["奶茶", "珍珠", "香濃"]
-    },
-]
-
 generator = EmbeddingGenerator()
 repository = EmbeddingRepository()
 

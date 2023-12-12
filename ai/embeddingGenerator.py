@@ -11,10 +11,16 @@ from model import MenuItem, MenuEmbedding
 
 class EmbeddingGenerator:
     client: OpenAI = None
+    isDev: bool = False
 
     def __init__(self):
         load_dotenv()
         openai_key = os.getenv("OPENAI_KEY")
+
+        if openai_key is None:
+            self.isDev = True
+            return
+
         self.client = OpenAI(api_key=openai_key)
 
     def get_menu_embedding(self, menu: List[MenuItem]) -> List[MenuEmbedding]:
@@ -28,10 +34,12 @@ class EmbeddingGenerator:
                 data_frame[['MenuId', 'Index', 'ada_embedding']].values]
 
     def get_embedding(self, text: str, engine="text-embedding-ada-002") -> List[float]:
+        if self.isDev:
+            return [float(i) + 0.5 for i in range(1536)]
+
         # print(f"Generating embedding for text: {text}")
         text = text.replace("\n", " ")
 
-        # return [float(i) + 0.0 for i in range(1536)]
         response = self.client.embeddings.create(input=[text], model=engine)
 
         # print(f"Embedding: {response.data[0].embedding}")
