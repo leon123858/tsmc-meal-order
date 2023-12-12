@@ -33,7 +33,7 @@ generator = EmbeddingGenerator()
 repository = EmbeddingRepository()
 
 
-@app.get("/recommend/{user_input}")
+@app.get("/api/ai/recommend/{user_input}")
 async def recommend(user_input: str) -> RecommendMenuResponse:
     try:
         input_embedding = generator.get_embedding(user_input)
@@ -53,7 +53,7 @@ async def recommend(user_input: str) -> RecommendMenuResponse:
         raise HTTPException(status_code=500, detail={"data": None, "message": f"Error: {e}", "result": False})
 
 
-@app.post("/add")
+@app.post("/api/ai/add")
 async def add_menu(menu: List[MenuItem]) -> Response:
     try:
         menu_embeddings = generator.get_menu_embedding(menu)
@@ -71,7 +71,7 @@ async def add_menu(menu: List[MenuItem]) -> Response:
         raise HTTPException(status_code=500, detail={"data": None, "message": f"Error: {e}", "result": False})
 
 
-@app.get("/get")
+@app.get("/api/ai/get")
 async def get_menu() -> MenuEmbeddingResponse:
     try:
         menu_embeddings = repository.get_menu_embedding()

@@ -24,7 +24,7 @@ class EmbeddingRepository:
     def add_menu_embedding(self, menu_id: str, index: int, embedding: List[float]) -> None:
         connection, cursor = None, None
 
-        print(f"menu_id: {menu_id}, index: {index}, embedding: {embedding}")
+        # print(f"menu_id: {menu_id}, index: {index}, embedding: {embedding}")
 
         try:
             connection = psycopg2.connect(self.conn_str)
@@ -44,7 +44,6 @@ class EmbeddingRepository:
                     (embedding, menu_id, index),
                 )
             else:
-                # Insert a new record
                 cursor.execute(
                     sql.SQL("INSERT INTO menu_embeddings (menu_id, index, embedding) VALUES (%s, %s, %s)"),
                     (menu_id, index, embedding),
@@ -54,6 +53,7 @@ class EmbeddingRepository:
 
         except Exception as e:
             print(f"Error: {e}")
+            raise e
 
         finally:
             if cursor:
@@ -80,6 +80,7 @@ class EmbeddingRepository:
 
         except Exception as e:
             print(f"Error: {e}")
+            raise e
 
         finally:
             if cursor:
@@ -105,6 +106,7 @@ class EmbeddingRepository:
 
         except Exception as e:
             print(f"Error: {e}")
+            raise e
 
         finally:
             if cursor:
