@@ -20,10 +20,12 @@ class EmbeddingGenerator:
     def get_menu_embedding(self, menu: List[MenuItem]) -> List[MenuEmbedding]:
         # print(f"Generating embedding for menu")
         data_frame = pd.DataFrame([item.dict() for item in menu])
-        data_frame['combined'] = data_frame['Name'] + ' ' + data_frame['Description'] + ' ' + ' '.join(data_frame['Tags'].apply(lambda x: ' '.join(x)))
+        data_frame['combined'] = data_frame['Name'] + ' ' + data_frame['Description'] + ' ' + ' '.join(
+            data_frame['Tags'].apply(lambda x: ' '.join(x)))
         data_frame['ada_embedding'] = data_frame['combined'].apply(lambda x: self.get_embedding(x))
 
-        return [MenuEmbedding(menuId=row[0], index=row[1], embedding=row[2]) for row in data_frame[['MenuId', 'Index', 'ada_embedding']].values]
+        return [MenuEmbedding(menuId=row[0], index=row[1], embedding=row[2]) for row in
+                data_frame[['MenuId', 'Index', 'ada_embedding']].values]
 
     def get_embedding(self, text: str, engine="text-embedding-ada-002") -> List[float]:
         # print(f"Generating embedding for text: {text}")
@@ -32,7 +34,7 @@ class EmbeddingGenerator:
         # return [float(i) + 0.0 for i in range(1536)]
         response = self.client.embeddings.create(input=[text], model=engine)
 
-        #print(f"Embedding: {response.data[0].embedding}")
+        # print(f"Embedding: {response.data[0].embedding}")
 
         return response.data[0].embedding
 
