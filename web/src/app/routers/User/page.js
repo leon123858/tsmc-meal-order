@@ -3,8 +3,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import BackButton from '../../components/BackButton/BackButton';
 import Link from 'next/link';
 import { UserOutlined } from '@ant-design/icons';
-import { Select } from 'antd';
-import { Radio } from 'antd';
+import { Select, Radio } from 'antd';
 import { UserAPI } from '../../global';
 import { UserContext } from '../../store/userContext';
 
@@ -23,16 +22,18 @@ async function fetchUser(userID, setUser) {
     ...prevState,
     "name": data["name"],
     "place": data["place"],
-    "uid": userID
+    "uid": userID,
+    "userType": data["userType"]
   }))
 }
 
 const User = () => {
-    const { userID } = useContext(UserContext);
+    const { userID, userType } = useContext(UserContext);
     const [user, setUser] = useState({
       name: "",
       place: "",
       uid: "",
+      userType: "",
     });
   
     const handleNameChange = (e) => {
@@ -84,9 +85,17 @@ const User = () => {
     return (
       <div>
         <header className={styles.header}>
-          <Link href={"/routers/Home"}>
-              <BackButton />
-          </Link>
+          {
+            user["userType"] === "normal" ? (
+              <Link href={"/routers/Home"}>
+                <BackButton />
+              </Link>
+            ) : user["userType"] === "admin" ? (
+              <Link href={"/routers/RestaurantHome"}>
+                <BackButton />
+              </Link>
+            ) : null
+          }
         </header>
 
         <main className={styles.main}>

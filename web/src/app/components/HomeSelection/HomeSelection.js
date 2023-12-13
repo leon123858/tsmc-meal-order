@@ -25,7 +25,6 @@ const handleChange = (value, setFilterState) => {
 
 const HomeSelection = () => {
     const { setFilterState } = useContext(FilterContext);
-    const locale = 'en';
     const [today, setDate] = useState(new Date());
 
     useEffect(() => {

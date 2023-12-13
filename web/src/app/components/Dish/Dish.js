@@ -5,7 +5,7 @@ import { UserContext } from '../../store/userContext';
 import { OrderAPI } from '../../global';
 import { Button } from 'antd';
 
-async function deleteOrder (userID, orderID, setDeleteHistory) {
+async function deleteOrder (userID, orderID, setDeleteOrder) {
     const response = await fetch(`${OrderAPI}/delete/${userID}/${orderID}`, {
         method: 'POST',
         headers: {
@@ -14,15 +14,28 @@ async function deleteOrder (userID, orderID, setDeleteHistory) {
     });
     console.log(response);
     if (response.ok) {
-        setDeleteHistory(true);
+        setDeleteOrder(true);
     }
 }
 
-const Dish = ({ dish, isHistory, historyType, setDeleteHistory}) => {
+async function confirmOrder (userID, orderID, setConfirmOrder) {
+    const response = await fetch(`${OrderAPI}/confirm/${userID}/${orderID}`, {
+        method: 'POST',
+        headers: {
+            'Accept': '*/*',
+        },
+    });
+    console.log(response);
+    if (response.ok) {
+        setConfirmOrder(true);
+    }
+}
+
+const Dish = ({ dish, isOrder, orderType, setDeleteOrder, setConfirmOrder, userType }) => {
     const { userID } = useContext(UserContext);
     var orderCount = 0
     var orderID = "";
-    if (isHistory) {
+    if (isOrder) {
         orderCount = dish["count"];
         orderID = dish["orderID"];
         dish = dish["snapshot"];
@@ -53,16 +66,24 @@ const Dish = ({ dish, isHistory, historyType, setDeleteHistory}) => {
                 </div>
                 <div className={styles.priceContainer}>
                     <div className={styles.priceContent}>
-                        NT$ {isHistory !== true && dish["price"]}
-                        {isHistory === true && orderCount * dish["price"]}  
+                        NT$ {isOrder !== true && dish["price"]}
+                        {isOrder === true && orderCount * dish["price"]}  
                         <br />
-                        {isHistory !== true && `剩下 ${dish["count"]} 份`}
-                        {isHistory === true && `共 ${orderCount} 份`}
+                        {isOrder !== true && `剩下 ${dish["count"]} 份`}
+                        {isOrder === true && `共 ${orderCount} 份`}
                         <br />
-                        {isHistory === true && historyType === "已訂購" && 
-                            <Button value="default" className={styles.blueButton} onClick={() => deleteOrder(userID, orderID, setDeleteHistory)}>
-                                刪除訂單
-                            </Button>
+                        {isOrder === true && (orderType === "已訂購" || orderType === "未完成") && 
+                            <div>
+                                <Button value="default" className={styles.redButton} onClick={() => deleteOrder(userID, orderID, setDeleteOrder)}>
+                                    刪除訂單
+                                </Button>
+                                
+                                {userType === "admin" && orderType === "未完成" &&
+                                    <Button value="default" className={styles.deepBlueButton} onClick={() => confirmOrder(userID, orderID, setConfirmOrder)}>
+                                        完成訂單
+                                    </Button>
+                                }
+                            </div>
                         }
                     </div>
                 </div>

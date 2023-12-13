@@ -11,7 +11,6 @@ import { Button, Radio } from 'antd';
 import { FilterContext } from '../../store/filterContext'
 import { UserContext } from '../../store/userContext';
 
-
 import styles from "./page.module.css";
 
 async function fetchUser(userID, setPlace) {
@@ -47,7 +46,6 @@ async function fetchMenuData(setMenuData, userID) {
             'Accept': 'application/json'
         }
     });
-    // const res = await fetch(`${MenuAPI}/menu`);
     var data = await res.json();
     data = Object.values(data)[0];
     setMenuData(getDish(data));
@@ -140,9 +138,9 @@ export default function Home() {
                                 <div onClick={() => handleDishButton(dish)}>
                                     <Dish
                                         dish={dish}
-                                        isHistory={false}
-                                        historyType={""}
-                                        setDeleteHistory={() => {}}
+                                        isOrder={false}
+                                        orderType={""}
+                                        setDeleteOrder={() => {}}
                                     />
                                     {index < curFilterData.length - 1 && <hr className={styles.hr_meal} />}
                                     {index === curFilterData.length - 1 && <hr className={styles.hr_date} />}                 
@@ -175,8 +173,6 @@ export default function Home() {
                     />
 
                     <div className={styles.rightButtons}>
-
-
                         <Link href="/routers/History">
                             <Radio.Button value="default" className={styles.blueButton}>
                                 檢視訂單

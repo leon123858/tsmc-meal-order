@@ -64,3 +64,15 @@
     background-color: #80c7f7;
     color: white;
 }
+
+.deepBlueButton {
+    background-color: #1890ff;
+    border-color: #1890ff;
+    color: #fff;
+    margin-left: 5px;
+  }
+
+.redButton {
+    background-color: red;
+    color: white;
+}
