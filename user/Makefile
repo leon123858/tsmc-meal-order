@@ -25,5 +25,6 @@ format:
 trySync:
 	node ./trigger-sync.js
 
-test:
-	go test ./... -v -coverprofile=coverage.out
+testCover:
+	go clean -testcache
+	go test ./... -p=1 -cover=true
