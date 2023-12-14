@@ -24,3 +24,6 @@ format:
 
 trySync:
 	node ./trigger-sync.js
+
+test:
+	go test ./... -v -coverprofile=coverage.out

@@ -69,7 +69,7 @@ resource "google_compute_router_interface" "router1_interface1" {
   name       = "router1-interface1"
   router     = google_compute_router.router1.name
   region     = var.region
-  ip_range   = var.my_bgp_ip[0]
+  ip_range   = "${var.my_bgp_ip[0]}/30"
   vpn_tunnel = google_compute_vpn_tunnel.tunnel1.name
 }
 
@@ -87,7 +87,7 @@ resource "google_compute_router_interface" "router1_interface2" {
   name       = "router1-interface2"
   router     = google_compute_router.router1.name
   region     = var.region
-  ip_range   = var.my_bgp_ip[1]
+  ip_range   = "${var.my_bgp_ip[1]}/30"
   vpn_tunnel = google_compute_vpn_tunnel.tunnel2.name
 }
 
@@ -103,17 +103,18 @@ resource "google_compute_router_peer" "router1_peer2" {
 
 // serverless vpc connector
 module "serverless-connector" {
-  source     = "terraform-google-modules/network/google//modules/vpc-serverless-connector-beta"
-  version    = "~> 8.0"
-  project_id = var.project_id
-  vpc_connectors = [{
-    name        = "serverless"
-    region      = var.region
-    subnet_name = google_compute_subnetwork.network_subnet1.name
-    machine_type  = "f1-micro"
-    min_instances = 2
-    max_instances = 3
-  }
+  source         = "terraform-google-modules/network/google//modules/vpc-serverless-connector-beta"
+  version        = "~> 8.0"
+  project_id     = var.project_id
+  vpc_connectors = [
+    {
+      name          = "serverless"
+      region        = var.region
+      subnet_name   = google_compute_subnetwork.network_subnet1.name
+      machine_type  = "f1-micro"
+      min_instances = 2
+      max_instances = 3
+    }
     # Uncomment to specify an ip_cidr_range
     #   , {
     #     name          = "central-serverless2"
