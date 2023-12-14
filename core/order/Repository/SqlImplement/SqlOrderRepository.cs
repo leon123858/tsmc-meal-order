@@ -17,7 +17,7 @@ public class SqlOrderRepository : IOrderRepository
         _logger = logger;
         var secretPassword = Environment.GetEnvironmentVariable("SQL_PASSWORD") ?? config.Value.Password;
         _connectionString =
-            $"Persist Security Info=False;User ID={config.Value.UserName};Password={secretPassword};Server={config.Value.Host};Database={config.Value.DatabaseName};";
+            $"TrustServerCertificate=True;Persist Security Info=False;User ID={config.Value.UserName};Password={secretPassword};Server={config.Value.Host};Database={config.Value.DatabaseName};";
     }
 
     public async Task<IEnumerable<Order>> GetOrders(string userId)
