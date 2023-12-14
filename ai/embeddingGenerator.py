@@ -5,8 +5,31 @@ import numpy as np
 import pandas as pd
 from dotenv import load_dotenv
 from openai import OpenAI
+from pydantic import BaseModel
 
-from model import MenuItem, MenuEmbedding
+from model import MenuEmbedding, Menu
+
+
+class MenuItem(BaseModel):
+    MenuId: str
+    Index: int
+    Description: str
+    Name: str
+    Tags: List[str]
+
+
+def convert_menu_to_menu_item(menu: Menu) -> List[MenuItem]:
+    menu_items = []
+    for food_index, food_item in enumerate(menu.FoodItems):
+        menu_item = MenuItem(
+            MenuId=menu.MenuId,
+            Index=food_index,
+            Description=food_item.Description,
+            Name=food_item.Name,
+            Tags=food_item.Tags
+        )
+        menu_items.append(menu_item)
+    return menu_items
 
 
 class EmbeddingGenerator:
@@ -23,9 +46,10 @@ class EmbeddingGenerator:
 
         self.client = OpenAI(api_key=openai_key)
 
-    def get_menu_embedding(self, menu: List[MenuItem]) -> List[MenuEmbedding]:
+    def get_menu_embedding(self, menu: Menu) -> List[MenuEmbedding]:
         # print(f"Generating embedding for menu")
-        data_frame = pd.DataFrame([item.dict() for item in menu])
+        menu_items = convert_menu_to_menu_item(menu)
+        data_frame = pd.DataFrame([item.dict() for item in menu_items])
         data_frame['combined'] = data_frame['Name'] + ' ' + data_frame['Description'] + ' ' + ' '.join(
             data_frame['Tags'].apply(lambda x: ' '.join(x)))
         data_frame['ada_embedding'] = data_frame['combined'].apply(lambda x: self.get_embedding(x))
