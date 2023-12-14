@@ -21,35 +21,37 @@ class EmbeddingRepository:
         db_password = os.getenv("AZURE_PASSWORD")
         self.conn_str = f"host={db_server} dbname=postgres user={db_user} password={db_password} sslmode=require"
 
-    def add_menu_embedding(self, menu_id: str, index: int, embedding: List[float]) -> None:
+    def add_menu_embedding(self, menu_embeddings: List[MenuEmbedding]) -> None:
         connection, cursor = None, None
 
-        # print(f"menu_id: {menu_id}, index: {index}, embedding: {embedding}")
+        if len(menu_embeddings) == 0:
+            return
 
         try:
             connection = psycopg2.connect(self.conn_str)
-
             cursor = connection.cursor()
 
-            cursor.execute(
-                sql.SQL("SELECT * FROM menu_embeddings WHERE menu_id = %s AND index = %s"),
-                (menu_id, index),
-            )
+            connection.autocommit = False
 
-            existing_record = cursor.fetchone()
+            menu_id = menu_embeddings[0].menuId
 
-            if existing_record:
+            try:
                 cursor.execute(
-                    sql.SQL("UPDATE menu_embeddings SET embedding = %s WHERE menu_id = %s AND index = %s"),
-                    (embedding, menu_id, index),
-                )
-            else:
-                cursor.execute(
-                    sql.SQL("INSERT INTO menu_embeddings (menu_id, index, embedding) VALUES (%s, %s, %s)"),
-                    (menu_id, index, embedding),
+                    sql.SQL("DELETE FROM menu_embeddings WHERE menu_id = %s"),
+                    (menu_id,),
                 )
 
-            connection.commit()
+                for menu_embedding in menu_embeddings:
+                    cursor.execute(
+                        sql.SQL("INSERT INTO menu_embeddings (menu_id, index, embedding) VALUES (%s, %s, %s)"),
+                        (menu_id, menu_embedding.index, menu_embedding.embedding),
+                    )
+
+                connection.commit()
+
+            except Exception as e:
+                connection.rollback()
+                raise e
 
         except Exception as e:
             print(f"Error: {e}")
@@ -70,7 +72,8 @@ class EmbeddingRepository:
             cursor = connection.cursor()
 
             embeddingStr = json.dumps(embedding)
-            cursor.execute(sql.SQL("select * from menu_embeddings order by cosine_distance(embedding, %s)"), (embeddingStr,))
+            cursor.execute(sql.SQL("select * from menu_embeddings order by cosine_distance(embedding, %s)"),
+                           (embeddingStr,))
 
             rows = cursor.fetchall()
 
@@ -102,7 +105,8 @@ class EmbeddingRepository:
 
             connection.commit()
 
-            return [MenuEmbedding(menuId=row[1], index=row[2], embedding=list(map(float, literal_eval(row[3])))) for row in rows]
+            return [MenuEmbedding(menuId=row[1], index=row[2], embedding=list(map(float, literal_eval(row[3])))) for row
+                    in rows]
 
         except Exception as e:
             print(f"Error: {e}")
