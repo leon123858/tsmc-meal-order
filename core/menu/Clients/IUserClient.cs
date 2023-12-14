@@ -1,9 +1,10 @@
 ﻿using menu.Models;
+using menu.Models.DTO;
 
 namespace menu.Clients
 {
     public interface IUserClient
     {
-        Task<User?> GetUserAsync(string userId);
+        Task<UserDTO?> GetUserAsync(string userId);
     }
 }
