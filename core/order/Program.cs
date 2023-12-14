@@ -27,11 +27,11 @@ builder.Services.Configure<DatabaseConfig>(builder.Configuration.GetSection("Dat
 builder.Services.Configure<WebConfig>(builder.Configuration.GetSection("WebApi"));
 
 // For Test
-builder.Services.AddSingleton<IUserRepository, MemoryUserRepository>();
+//builder.Services.AddSingleton<IUserRepository, MemoryUserRepository>();
 //builder.Services.AddSingleton<IOrderRepository, MemoryOrderRepository>();
 //builder.Services.AddSingleton<IFoodItemRepository, MemoryFoodItemRepository>();
 
-//builder.Services.AddSingleton<IUserRepository, WebUserRepository>();
+builder.Services.AddSingleton<IUserRepository, WebUserRepository>();
 builder.Services.AddSingleton<IOrderRepository, SqlOrderRepository>();
 builder.Services.AddSingleton<IFoodItemRepository, WebFoodItemRepository>();
 builder.Services.AddSingleton<MailService>();
