@@ -3,13 +3,15 @@ from typing import List
 from pydantic import BaseModel
 
 
-class MenuItem(BaseModel):
-    MenuId: str
-    Index: str
-    Description: str
+class FoodItem(BaseModel):
     Name: str
-    Price: int
+    Description: str
     Tags: List[str]
+
+
+class Menu(BaseModel):
+    MenuId: str
+    FoodItems: List[FoodItem]
 
 
 class MenuEmbedding(BaseModel):

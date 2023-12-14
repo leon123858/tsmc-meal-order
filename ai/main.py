@@ -2,10 +2,10 @@ from typing import List
 
 from fastapi import FastAPI, HTTPException
 
-from response import MenuEmbeddingResponse, ResponseMenuEmbedding, RecommendMenuResponse, Response
 from embeddingGenerator import EmbeddingGenerator
+from model import Menu
 from repository import EmbeddingRepository
-from model import MenuItem
+from response import MenuEmbeddingResponse, ResponseMenuEmbedding, RecommendMenuResponse, Response
 
 app: FastAPI = FastAPI()
 print("run doc on http://127.0.0.1:8000/docs")
@@ -35,13 +35,11 @@ async def recommend(user_input: str) -> RecommendMenuResponse:
 
 
 @app.post("/api/ai/add")
-async def add_menu(menu: List[MenuItem]) -> Response:
+async def add_menu(menu_list: List[Menu]) -> Response:
     try:
-        menu_embeddings = generator.get_menu_embedding(menu)
-
-        for menu_embedding in menu_embeddings:
-            print(menu_embedding)
-            repository.add_menu_embedding(menu_embedding.menuId, menu_embedding.index, menu_embedding.embedding)
+        for menu in menu_list:
+            menu_embeddings = generator.get_menu_embedding(menu)
+            repository.add_menu_embedding(menu_embeddings)
 
         return Response(
             data=None,
@@ -57,7 +55,9 @@ async def get_menu() -> MenuEmbeddingResponse:
     try:
         menu_embeddings = repository.get_menu_embedding()
 
-        response = [ResponseMenuEmbedding(menuId=menu_embedding.menuId, index=menu_embedding.index, embedding=menu_embedding.embedding[:10]) for menu_embedding in menu_embeddings]
+        response = [ResponseMenuEmbedding(menuId=menu_embedding.menuId, index=menu_embedding.index,
+                                          embedding=menu_embedding.embedding[:10]) for menu_embedding in
+                    menu_embeddings]
 
         return MenuEmbeddingResponse(
             data=response,
