@@ -16,7 +16,7 @@ public class WebFoodItemRepository : IFoodItemRepository
 
     public async Task<FoodItem> GetFoodItem(string menuId, int itemIdx)
     {
-        var endPoint = $"/api/menu/{menuId}/foodItem/{itemIdx}";
+        var endPoint = $"/{menuId}/foodItem/{itemIdx}";
 
         try
         {
@@ -26,6 +26,24 @@ public class WebFoodItemRepository : IFoodItemRepository
                 return apiResponse.Data;
 
             throw new FoodItemNotFoundException();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    public async Task AdjustFoodItemStock(string menuId, int itemIndex, int quantity)
+    {
+        var endPoint = $"/{menuId}/foodItem/{itemIndex}/{-quantity}";
+
+        try
+        {
+            var apiResponse = await _webUtils.PostAsync<string>(endPoint);
+
+            if (apiResponse is { Result: false })
+                throw new FoodItemNotFoundException();
         }
         catch (Exception e)
         {

@@ -24,3 +24,7 @@ format:
 
 trySync:
 	node ./trigger-sync.js
+
+testCover:
+	go clean -testcache
+	go test ./... -p=1 -cover=true

@@ -6,5 +6,5 @@ public class User
     public string Name { get; set; }
     public string Email { get; set; }
     public string Place { get; set; }
-    public string UserType { get; set; }
+    public UserType Type { get; set; }
 }

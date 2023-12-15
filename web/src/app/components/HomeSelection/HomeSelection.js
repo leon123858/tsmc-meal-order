@@ -1,37 +1,57 @@
 import { DatePicker, Select, Switch, Button } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
+import { useContext, useEffect, useState } from 'react'
+import { FilterContext } from '../../store/filterContext'
 import Link from 'next/link'
 
 import styles from './HomeSelection.module.css';
 
 const categories = ['蛋奶素', '肉類', '海鮮'];
 
-const onChange = (date, dateString) => {
-    console.log(date, dateString);
-  };
+const onChange = (category, checked, setFilterState) => {
+    setFilterState((prevState) => ({
+        ...prevState,
+        [category]: checked
+    }));
+};
 
-const handleChange = (value) => {
-    console.log(`selected ${value}`);
-  };
+const handleChange = (value, setFilterState) => {
+    setFilterState((prevState) => ({
+        ...prevState,
+        "餐點時間": value
+    }));
+};
 
 
 const HomeSelection = () => {
+    const { setFilterState } = useContext(FilterContext);
+    const [today, setDate] = useState(new Date());
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setDate(new Date());
+        }, 60 * 1000)
+        return () => {
+            clearInterval(today);
+        }
+    }, []);
+
     return (
         <div className={styles.container}>
             <div className={styles.topRow}>
                 <div className={styles.datePicker}>
-                    <DatePicker onChange={onChange} style={{ width: "100%" }} />
+                    <DatePicker showTime={{ defaultValue: today}} />
                 </div>
 
                 <div className={styles.select}>
                     <Select
                         defaultValue="lunch"
                         style={{ width: 120 }}
-                        onChange={handleChange}
+                        onChange={(value) => handleChange(value, setFilterState)}
                         options={[
-                            { value: "breakfast", label: "Breakfast" },
-                            { value: "lunch", label: "Lunch" },
-                            { value: "dinner", label: "Dinner" },
+                            { value: "Breakfast", label: "Breakfast" },
+                            { value: "Lunch", label: "Lunch" },
+                            { value: "Dinner", label: "Dinner" },
                         ]}
                     />
                 </div>
@@ -49,16 +69,12 @@ const HomeSelection = () => {
             </div>
 
             <div className={styles.switchRow}>
-                {/* <Switch checkedChildren="蛋奶素" unCheckedChildren="無蛋奶素" onChange={onChange}/>
-                <Switch checkedChildren="肉類" unCheckedChildren="無肉類" onChange={onChange}/>
-                <Switch checkedChildren="海鮮" unCheckedChildren="無海鮮" onChange={onChange}/> */}
-
                 {categories.map((category, index) => (
                     <Switch
                         key={index}
                         checkedChildren={category}
                         unCheckedChildren={`無${category}`}
-                        onChange={(checked) => onChange(category, checked)}
+                        onChange={(checked) => onChange(category, checked, setFilterState)}
                     />
                 ))}
             </div>

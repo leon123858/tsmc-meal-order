@@ -1,4 +1,5 @@
-﻿using order.Attributes;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using order.Attributes;
 
 namespace order.Repository.SqlImplement;
 
@@ -12,11 +13,11 @@ public class SqlUtils
 
     public static string GetUpdateSql(Type type)
     {
-        var className = type.Name;
+        var tableAttribute = (TableAttribute)Attribute.GetCustomAttribute(type, typeof(TableAttribute));
 
-        if (!className.EndsWith("DTO")) throw new ArgumentException("class is not DTO.");
+        if (tableAttribute == null) throw new ArgumentException("class has no table attribute!");
 
-        var tableName = className[..^6].ToLower();
+        var tableName = tableAttribute.Name;
 
         var updateSql = $"UPDATE [{tableName}] SET ";
         var updateKey = new List<string>();
@@ -54,11 +55,11 @@ public class SqlUtils
 
     public static string GetInsertSql(Type type)
     {
-        var className = type.Name;
+        var tableAttribute = (TableAttribute)Attribute.GetCustomAttribute(type, typeof(TableAttribute));
 
-        if (!className.EndsWith("DTO")) throw new ArgumentException("class is not DTO.");
+        if (tableAttribute == null) throw new ArgumentException("class has no table attribute!");
 
-        var tableName = className[..^6].ToLower();
+        var tableName = tableAttribute.Name;
 
         var insertSql = $"INSERT INTO [{tableName}] (";
 

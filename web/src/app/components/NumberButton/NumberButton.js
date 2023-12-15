@@ -1,41 +1,31 @@
-import { useState } from 'react';
-import { InputNumber, Button, Radio } from 'antd';
+'use client';
+import { useEffect, useState } from 'react';
+import { InputNumber, Button } from 'antd';
 
 import styles from "./NumberButton.module.css";
-import Link from 'next/link';
 
-const NumberButton = () => {
-    const [value, setValue] = useState(1);
-
-const onChange = (newValue) => {
-    setValue(newValue);
-};
-
-const increment = () => {
-    setValue((prevValue) => Math.min(prevValue + 1, 10));
-};
-
-const decrement = () => {
-    setValue((prevValue) => Math.max(prevValue - 1, 1));
-};
-
-return (
-    <div className={styles.container}>
+const NumberButton = ({curNumber, setNumber}) => {
+    const onChange = (newValue) => {
+      setNumber(newValue);
+    };
+  
+    const increment = () => {
+      setNumber((prevValue) => Math.min(prevValue + 1, 10));
+    };
+  
+    const decrement = () => {
+      setNumber((prevValue) => Math.max(prevValue - 1, 1));
+    };
+  
+    return (
+      <div className={styles.container}>
         <div>
-            <Button onClick={decrement}>-</Button>
-            <InputNumber min={1} max={10} value={value} onChange={onChange} />
-            <Button onClick={increment}>+</Button>
+          <Button onClick={decrement}>-</Button>
+          <InputNumber min={1} max={10} value={curNumber} onChange={onChange} />
+          <Button onClick={increment}>+</Button>
         </div>
-        
-        <div className={styles.sendButton}>
-            <Link href="/routers/Home">
-                <Radio.Button value="default" className={styles.blueButton}>
-                    送出
-                </Radio.Button>
-            </Link>
-        </div>
-    </div>
-);
-}
-
-export default NumberButton;
+      </div>
+    );
+  };
+  
+  export default NumberButton;

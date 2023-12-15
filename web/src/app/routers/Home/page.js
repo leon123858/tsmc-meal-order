@@ -1,39 +1,158 @@
 'use client';
 import Link from 'next/link'
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
+import { MenuAPI, UserAPI } from '../../global'
 import Dish from "../../components/Dish/Dish";
 import HomeSelection from "../../components/HomeSelection/HomeSelection";
-import AIwindow from '../../components/AIwindow/AIwindow'
+import AIwindow from "../../components/AIwindow/AIwindow";
+import DescriptionWindow from "../../components/DescriptionWindow/DescriptionWindow";
+
 import { Button, Radio } from 'antd';
+import { FilterContext } from '../../store/filterContext'
+import { UserContext } from '../../store/userContext';
 
 import styles from "./page.module.css";
 
-const handleButtonClick = (index) => {
-    console.log(`selected ${index}`);
+async function fetchUser(userID, setPlace) {
+    const res = await fetch(`${UserAPI}/get?uid=${userID}`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+    var data = await res.json();
+    data = Object.values(data)[2];
+    setPlace(data["place"])
+}
+
+function getDish (menuData) {
+    const Dishes = [];
+    menuData.forEach(menu => {
+        const foodItems = menu["foodItems"];
+        const menuID = menu["id"];
+        foodItems.forEach((foodItem, index) => {
+            foodItem["menuID"] = menuID;
+            foodItem["index"] = index;
+            Dishes.push(foodItem)
+        })
+    });
+    return Dishes;
+}
+
+async function fetchMenuData(setMenuData, userID) {
+    const res = await fetch(`${MenuAPI}/user/${userID}`, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json'
+        }
+    });
+    var data = await res.json();
+    data = Object.values(data)[0];
+    setMenuData(getDish(data));
+}
+
+function filterData(curMenuData, setFilterData, curFilterState) {
+    const Dishes = [];
+    const MealTypeMapping = {
+        "Dinner": "晚餐",
+        "Breakfast": "早餐",
+        "Lunch": "午餐"
+    }
+    curMenuData.forEach(dish => {
+        const filterTime = dish["tags"].includes(MealTypeMapping[curFilterState["餐點時間"]]);
+        const filterSeafood = curFilterState["海鮮"] && dish["tags"].includes("海鮮");
+        const filterMeat = curFilterState["肉類"] && dish["tags"].includes("肉類");
+        const filterLactotene = curFilterState["蛋奶素"] && dish["tags"].includes("蛋奶素");
+        if (filterTime && (filterSeafood || filterMeat || filterLactotene)) {
+            Dishes.push(dish);
+        }
+    });
+    setFilterData(Dishes);
 }
 
 export default function Home() {
-    const price = 10, number = 1;
-    const [curWindowState, setWindowState] = useState(false);
-    
+    const [curAIWindowState, setAIWindowState] = useState(false);
+    const [curDesWindowState, setDesWindowState] = useState(false);
+    const [curSelectDish, setSelectDish] = useState({}); // 設定要傳入給 description window 的菜色
+    const [curMenuData, setMenuData] = useState([]);
+    const [curFilterData, setFilterData] = useState([]); // 儲存被種類過濾後的菜色
+    const [curPlace, setPlace] = useState("None");
+    const {curFilterState, setFilterState} = useContext(FilterContext);
+    const { userID } = useContext(UserContext);
+
+    // 取得 Location
+    useEffect(() => {
+        if (userID != "") {
+            fetchUser(userID, setPlace);
+        }
+    }, [userID]);
+
+    // 檢查是否為第一次登入的用戶，需先去設定名字及地點
+    useEffect(() => {
+        if (userID != "" && curPlace == "") {
+            alert("請先設定使用者名稱及地點");
+        }
+    }, [userID, curPlace]);
+
+    // 每次回到 menu 頁時，把 filter 的狀態初始化
+    useEffect(() => {
+        setFilterState((prevState) => ({
+            ...prevState,
+            "蛋奶素": false,
+            "肉類": false,
+            "海鮮": false,
+            "餐點時間": "Lunch"
+        }));
+    }, []);
+
+    // 一進來頁面，先 fetch menu 資料
+    useEffect(() => {
+        if (userID != "") {
+            fetchMenuData(setMenuData, userID);
+        }
+    }, [userID, curPlace]);
+
+    useEffect(() => {
+        filterData(curMenuData, setFilterData, curFilterState)
+    }, [curFilterState, curMenuData]);
+
+    const handleDishButton = (dish) => {
+        setSelectDish(dish);
+        setDesWindowState(true);
+    }
+
     return (
         <div>
 
             <header className={styles.header}>
                 <div className={styles.selectionContainer}>
-                    <HomeSelection />
+                    <HomeSelection/>
                 </div>
             </header>
         
             <main className={styles.main}>
                 <div className={styles.dishContainer}>
-                    {[...Array(10)].map((_, index) => (
-                        <Link href="/routers/Description">
-                            <button key={index} className={styles.dish} onClick={() => handleButtonClick(index)}>
-                                <Dish price={price} number={number} />
-                            </button>
-                        </Link>
-                    ))}
+                    {
+                        curFilterData.map((dish, index) => ( 
+                            <>
+                                <div onClick={() => handleDishButton(dish)}>
+                                    <Dish
+                                        dish={dish}
+                                        isOrder={false}
+                                        orderType={""}
+                                        setDeleteOrder={() => {}}
+                                    />
+                                    {index < curFilterData.length - 1 && <hr className={styles.hr_meal} />}
+                                    {index === curFilterData.length - 1 && <hr className={styles.hr_date} />}                 
+                                </div>
+                            </>
+                        ))
+                    }
+                    <DescriptionWindow
+                        curDesWindowState={ curDesWindowState }
+                        setDesWindowState={ setDesWindowState }
+                        dish={ curSelectDish }
+                    />
                 </div>
             </main>
 
@@ -43,20 +162,17 @@ export default function Home() {
                     <Button 
                         type="primary"
                         shape="circle"
-                        onClick={() => setWindowState(true)}
+                        onClick={() => setAIWindowState(true)}
                         className={styles.blueButton}
                     >
                         AI
                     </Button>
                     <AIwindow 
-                        curWindowState={ curWindowState }
-                        setWindowState={ setWindowState }
+                        curAIWindowState={ curAIWindowState }
+                        setAIWindowState={ setAIWindowState }
                     />
 
                     <div className={styles.rightButtons}>
-                        <div className={styles.items}>X items</div>
-
-
                         <Link href="/routers/History">
                             <Radio.Button value="default" className={styles.blueButton}>
                                 檢視訂單

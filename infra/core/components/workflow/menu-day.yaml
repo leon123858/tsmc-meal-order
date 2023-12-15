@@ -1,0 +1,20 @@
+# This is a sample workflow. You can replace it with your source code.
+#
+# This workflow does the following:
+# - reads current time and date information from an external API and stores
+#   the response in currentTime variable
+# - retrieves a list of Wikipedia articles related to the day of the week
+#   from currentTime
+# - returns the list of articles as an output of the workflow
+#
+# Note: In Terraform you need to escape the $$ or it will cause errors.
+
+- syncMenu:
+    call: http.post
+    args:
+      url: "https://menu-kt6w747drq-de.a.run.app/api/menu/sync"
+      headers:
+        Content-Type: application/json
+    result: menuResult
+- returnOutput:
+    return: menuResult

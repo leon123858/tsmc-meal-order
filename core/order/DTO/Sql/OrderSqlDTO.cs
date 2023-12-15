@@ -1,8 +1,10 @@
-﻿using order.Attributes;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using order.Attributes;
 using order.Model;
 
 namespace order.DTO.Sql;
 
+[Table("myOrder")]
 public class OrderSqlDTO
 {
     [UpdateKey] public Guid Id { get; set; }
@@ -11,6 +13,7 @@ public class OrderSqlDTO
     public int Status { get; set; }
     public DateTime OrderDate { get; set; }
     public DateTime CreateTime { get; set; }
+    public int MealType { get; set; }
 
     public static implicit operator Order(OrderSqlDTO sqlDto)
     {
@@ -21,7 +24,8 @@ public class OrderSqlDTO
             Restaurant = new User { Id = sqlDto.RestaurantId },
             Status = (OrderStatus)sqlDto.Status,
             OrderDate = sqlDto.OrderDate,
-            CreateTime = sqlDto.CreateTime
+            CreateTime = sqlDto.CreateTime,
+            MealType = (MealType)sqlDto.MealType
         };
     }
 
@@ -34,7 +38,8 @@ public class OrderSqlDTO
             RestaurantId = order.Restaurant.Id,
             Status = (int)order.Status,
             OrderDate = order.OrderDate,
-            CreateTime = order.CreateTime
+            CreateTime = order.CreateTime,
+            MealType = (int)order.MealType
         };
     }
 }

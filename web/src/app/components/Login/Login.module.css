@@ -1,0 +1,28 @@
+.main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 10%;
+    min-height: 100vh;
+    background: #f0f0f0;
+}
+
+.loginSection {
+    margin-top: 20px;
+    text-align: center;
+  }
+
+  .loginSection input {
+    margin-bottom: 10px; /* Add margin-bottom for spacing between input fields */
+  }
+
+  .modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    border: 1px solid #ccc;
+    z-index: 999;
+}

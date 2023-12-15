@@ -12,13 +12,13 @@ using core.Model;
 using menu.Services;
 using menu.Clients;
 using menu.Config;
+using Microsoft.AspNetCore.Cors;
 using menu.Exceptions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddCors();
 builder.Services.AddAutoMapper(typeof(MappingConfig));
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.Configure<MenuDatabaseConfig>(builder.Configuration.GetSection("MenuDatabase"));
@@ -45,6 +45,7 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseCors();
+// }
 
 app.MapGet("/api/menu", async (TempMenuService _menuService, ILogger < Program> _logger) =>
 {

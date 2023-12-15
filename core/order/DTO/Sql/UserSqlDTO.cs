@@ -1,7 +1,9 @@
+using System.ComponentModel.DataAnnotations.Schema;
 using order.Model;
 
 namespace order.DTO.Sql;
 
+[Table("myUser")]
 public class UserSqlDTO
 {
     public string Id { get; set; }

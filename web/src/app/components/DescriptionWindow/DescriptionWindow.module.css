@@ -28,3 +28,8 @@
   display: flex;
   align-items: center;
 }
+
+.modal_content {
+  height: '500px';
+  overflow-y: 'auto';
+}
