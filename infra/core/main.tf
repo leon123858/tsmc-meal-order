@@ -78,6 +78,15 @@ module "menu-run" {
   depends_on      = [module.cloud_run_runner.results]
 }
 
+module "ai-run" {
+  source          = "./components/run"
+  service_name    = "ai"
+  region          = var.region
+  service_account = google_service_account.run.email
+
+  depends_on = [module.cloud_run_runner.results]
+}
+
 module "web-run" {
   source          = "./components/run"
   service_name    = "web"
@@ -199,6 +208,17 @@ module "build_menu" {
   docker_file_path = "core/menu/Dockerfile"
   source_repo      = module.repository.id
   source_path      = "core"
+
+  depends_on = [module.cloud_build_builder.results]
+}
+
+module "build_ai" {
+  source           = "./components/build_run"
+  name             = module.ai-run.name
+  region           = var.region
+  docker_file_path = "ai/Dockerfile"
+  source_repo      = module.repository.id
+  source_path      = "ai"
 
   depends_on = [module.cloud_build_builder.results]
 }
