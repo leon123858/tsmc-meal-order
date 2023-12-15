@@ -20,7 +20,12 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o /user
 ##
 
 FROM build-stage AS run-test-stage
-#RUN go test -v ./...
+# install node, fireabse tools and JDK
+RUN apt-get update && apt-get install -y nodejs npm
+RUN npm install -g firebase-tools
+RUN apt-get install -y openjdk11-jre bash curl
+# run test
+RUN make ci
 
 ##
 ## Deploy the application binary into a lean image

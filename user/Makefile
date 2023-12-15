@@ -28,3 +28,6 @@ trySync:
 testCover:
 	go clean -testcache
 	go test ./... -p=1 -cover=true
+
+ci:
+	firebase emulators:exec "go test ./... -p=1 -cover=true"
