@@ -8,11 +8,11 @@ namespace order.Service;
 public class OrderService
 {
     private readonly IFoodItemRepository _foodItemRepository;
-    private readonly MailService _mailService;
+    private readonly IMailService _mailService;
     private readonly IOrderRepository _orderRepository;
 
     public OrderService(IOrderRepository orderRepository, IFoodItemRepository foodItemRepository,
-        MailService mailService)
+        IMailService mailService)
     {
         _orderRepository = orderRepository;
         _foodItemRepository = foodItemRepository;
