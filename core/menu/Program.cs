@@ -190,6 +190,7 @@ app.MapGet("/api/menu/{menuId}/foodItem/{itemIdx:int}", async (string menuId, in
 app.MapPost("/api/menu/sync", async (RealMenuService _realMenu, TempMenuService _tempMenu, IRecClient _recClient, IMapper _mapper, ILogger<Program> _logger) =>
 {
     var menus = await _realMenu.GetAllMenuAsync();
+    var recMenus = new List<RecMenuDTO>();
     foreach(var menu in menus)
     {
         try
@@ -202,8 +203,10 @@ app.MapPost("/api/menu/sync", async (RealMenuService _realMenu, TempMenuService 
             await _tempMenu.CreateMenuAsync(menu);
         }
 
-        await _recClient.SyncRecMenuAsync(_mapper.Map<MenuDTO>(menu));
+        recMenus.Add(_mapper.Map<RecMenuDTO>(menu));
     }
+
+    await _recClient.SyncRecMenuAsync(recMenus);
 
     return Results.Ok(new ApiResponse<object>());
 })
@@ -211,7 +214,7 @@ app.MapPost("/api/menu/sync", async (RealMenuService _realMenu, TempMenuService 
 .Produces<ApiResponse<object>>(StatusCodes.Status200OK)
 .WithOpenApi(operation => new(operation)
 {
-    Summary = "Sync the data of the temp menu, from the real menu"
+    Summary = "Sync the data of the temp menu and rec menu, from the real menu"
 });
 
 app.MapPost("/api/menu/{menuId}/foodItem/{itemIdx:int}/{decreaseCount:int}", async (string menuId, int itemIdx, int decreaseCount, TempMenuService _menuService, ILogger < Program > _logger) =>

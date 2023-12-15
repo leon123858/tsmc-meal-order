@@ -29,7 +29,6 @@ namespace menu.Clients
                 response.EnsureSuccessStatusCode();
                 var responseString = await response.Content.ReadAsStringAsync();
                 var apiResponse = JsonConvert.DeserializeObject<ApiResponse<List<RecItemDTO>>>(responseString);
-                Console.WriteLine(apiResponse!.ToString());
                 if (apiResponse is { Result: true })
                     return apiResponse.Data;
 
@@ -41,13 +40,13 @@ namespace menu.Clients
             }
         }
 
-        async public Task SyncRecMenuAsync(MenuDTO dto)
+        async public Task SyncRecMenuAsync(IEnumerable<RecMenuDTO> dtos)
         {
             using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(TimeoutSec) };
             string url = _domainUrl + $"/add";
             try
             {
-                var body = JsonConvert.SerializeObject(dto);
+                var body = JsonConvert.SerializeObject(dtos);
                 var response = await client.PostAsync(url, new StringContent(body ?? "", Encoding.UTF8, "application/json"));
                 var responseString = await response.Content.ReadAsStringAsync();
 
