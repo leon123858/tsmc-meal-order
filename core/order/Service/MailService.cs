@@ -8,7 +8,7 @@ using order.Repository.WebImplement;
 
 namespace order.Service;
 
-public class MailService
+public class MailService : IMailService
 {
     private readonly ILogger<MailService> _logger;
     private readonly WebUtils _webUtils;
@@ -22,6 +22,8 @@ public class MailService
     public void SendOrderCreatedMail(Order order)
     {
         SendMail(order.Customer.Email, "餐點訂單已建立",
+            $"以下訂單已建立\r\n日期：{order.OrderDate:yyyy/MM/dd}\r\n\r\n餐點：{GetFoodItemsString(order.FoodItems)}");
+        SendMail(order.Restaurant.Email, "餐點訂單已建立",
             $"以下訂單已建立\r\n日期：{order.OrderDate:yyyy/MM/dd}\r\n\r\n餐點：{GetFoodItemsString(order.FoodItems)}");
     }
 
