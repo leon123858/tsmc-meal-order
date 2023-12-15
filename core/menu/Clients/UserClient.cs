@@ -1,5 +1,6 @@
 ﻿using core;
 using menu.Config;
+using menu.Exceptions;
 using menu.Models;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -20,15 +21,22 @@ namespace menu.Clients
         {
             using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(TimeoutSec) };
             string url = _domainUrl + $"/get?uid={id}";
-            var response = await client.GetAsync(url);
-            response.EnsureSuccessStatusCode();
+            try
+            {
+                var response = await client.GetAsync(url);
+                response.EnsureSuccessStatusCode();
 
-            var responseString = await response.Content.ReadAsStringAsync();
-            var apiResponse = JsonConvert.DeserializeObject<ApiResponse<User>>(responseString);
-            if (apiResponse is { Result: true })
-                return apiResponse.Data;
+                var responseString = await response.Content.ReadAsStringAsync();
+                var apiResponse = JsonConvert.DeserializeObject<ApiResponse<User>>(responseString);
+                if (apiResponse is { Result: true })
+                    return apiResponse.Data;
 
-            return null;
+                throw new UserNotFoundException();
+            }
+            catch(Exception)
+            {
+                throw new UserNotFoundException();
+            }
         }
     }
 }

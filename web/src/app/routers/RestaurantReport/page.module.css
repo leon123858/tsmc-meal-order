@@ -1,0 +1,54 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  background-color: #f0f0f0;
+}
+
+.header {
+  background-color: #f0f0f0;
+  padding: 16px;
+}
+
+.main {
+  flex: 1;
+  padding: 16px;
+}
+
+.border {
+  border: 2px solid #ccc; /* Border color for the main part */
+}
+
+.headerMain {
+  display: flex;
+  background-color: darkgray; /* Darker gray background for the header in the main part */
+  color: black; /* Text color for the header in the main part */
+}
+
+.column {
+  flex: 1;
+  height: 40px; /* Set the height according to your design */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #fff; /* Border color for the columns */
+}
+
+.content {
+  background-color: #fff; /* White background for the content below the header */
+  padding: 16px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #ddd; /* Example border */
+  padding: 5px;
+}
+
+.totalRevenue {
+  text-align: right;
+  border-bottom: 1px solid #ddd; /* Example border */
+  padding: 15px;
+  padding-right: 30px;
+  font-weight: bold;
+}

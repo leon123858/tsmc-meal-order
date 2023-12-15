@@ -1,5 +1,4 @@
 ﻿using System.Data.SqlClient;
-using core.Model;
 using Dapper;
 using Microsoft.Extensions.Options;
 using order.Config;
@@ -18,13 +17,20 @@ public class SqlOrderRepository : IOrderRepository
         _logger = logger;
         var secretPassword = Environment.GetEnvironmentVariable("SQL_PASSWORD") ?? config.Value.Password;
         _connectionString =
-            $"Persist Security Info=False;User ID={config.Value.UserName};Password={secretPassword};Server={config.Value.Host};Database={config.Value.DatabaseName};";
+            $"TrustServerCertificate=True;Persist Security Info=False;User ID={config.Value.UserName};Password={secretPassword};Server={config.Value.Host};Database={config.Value.DatabaseName};";
     }
 
     public async Task<IEnumerable<Order>> GetOrders(string userId)
     {
         var sql =
             @$"SELECT o.*, f.* FROM [myOrder] AS o LEFT JOIN foodItem AS f on o.Id = f.OrderId WHERE o.UserId = '{userId}'";
+        return await GetOrderImp(sql);
+    }
+
+    public async Task<IEnumerable<Order>> GetOrdersByRestaurant(string restaurantId)
+    {
+        var sql =
+            @$"SELECT o.*, f.* FROM [myOrder] AS o LEFT JOIN foodItem AS f on o.Id = f.OrderId WHERE o.RestaurantId = '{restaurantId}'";
         return await GetOrderImp(sql);
     }
 
@@ -55,7 +61,7 @@ public class SqlOrderRepository : IOrderRepository
         {
             await conn.ExecuteInsertAsync(orderDto, transaction);
             await conn.ExecuteInsertAsync(foodItemDtos, transaction);
-            
+
             transaction.Commit();
         }
         catch (Exception e)
@@ -77,7 +83,7 @@ public class SqlOrderRepository : IOrderRepository
         try
         {
             await conn.ExecuteUpdateAsync(orderDto, transaction);
-            
+
             transaction.Commit();
         }
         catch (Exception e)
@@ -97,7 +103,7 @@ public class SqlOrderRepository : IOrderRepository
         await conn.QueryAsync<OrderSqlDTO, FoodItemSqlDTO, Order>(sql,
             (orderSqlDto, foodItemDto) =>
             {
-                var newFoodItemDto = (FoodItem?)foodItemDto;
+                var newFoodItemDto = (OrderedFoodItem?)foodItemDto;
 
                 if (!orderDictionary.TryGetValue(orderSqlDto.Id, out var existingOrder))
                 {
@@ -105,7 +111,7 @@ public class SqlOrderRepository : IOrderRepository
 
                     if (newFoodItemDto != null)
                         newOrder.FoodItems.Add(newFoodItemDto);
-                    
+
                     orderDictionary.Add(orderSqlDto.Id, newOrder);
                     return newOrder;
                 }

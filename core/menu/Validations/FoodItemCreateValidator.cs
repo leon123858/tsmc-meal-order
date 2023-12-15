@@ -10,8 +10,7 @@ namespace menu.Validations
         {
             RuleFor(model => model.Name).NotEmpty();
             RuleFor(model => model.Price).GreaterThanOrEqualTo(0);
-            RuleFor(model => model.Count).GreaterThan(0);
-            RuleFor(model => model.Tags.Count).LessThanOrEqualTo(4);
+            RuleFor(model => model.CountLimit).GreaterThan(0);
         }
     }
 }

@@ -1,9 +1,6 @@
-# output "http-url" {
-#   value = module.http_server.url
-# }
-# output "websocket-url" {
-#   value = module.websocket_server.url
-# }
-# output "web-url" {
-#   value = module.web_server.url
-# }
+#output "global_ip" {
+#  value = module.load_balancer.load_balancer_ip
+#}
+#output "global_ip2" {
+#  value = module.load_balancer.load_balancer_ipv6
+#}

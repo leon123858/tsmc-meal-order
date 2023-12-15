@@ -20,7 +20,7 @@ resource "google_cloudbuild_trigger" "manual-trigger" {
       args = [
         "build", "--no-cache", "-t",
         "$_AR_HOSTNAME/$PROJECT_ID/$_REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA",
-        "${var.name}", "-f", "${var.docker_file_path}"
+        "${var.source_path}", "-f", "${var.docker_file_path}"
       ]
     }
     step {

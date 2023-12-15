@@ -3,11 +3,11 @@ const cloudRunUrl = 'http://127.0.0.1:8080/api/user/sync/user-create-event';
 const utf8Encode = new TextEncoder();
 
 const test = {
-    type : 'user-create',
-    data : {
-        uid : 'Pn0Ha5NmovoWGJbNPjY0mA0tlxO4',
-        email : 'test@test.test',
-        userType : 'admin',
+    type: 'user-create',
+    data: {
+        uid: 'Pn0Ha5NmovoWGJbNPjY0mA0tlxO4',
+        email: 'test@test.test',
+        userType: 'admin',
     }
 }
 const pubSubMessage = {
@@ -35,7 +35,7 @@ const options = {
     console.log(response.status);
     const json = await response.text();
     console.log(json);
-} )();
+})();
 
 function uint8ArrayToArray(uint8Array) {
     const array = [];

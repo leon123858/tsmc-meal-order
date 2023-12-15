@@ -1,64 +1,101 @@
 'use client';
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import BackButton from '../../components/BackButton/BackButton';
 import Link from 'next/link';
 import { UserOutlined } from '@ant-design/icons';
-import { Select } from 'antd';
-import { Radio } from 'antd';
+import { Select, Radio } from 'antd';
+import { UserAPI } from '../../global';
+import { UserContext } from '../../store/userContext';
 
 import styles from './page.module.css';
 
+async function fetchUser(userID, setUser) {
+  const res = await fetch(`${UserAPI}/get?uid=${userID}`, {
+    method: 'GET',
+    headers: {
+      'Accept': 'application/json'
+    }
+  });
+  var data = await res.json();
+  data = Object.values(data)[2];
+  setUser((prevState) => ({
+    ...prevState,
+    "name": data["name"],
+    "place": data["place"],
+    "uid": userID,
+    "userType": data["userType"]
+  }))
+}
+
 const User = () => {
+    const { userID, userType } = useContext(UserContext);
     const [user, setUser] = useState({
-      name: 'daidai',
-      place: 'hsinchu',
-      uid: '9QiSGlDRvtU6S7CFzsk0W5UGkKTt',
+      name: "",
+      place: "",
+      uid: "",
+      userType: "",
     });
   
-    const [userName, setUserName] = useState(user.name);
-    const [selectedPlace, setSelectedPlace] = useState(user.place);
-  
     const handleNameChange = (e) => {
-      setUserName(e.target.value);
+      setUser((prevState) => ({
+        ...prevState,
+        "name": e.target.value
+      }))
     };
   
     const handlePlaceChange = (value) => {
-      setSelectedPlace(value);
+      setUser((prevState) => ({
+        ...prevState,
+        "place": value
+      }))
     };
   
     const handleClick = async () => {
-        const updatedUser = { ...user, name: userName, place: selectedPlace };
+        const updatedUser = { ...user, name: user["name"], place: user["place"] };
     
         try {
             // Make a POST request to the update API
-            const response = await fetch('http://localhost:8080/api/user/update', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(updatedUser),
+            const response = await fetch(`${UserAPI}/update`, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatedUser),
             });
     
             if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+              throw new Error(`HTTP error! Status: ${response.status}`);
             }
     
             const data = await response.json();
             console.log('User update successful:', data);
-    
-            // Update the state with the modified user data
-            setUser(updatedUser);
+            alert("修改成功！")
         } catch (error) {
             console.error('User update failed:', error.message);
         }
     };
+
+    useEffect(() => {
+      if (userID != "") {
+        fetchUser(userID, setUser);
+      }
+    }, [userID]);
   
     return (
       <div>
         <header className={styles.header}>
-                <Link href={"/routers/Home"}>
-                   <BackButton />
-                </Link>
+          {
+            user["userType"] === "normal" ? (
+              <Link href={"/routers/Home"}>
+                <BackButton />
+              </Link>
+            ) : user["userType"] === "admin" ? (
+              <Link href={"/routers/RestaurantHome"}>
+                <BackButton />
+              </Link>
+            ) : null
+          }
         </header>
 
         <main className={styles.main}>
@@ -67,14 +104,14 @@ const User = () => {
             <h3>名字</h3>
             <input
               type="text"
-              value={userName}
+              value={user["name"]}
               onChange={handleNameChange}
               placeholder="Enter your name"
             />
             <h3>廠區</h3>
             <div>
               <Select
-                value={selectedPlace}
+                value={user["place"]}
                 style={{ width: 120, marginBottom: 10 }}
                 onChange={handlePlaceChange}
                 options={[

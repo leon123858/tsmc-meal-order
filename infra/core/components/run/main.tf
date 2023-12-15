@@ -1,6 +1,6 @@
 resource "google_secret_manager_secret" "secrets" {
   count     = length(var.service_secrets)
-  secret_id = "mail-secret-${var.service_secrets[count.index]}"
+  secret_id = "${var.service_name}-secret-${var.service_secrets[count.index]}"
   replication {
     user_managed {
       replicas {
@@ -28,10 +28,15 @@ resource "google_cloud_run_v2_service" "default" {
   template {
     service_account = var.service_account
 
+    scaling {
+      min_instance_count = 0
+      max_instance_count = 1
+    }
+
     dynamic "volumes" {
       for_each = var.cloudsql_instance == "" ?{} : { cloudsql : var.cloudsql_instance }
       content {
-        name               = volumes.key
+        name = volumes.key
         cloud_sql_instance {
           instances = [volumes.value]
         }

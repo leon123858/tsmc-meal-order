@@ -30,6 +30,7 @@ async function loginOutSide() {
         uid: content.localId
     };
 }
+
 async function login(uid, token) {
     const rawResponse = await fetch(`${baseUrl}/login`, {
         method: 'POST',
@@ -39,9 +40,9 @@ async function login(uid, token) {
             'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-                email: userData.email,
-                uid: uid,
-            })
+            email: userData.email,
+            uid: uid,
+        })
     });
     const content = await rawResponse.json();
     console.log(content);
@@ -56,11 +57,11 @@ async function create() {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-                email: userData.email,
-                password: userData.password,
-                name: userData.name,
-                type: userData.type
-            })
+            email: userData.email,
+            password: userData.password,
+            name: userData.name,
+            type: userData.type
+        })
     });
     const content = await rawResponse.json();
     console.log(content);

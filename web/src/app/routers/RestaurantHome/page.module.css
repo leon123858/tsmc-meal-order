@@ -1,0 +1,30 @@
+.header {
+  background-color: darkgray;
+  color: #fff;
+  padding: 16px;
+}
+
+.buttonContainer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.blueButton {
+  background-color: #80c7f7;
+  color: black;
+}
+
+.buttonGap {
+  width: 10px;
+}
+
+.icon {
+  display: flex;
+  margin-left: 10px;
+  align-items: flex-end;
+}
+
+.userButton {
+  background-color: #80c7f7;
+  color: black;
+}

@@ -2,19 +2,18 @@ using core;
 using Microsoft.AspNetCore.Mvc;
 using order.DTO.Web;
 using order.Exceptions;
-using order.Model;
 using order.Repository;
 using order.Service;
 
 namespace order.Controllers;
 
 [ApiController]
-[Route("api/orders")]
+[Route("api/order")]
 public class OrderController : ControllerBase
 {
+    private readonly ILogger<OrderController> _logger;
     private readonly OrderService _orderService;
     private readonly IUserRepository _userRepository;
-    private readonly ILogger<OrderController> _logger;
 
     public OrderController(OrderService orderService, IUserRepository userRepository, ILogger<OrderController> logger)
     {
@@ -94,7 +93,7 @@ public class OrderController : ControllerBase
             var newOrder = await _orderService.CreateOrder(await user, await restaurant, order);
 
             return CreatedAtAction(nameof(GetOrder), new { userId, orderId = newOrder.Id },
-                new ApiResponse<Order> { Data = newOrder });
+                new ApiResponse<OrderWebDTO> { Data = (OrderWebDTO)newOrder });
         }
         catch (DataNotFoundException e)
         {

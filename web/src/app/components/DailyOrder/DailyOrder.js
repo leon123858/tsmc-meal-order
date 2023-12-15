@@ -1,4 +1,4 @@
-import styles from './DailyHistory.module.css';
+import styles from './DailyOrder.module.css';
 import Dish from '../Dish/Dish'
 import React from 'react'
 
@@ -7,13 +7,14 @@ function getDish (orderData) {
     orderData.forEach(order => {
         const foodItems = order["foodItems"];
         foodItems.forEach(foodItem => {
+            foodItem["orderID"] = order["id"];
             Dishes.push(foodItem);
         })
     });
     return Dishes;
 }
 
-const DailyHistory = ({ data, date }) => {
+const DailyOrder = ({ data, date, orderType, setDeleteOrder, setConfirmOrder, userType }) => {
 
     const Dishes = getDish(data);
 
@@ -28,7 +29,11 @@ const DailyHistory = ({ data, date }) => {
                     <React.Fragment key={index}>
                         <Dish 
                             dish={dish}
-                            isHistory={true}
+                            isOrder={true}
+                            orderType={orderType}
+                            setDeleteOrder={setDeleteOrder}
+                            setConfirmOrder={setConfirmOrder}
+                            userType={userType}
                         />
                         {index < Dishes.length - 1 && <hr className={styles.hr_meal} />}
                         {index === Dishes.length - 1 && <hr className={styles.hr_date} />}
@@ -39,4 +44,4 @@ const DailyHistory = ({ data, date }) => {
     );
 };
 
-export default DailyHistory;
+export default DailyOrder;

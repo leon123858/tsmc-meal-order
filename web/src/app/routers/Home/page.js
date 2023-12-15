@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link'
 import { useState, useEffect, useContext } from 'react';
-import { MenuAPI } from '../../global'
+import { MenuAPI, UserAPI } from '../../global'
 import Dish from "../../components/Dish/Dish";
 import HomeSelection from "../../components/HomeSelection/HomeSelection";
 import AIwindow from "../../components/AIwindow/AIwindow";
@@ -9,8 +9,21 @@ import DescriptionWindow from "../../components/DescriptionWindow/DescriptionWin
 
 import { Button, Radio } from 'antd';
 import { FilterContext } from '../../store/filterContext'
+import { UserContext } from '../../store/userContext';
 
 import styles from "./page.module.css";
+
+async function fetchUser(userID, setPlace) {
+    const res = await fetch(`${UserAPI}/get?uid=${userID}`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+    var data = await res.json();
+    data = Object.values(data)[2];
+    setPlace(data["place"])
+}
 
 function getDish (menuData) {
     const Dishes = [];
@@ -26,21 +39,31 @@ function getDish (menuData) {
     return Dishes;
 }
 
-async function fetchMenuData(setMenuData, location) {
-    const res = await fetch(`${MenuAPI}`);
-    // const res = await fetch(`${MenuAPI}/menu`);
+async function fetchMenuData(setMenuData, userID) {
+    const res = await fetch(`${MenuAPI}/user/${userID}`, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json'
+        }
+    });
     var data = await res.json();
-    data = data.filter(item => item.location == location);
+    data = Object.values(data)[0];
     setMenuData(getDish(data));
 }
 
 function filterData(curMenuData, setFilterData, curFilterState) {
     const Dishes = [];
+    const MealTypeMapping = {
+        "Dinner": "晚餐",
+        "Breakfast": "早餐",
+        "Lunch": "午餐"
+    }
     curMenuData.forEach(dish => {
-        const filterSeafood = curFilterState["海鮮"] === ["蝦", "魚"].some((tag) => dish["tags"].includes(tag));
-        const filterMeat = curFilterState["肉類"] === ["雞", "豬", "牛", "羊", "鴨", "鵝"].some((tag) => dish["tags"].includes(tag));
-        const filterLactotene = curFilterState["蛋奶素"] === ["牛奶", "蛋"].some((tag) => dish["tags"].includes(tag));
-        if (filterSeafood && filterMeat && filterLactotene) {
+        const filterTime = dish["tags"].includes(MealTypeMapping[curFilterState["餐點時間"]]);
+        const filterSeafood = curFilterState["海鮮"] && dish["tags"].includes("海鮮");
+        const filterMeat = curFilterState["肉類"] && dish["tags"].includes("肉類");
+        const filterLactotene = curFilterState["蛋奶素"] && dish["tags"].includes("蛋奶素");
+        if (filterTime && (filterSeafood || filterMeat || filterLactotene)) {
             Dishes.push(dish);
         }
     });
@@ -50,12 +73,26 @@ function filterData(curMenuData, setFilterData, curFilterState) {
 export default function Home() {
     const [curAIWindowState, setAIWindowState] = useState(false);
     const [curDesWindowState, setDesWindowState] = useState(false);
-    const [curMenuData, setMenuData] = useState([]);
     const [curSelectDish, setSelectDish] = useState({}); // 設定要傳入給 description window 的菜色
+    const [curMenuData, setMenuData] = useState([]);
     const [curFilterData, setFilterData] = useState([]); // 儲存被種類過濾後的菜色
+    const [curPlace, setPlace] = useState("None");
     const {curFilterState, setFilterState} = useContext(FilterContext);
-    // location 之後換成 user 的 location
-    const location = "Hsinchu";
+    const { userID } = useContext(UserContext);
+
+    // 取得 Location
+    useEffect(() => {
+        if (userID != "") {
+            fetchUser(userID, setPlace);
+        }
+    }, [userID]);
+
+    // 檢查是否為第一次登入的用戶，需先去設定名字及地點
+    useEffect(() => {
+        if (userID != "" && curPlace == "") {
+            alert("請先設定使用者名稱及地點");
+        }
+    }, [userID, curPlace]);
 
     // 每次回到 menu 頁時，把 filter 的狀態初始化
     useEffect(() => {
@@ -63,16 +100,21 @@ export default function Home() {
             ...prevState,
             "蛋奶素": false,
             "肉類": false,
-            "海鮮": false
+            "海鮮": false,
+            "餐點時間": "Lunch"
         }));
-    }, [setFilterState])    
+    }, []);
 
-    // 取回 menu，並進行 filter
+    // 一進來頁面，先 fetch menu 資料
     useEffect(() => {
-        fetchMenuData(setMenuData, location);
-        console.log(curMenuData);
-        filterData(curMenuData, setFilterData, curFilterState);
-    }, [location, curFilterState])
+        if (userID != "") {
+            fetchMenuData(setMenuData, userID);
+        }
+    }, [userID, curPlace]);
+
+    useEffect(() => {
+        filterData(curMenuData, setFilterData, curFilterState)
+    }, [curFilterState, curMenuData]);
 
     const handleDishButton = (dish) => {
         setSelectDish(dish);
@@ -96,7 +138,9 @@ export default function Home() {
                                 <div onClick={() => handleDishButton(dish)}>
                                     <Dish
                                         dish={dish}
-                                        isHistory={false}
+                                        isOrder={false}
+                                        orderType={""}
+                                        setDeleteOrder={() => {}}
                                     />
                                     {index < curFilterData.length - 1 && <hr className={styles.hr_meal} />}
                                     {index === curFilterData.length - 1 && <hr className={styles.hr_date} />}                 
@@ -129,8 +173,6 @@ export default function Home() {
                     />
 
                     <div className={styles.rightButtons}>
-
-
                         <Link href="/routers/History">
                             <Radio.Button value="default" className={styles.blueButton}>
                                 檢視訂單

@@ -46,7 +46,7 @@ func Login(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, model.ErrorResponse(err.Error()))
 	}
-	if err := pubSubClient.Publish("user-create", model.UserCreateEvent{
+	if err := pubSubClient.Publish("user-create-topic", model.UserCreateEvent{
 		Type: "user-create",
 		Data: model.UserCreateEventData{
 			UserCoreInformation: model.UserCoreInformation{

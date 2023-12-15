@@ -20,7 +20,8 @@
 .segment {
   margin-left: 20px;
   padding: 10px;
-  width: 212px;
+  /* width: 275px; */
+  width: 210x;
   background-color: rgb(199, 197, 197);
 }
 
@@ -33,7 +34,7 @@
   padding-right: 25px;
 }
 
-.dailyhistory {
+.dailyorder {
   /* margin: 0px 0px 0px -6px; */
   padding-top: 45px;
   width: 100%;  
