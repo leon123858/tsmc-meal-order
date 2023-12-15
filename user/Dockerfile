@@ -1,10 +1,9 @@
 # syntax=docker/dockerfile:1
 
 ##
-## Build the application from source
+## Basic code initialization
 ##
-
-FROM golang:1.21 AS build-stage
+FROM golang:1.21 AS init-stage
 
 WORKDIR /app
 
@@ -13,19 +12,37 @@ RUN go mod download
 
 COPY . ./
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /user
-
 ##
 ## Run the tests in the container
 ##
 
-FROM build-stage AS run-test-stage
+FROM node:18 AS run-test-stage
+WORKDIR /app
+
+COPY . ./
 # install node, fireabse tools and JDK
-RUN apt-get update && apt-get install -y nodejs npm
+RUN apt-get update && apt-get upgrade -y
+RUN apt-get install -y python3-launchpadlib
+RUN apt-get install -y software-properties-common
+RUN add-apt-repository ppa:longsleep/golang-backports
+RUN apt-get update
+RUN apt-get install -y golang-go openjdk-17-jdk
 RUN npm install -g firebase-tools
-RUN apt-get install -y openjdk11-jre bash curl
+# go operation
+COPY go.mod go.sum ./
+RUN go mod download
 # run test
 RUN make ci
+
+##
+## Build the application from source
+##
+
+FROM init-stage AS build-stage
+
+WORKDIR /app
+
+RUN CGO_ENABLED=0 GOOS=linux go build -o /user
 
 ##
 ## Deploy the application binary into a lean image
