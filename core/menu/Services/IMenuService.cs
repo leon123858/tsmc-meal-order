@@ -1,17 +1,20 @@
-﻿using menu.Models;
+﻿using core.Model;
+using menu.Models;
 
 namespace menu.Services
 {
     public interface IMenuService
     {
-        Task<IEnumerable<Menu>> GetAllMenuAsync();
+        Task<IEnumerable<Menu>> GetAllMenuAsync(bool isTempMenu);
 
-        Task<Menu?> GetMenuAsync(string id);
+        Task<Menu?> GetMenuAsync(string id, bool isTempMenu);
 
-        Task CreateMenuAsync(Menu menu);
+        Task CreateMenuAsync(Menu menu, bool isTempMenu);
 
-        Task UpdateMenuAsync(Menu newMenu);
+        Task UpdateMenuAsync(Menu newMenu, bool isTempMenu);
 
-        Task<IEnumerable<Menu>> GetMenusByLocationAsync(string location);
+        Task<IEnumerable<Menu>> GetMenusByLocationAsync(string location, bool isTempMenu);
+
+        FoodItem? GetFoodItem(Menu? menu, int itemIdx);
     }
 }
