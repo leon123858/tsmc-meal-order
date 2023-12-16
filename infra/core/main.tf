@@ -83,6 +83,7 @@ module "ai-run" {
   service_name    = "ai"
   region          = var.region
   service_account = google_service_account.run.email
+  service_secrets = ["OPENAI_KEY", "AZURE_PASSWORD"]
 
   depends_on = [module.cloud_run_runner.results]
 }
