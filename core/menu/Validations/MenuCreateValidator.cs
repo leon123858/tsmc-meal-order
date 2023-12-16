@@ -7,7 +7,9 @@ namespace menu.Validations
     {
         public MenuCreateValidator()
         {
-            RuleFor(model => model.Name).NotEmpty();
+            RuleFor(model => model.Name).NotEmpty()
+                .WithMessage("The name of the menu should not be empty.");
+
             RuleForEach(x => x.FoodItems).SetValidator(new FoodItemCreateValidator());
         }
     }

@@ -1,18 +1,14 @@
 using AutoMapper;
 using menu;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using menu.Models;
 using menu.Models.DTO;
 using FluentValidation;
-using System.Net;
-using Microsoft.AspNetCore.Http;
 using core;
 using core.Model;
 using menu.Services;
 using menu.Clients;
 using menu.Config;
-using Microsoft.AspNetCore.Cors;
 using menu.Exceptions;
 using menu.Repository;
 
@@ -226,7 +222,7 @@ app.MapPost("/api/menu/sync", async (IMenuService _menuService, IRecClient _recC
     Summary = "Sync the data of the temporary menu and recommendation menu, from the menu"
 });
 
-app.MapPost("/api/menu/{menuId}/foodItem/{itemIdx:int}/{decreaseCount:int}", async (string menuId, int itemIdx, int decreaseCount, IMenuService _menuService, ILogger < Program > _logger) =>
+app.MapPost("/api/menu/{menuId}/foodItem/{itemIdx:int}/{decreaseCount:int}", async (string menuId, int itemIdx, int decreaseCount, IMenuService _menuService, IValidator<FoodItem> _validator, ILogger < Program > _logger) =>
 {
     try
     {
@@ -234,14 +230,12 @@ app.MapPost("/api/menu/{menuId}/foodItem/{itemIdx:int}/{decreaseCount:int}", asy
         Menu? menu = await _menuService.GetMenuAsync(menuId, isTempMenu);
         FoodItem? foodItem = _menuService.GetFoodItem(menu, itemIdx);
         foodItem!.Count -= decreaseCount;
-        
-        if (foodItem.Count < 0)
+
+        var validResult = await _validator.ValidateAsync(foodItem);
+        if (!validResult.IsValid)
         {
-            return Results.BadRequest(ApiResponse.BadRequest("food item count should not be negative"));
-        }
-        else if(foodItem.Count > foodItem.CountLimit)
-        {
-            return Results.BadRequest(ApiResponse.BadRequest("food item count exceed the limit."));
+            string errorMsg = validResult.Errors.FirstOrDefault()!.ToString();
+            return Results.BadRequest(ApiResponse.BadRequest(errorMsg));
         }
 
         menu!.FoodItems[itemIdx] = foodItem;
