@@ -1,10 +1,23 @@
 # syntax=docker/dockerfile:1
 
 ##
-## Build the application from source
+## Run the tests in the container
 ##
 
-FROM golang:1.21 AS build-stage
+FROM leon1234858/firebase-simulate-go:amd AS run-test-stage
+WORKDIR /app
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . ./
+
+RUN make ci
+
+##
+## Basic code initialization
+##
+FROM golang:1.21 AS init-stage
 
 WORKDIR /app
 
@@ -13,14 +26,15 @@ RUN go mod download
 
 COPY . ./
 
+##
+## Build the application from source
+##
+
+FROM init-stage AS build-stage
+
+WORKDIR /app
+
 RUN CGO_ENABLED=0 GOOS=linux go build -o /user
-
-##
-## Run the tests in the container
-##
-
-FROM build-stage AS run-test-stage
-RUN go test -v ./...
 
 ##
 ## Deploy the application binary into a lean image

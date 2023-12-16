@@ -1,4 +1,4 @@
-import { DatePicker, Select, Switch, Button } from 'antd';
+import { DatePicker, Select, Switch, Button, Radio } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import { useContext, useEffect, useState } from 'react'
 import { FilterContext } from '../../store/filterContext'
@@ -56,6 +56,13 @@ const HomeSelection = () => {
                     />
                 </div>
 
+
+				<Link href="/routers/Report">
+					<Radio.Button value="default" className={styles.blueButton}>
+						月結報表
+					</Radio.Button>
+				</Link>
+
                 <div className={styles.icon}>
                     <Link href="/routers/User">
                         <Button 
@@ -75,6 +82,7 @@ const HomeSelection = () => {
                         checkedChildren={category}
                         unCheckedChildren={`無${category}`}
                         onChange={(checked) => onChange(category, checked, setFilterState)}
+                        defaultChecked={true}
                     />
                 ))}
             </div>

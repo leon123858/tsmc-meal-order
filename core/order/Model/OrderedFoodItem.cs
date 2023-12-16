@@ -4,16 +4,21 @@ namespace order.Model;
 
 public class OrderedFoodItem
 {
-    public OrderedFoodItem(FoodItem snapshot, int index, int count, string description)
+    public OrderedFoodItem(FoodItem snapshot, int index, int count, string? description)
     {
-        Snapshot = snapshot;
+        if (count <= 0)
+            throw new ArgumentException("Count must be greater than 0");
+        if (index < 0)
+            throw new ArgumentException("Index must be greater than or equal to 0");
+        
+        Snapshot = snapshot ?? throw new ArgumentNullException(nameof(snapshot));
         Index = index;
         Count = count;
-        Description = description;
+        Description = description ?? string.Empty;
     }
 
-    public FoodItem Snapshot { get; set; }
-    public int Index { get; set; }
-    public int Count { get; set; }
-    public string Description { get; set; }
+    public FoodItem Snapshot { get; }
+    public int Index { get; }
+    public int Count { get; }
+    public string Description { get; }
 }

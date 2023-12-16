@@ -33,16 +33,16 @@ definitions:
         type: string
       type:
         allOf:
-        - $ref: '#/definitions/model.UserType'
+          - $ref: '#/definitions/model.UserType'
         description: 使用者類型 (一般使用者, 管理者)
         enum:
-        - normal
-        - admin
-        - ""
+          - normal
+          - admin
+          - ""
     required:
-    - email
-    - name
-    - password
+      - email
+      - name
+      - password
     type: object
   model.UserGeneralUpdateRequest:
     properties:
@@ -56,7 +56,7 @@ definitions:
         description: user id (uid in this system)
         type: string
     required:
-    - uid
+      - uid
     type: object
   model.UserInfoResponse:
     properties:
@@ -85,19 +85,19 @@ definitions:
         type: string
       userType:
         allOf:
-        - $ref: '#/definitions/model.UserType'
+          - $ref: '#/definitions/model.UserType'
         description: 使用者類型 (一般使用者, 管理者)
     type: object
   model.UserType:
     enum:
-    - normal
-    - admin
+      - normal
+      - admin
     type: string
     x-enum-comments:
       Normal: 一般使用者
     x-enum-varnames:
-    - Normal
-    - Admin
+      - Normal
+      - Admin
   service.PubSubMessage:
     properties:
       message:
@@ -126,17 +126,17 @@ paths:
   /create:
     post:
       consumes:
-      - application/json
+        - application/json
       description: create a user account, who can log in by username and password
       parameters:
-      - description: body
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/model.UserCreateRequest'
+        - description: body
+          in: body
+          name: input
+          required: true
+          schema:
+            $ref: '#/definitions/model.UserCreateRequest'
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: data is uid (user id in this system)
@@ -144,20 +144,20 @@ paths:
             $ref: '#/definitions/model.StringResponse'
       summary: create user api (should be admin now)
       tags:
-      - user
+        - user
   /get:
     get:
       consumes:
-      - application/json
+        - application/json
       description: get user information by uid
       parameters:
-      - description: uid
-        in: query
-        name: uid
-        required: true
-        type: string
+        - description: uid
+          in: query
+          name: uid
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
@@ -165,26 +165,26 @@ paths:
             $ref: '#/definitions/model.UserInfoResponse'
       summary: get user api
       tags:
-      - user
+        - user
   /login:
     post:
       consumes:
-      - application/json
+        - application/json
       description: login by JWT token
       parameters:
-      - description: format:[Bearer JWT_Token]
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: body
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/model.UserCoreInformation'
+        - description: format:[Bearer JWT_Token]
+          in: header
+          name: Authorization
+          required: true
+          type: string
+        - description: body
+          in: body
+          name: input
+          required: true
+          schema:
+            $ref: '#/definitions/model.UserCoreInformation'
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: success
@@ -192,21 +192,21 @@ paths:
             $ref: '#/definitions/model.StringResponse'
       summary: login api
       tags:
-      - user
+        - user
   /sync/:event:
     post:
       consumes:
-      - application/json
+        - application/json
       description: 同步 event, 由 infra handle 傳入 cloud run, 若非 200 回傳, 會觸發重試
       parameters:
-      - description: body
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/service.PubSubMessage'
+        - description: body
+          in: body
+          name: input
+          required: true
+          schema:
+            $ref: '#/definitions/service.PubSubMessage'
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: success
@@ -214,21 +214,21 @@ paths:
             type: string
       summary: 同步 event
       tags:
-      - event
+        - event
   /update:
     post:
       consumes:
-      - application/json
+        - application/json
       description: update user information by uid
       parameters:
-      - description: body
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/model.UserGeneralUpdateRequest'
+        - description: body
+          in: body
+          name: input
+          required: true
+          schema:
+            $ref: '#/definitions/model.UserGeneralUpdateRequest'
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: data is uid (user id in this system)
@@ -236,8 +236,8 @@ paths:
             $ref: '#/definitions/model.StringResponse'
       summary: update user api
       tags:
-      - user
+        - user
 schemes:
-- http
-- https
+  - http
+  - https
 swagger: "2.0"

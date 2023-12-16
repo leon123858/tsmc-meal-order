@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
 import styles from './Login.module.css';
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 
 const Login = () => {
     const router = useRouter();

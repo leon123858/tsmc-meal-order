@@ -34,7 +34,7 @@ builder.Services.Configure<WebConfig>(builder.Configuration.GetSection("WebApi")
 builder.Services.AddSingleton<IUserRepository, WebUserRepository>();
 builder.Services.AddSingleton<IOrderRepository, SqlOrderRepository>();
 builder.Services.AddSingleton<IFoodItemRepository, WebFoodItemRepository>();
-builder.Services.AddSingleton<MailService>();
+builder.Services.AddSingleton<IMailService, MailService>();
 builder.Services.AddSingleton<OrderService>();
 
 var app = builder.Build();

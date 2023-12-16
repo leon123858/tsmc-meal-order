@@ -5,6 +5,15 @@ import { UserContext } from '../../store/userContext';
 import { OrderAPI } from '../../global';
 import { Button } from 'antd';
 
+const TagMapping = {
+    "早餐": "早",
+    "午餐": "午",
+    "晚餐": "晚",
+    "蛋奶素": "素",
+    "肉類": "肉",
+    "海鮮": "海",
+};
+
 async function deleteOrder (userID, orderID, setDeleteOrder) {
     const response = await fetch(`${OrderAPI}/delete/${userID}/${orderID}`, {
         method: 'POST',
@@ -39,6 +48,7 @@ const Dish = ({ dish, isOrder, orderType, setDeleteOrder, setConfirmOrder, userT
         orderCount = dish["count"];
         orderID = dish["orderID"];
         dish = dish["snapshot"];
+        restaurantName = dish["restaurantName"];
     }
     return (
       <main>
@@ -53,12 +63,12 @@ const Dish = ({ dish, isOrder, orderType, setDeleteOrder, setConfirmOrder, userT
                     />
                 </div>
                 <div className={styles.textContainer}>
-                    <h3>{dish["name"]}</h3>
+                    <h3>店家: {dish["restaurantName"]}<br></br>{dish["name"]}</h3>
                     <div className={styles.switchContainer}>
                         {
                             dish["tags"].map((tag, index) => (
                                 tag != "Dinner" && tag != "Lunch" && tag != "Breakfast" &&
-                                <div className={styles.circle} key={index}>{tag}</div>
+                                <div className={styles.circle} key={index}>{TagMapping[tag]}</div>
                             ))
                         }
                         <br />

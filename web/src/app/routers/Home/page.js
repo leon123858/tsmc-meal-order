@@ -30,9 +30,11 @@ function getDish (menuData) {
     menuData.forEach(menu => {
         const foodItems = menu["foodItems"];
         const menuID = menu["id"];
+        const restaurantName = menu["name"];
         foodItems.forEach((foodItem, index) => {
             foodItem["menuID"] = menuID;
             foodItem["index"] = index;
+            foodItem["restaurantName"] = restaurantName;
             Dishes.push(foodItem)
         })
     });
@@ -77,6 +79,8 @@ export default function Home() {
     const [curMenuData, setMenuData] = useState([]);
     const [curFilterData, setFilterData] = useState([]); // 儲存被種類過濾後的菜色
     const [curPlace, setPlace] = useState("None");
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
     const {curFilterState, setFilterState} = useContext(FilterContext);
     const { userID } = useContext(UserContext);
 
@@ -89,18 +93,18 @@ export default function Home() {
 
     // 檢查是否為第一次登入的用戶，需先去設定名字及地點
     useEffect(() => {
-        if (userID != "" && curPlace == "") {
-            alert("請先設定使用者名稱及地點");
+        if (userID !== '' && curPlace === '') {
+            setIsModalOpen(true);
         }
     }, [userID, curPlace]);
-
+    
     // 每次回到 menu 頁時，把 filter 的狀態初始化
     useEffect(() => {
         setFilterState((prevState) => ({
             ...prevState,
-            "蛋奶素": false,
-            "肉類": false,
-            "海鮮": false,
+            "蛋奶素": true,
+            "肉類": true,
+            "海鮮": true,
             "餐點時間": "Lunch"
         }));
     }, []);
@@ -121,9 +125,27 @@ export default function Home() {
         setDesWindowState(true);
     }
 
+    const Modal = ({ isOpen, onClose }) => {
+        const handleConfirm = () => {
+            onClose();  // Close the modal
+        };
+    
+        return (
+            isOpen && (
+                <div className={styles.modal}>
+                    <p>第一次登入請設定使用者名稱及地點</p>
+                    <Link href="/routers/User">
+                        <button onClick={handleConfirm}>
+                            跳轉設定頁面
+                        </button>
+                    </Link>
+                </div>
+            )
+        );
+    };
+
     return (
         <div>
-
             <header className={styles.header}>
                 <div className={styles.selectionContainer}>
                     <HomeSelection/>
@@ -183,6 +205,7 @@ export default function Home() {
                 </div>
             </footer>
 
+            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
         </div>
     );
 }
