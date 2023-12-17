@@ -1,8 +1,6 @@
 ﻿using menu.Config;
 using menu.Models;
-using menu.Models.DTO;
 using Microsoft.Extensions.Options;
-using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver;
 
 namespace menu.Repository
@@ -34,7 +32,7 @@ namespace menu.Repository
             return await _menus.Find(_ => true).ToListAsync();
         }
 
-        public async Task<IEnumerable<Menu>> FindAllAsyncByLocationAsync(string location, bool isTempMenu)
+        public async Task<IEnumerable<Menu>> FindAllByLocationAsync(string location, bool isTempMenu)
         {
             if (isTempMenu)
                 return await _tmpMenus.Find(m => m.Location == location).ToListAsync();

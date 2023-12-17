@@ -30,9 +30,10 @@ namespace menu.Services
             throw new MenuNotFoundException();
         }
 
-        public async Task<IEnumerable<Menu>> GetMenusByLocationAsync(string location, bool isTempMenu)
+        public async Task<IEnumerable<Menu>> GetMenusByLocationAsync(string location, int topK, bool isTempMenu)
         {
-            return await _menuRepository.FindAllAsyncByLocationAsync(location, isTempMenu);
+            var menus = await _menuRepository.FindAllByLocationAsync(location, isTempMenu);
+            return menus.Take(topK);
         }
 
         public async Task CreateMenuAsync(Menu menu, bool isTempMenu)

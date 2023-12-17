@@ -13,7 +13,7 @@ namespace menu.Services
 
         Task UpdateMenuAsync(Menu newMenu, bool isTempMenu);
 
-        Task<IEnumerable<Menu>> GetMenusByLocationAsync(string location, bool isTempMenu);
+        Task<IEnumerable<Menu>> GetMenusByLocationAsync(string location, int topK, bool isTempMenu);
 
         FoodItem? GetFoodItem(Menu? menu, int itemIdx);
     }

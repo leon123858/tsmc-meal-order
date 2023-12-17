@@ -4,7 +4,6 @@ namespace menu.Clients
 {
     public interface IRecClient
     {
-        Task<IEnumerable<RecItemDTO>?> GetRecAsync(string input);
-        Task SyncRecMenuAsync(IEnumerable<RecMenuDTO> dtos);
+        Task<List<RecItemDTO>?> GetRecAsync(string input);
     }
 }

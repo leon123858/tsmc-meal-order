@@ -93,9 +93,10 @@ app.MapGet("/api/menu/user/{userId}", async (string userId, IMenuService _menuSe
 {
     try
     {
+        int countLimit = 100;
         bool isTempMenu = true;
         var user = _mapper.Map<User>(await _userClient.GetUserAsync(userId));
-        var menus = await _menuService.GetMenusByLocationAsync(user!.Place, isTempMenu);
+        var menus = await _menuService.GetMenusByLocationAsync(user!.Place, countLimit, isTempMenu);
         return Results.Ok(new ApiResponse<IEnumerable<Menu>> { Data = menus });
     }
     catch (UserNotFoundException e)
@@ -104,12 +105,12 @@ app.MapGet("/api/menu/user/{userId}", async (string userId, IMenuService _menuSe
         return Results.NotFound(ApiResponse.NotFound());
     }
 })
-.WithName("GetTempMenuForUser")
+.WithName("GetTempMenuForUserByLocation")
 .Produces<ApiResponse<IEnumerable<Menu>>>(StatusCodes.Status200OK)
 .Produces<ApiResponse<object>>(StatusCodes.Status404NotFound)
 .WithOpenApi(operation => new(operation)
 {
-    Summary = "For normal user, get all the temporary menus with the same location."
+    Summary = "For normal user, get the temporary menus with the same location, but no more than 100 items for performance issues."
 });
 
 app.MapPost("/api/menu/", async ([FromBody] MenuCreateDTO menuCreateDto, IMenuService _menuService, IUserClient _userClient, ILogger<Program> _logger, IMapper _mapper, IValidator<MenuCreateDTO> _validator) =>
@@ -193,7 +194,6 @@ app.MapPost("/api/menu/sync", async (IMenuService _menuService, IRecClient _recC
 {
     bool isTempMenu = false;
     var menus = await _menuService.GetAllMenuAsync(isTempMenu);
-    var recMenus = new List<RecMenuDTO>();
 
     isTempMenu = true;
     foreach (var menu in menus)
@@ -207,11 +207,7 @@ app.MapPost("/api/menu/sync", async (IMenuService _menuService, IRecClient _recC
         {
             await _menuService.CreateMenuAsync(menu, isTempMenu);
         }
-
-        recMenus.Add(_mapper.Map<RecMenuDTO>(menu));
     }
-
-    await _recClient.SyncRecMenuAsync(recMenus);
 
     return Results.Ok(new ApiResponse<object>());
 })
@@ -219,7 +215,7 @@ app.MapPost("/api/menu/sync", async (IMenuService _menuService, IRecClient _recC
 .Produces<ApiResponse<object>>(StatusCodes.Status200OK)
 .WithOpenApi(operation => new(operation)
 {
-    Summary = "Sync the data of the temporary menu and recommendation menu, from the menu"
+    Summary = "Sync the data of the temporary menu, from the menu"
 });
 
 app.MapPost("/api/menu/{menuId}/foodItem/{itemIdx:int}/{decreaseCount:int}", async (string menuId, int itemIdx, int decreaseCount, IMenuService _menuService, IValidator<FoodItem> _validator, ILogger < Program > _logger) =>
@@ -263,38 +259,55 @@ app.MapPost("/api/menu/{menuId}/foodItem/{itemIdx:int}/{decreaseCount:int}", asy
     Summary = "Decrease the count of the given food item by x, which can be a negative number, on the temporary menu."
 });
 
-app.MapGet("/api/menu/recommend/{user_input}", async (string user_input, IMenuService _menuService, IRecClient _recClient, ILogger<Program> _logger, IMapper _mapper) =>
+app.MapGet("/api/menu/recommend/{userId}/{userInput}", async (string userId, string userInput, IMenuService _menuService, IUserClient _userClient, IRecClient _recClient, ILogger<Program> _logger, IMapper _mapper) =>
 {
     bool isTempMenu = true;
-    var recResult = await _recClient.GetRecAsync(user_input);
+    var recResult = await _recClient.GetRecAsync(userInput);
     var recFoodItems = new RecResultDTO();
-    foreach(var recItem in recResult!)
+    int countLimit = 100;
+
+    try
     {
-        try
+        var user = _mapper.Map<User>(await _userClient.GetUserAsync(userId));
+        foreach (var recItem in recResult!)
         {
-            Menu? menu = await _menuService.GetMenuAsync(recItem.MenuId, isTempMenu);
-            FoodItem? foodItem = _menuService.GetFoodItem(menu, recItem.Index);
-            recFoodItems.FoodItems.Add(_mapper.Map<FoodItemDTO>(foodItem));
+            if (recFoodItems.FoodItems.Count >= countLimit)
+                break;
+
+            try
+            {
+                Menu? menu = await _menuService.GetMenuAsync(recItem.MenuId, isTempMenu);
+                if (menu!.Location != user.Place)
+                    continue;
+
+                FoodItem? foodItem = _menuService.GetFoodItem(menu, recItem.Index);
+                recFoodItems.FoodItems.Add(_mapper.Map<FoodItemDTO>(foodItem));
+            }
+            catch (MenuNotFoundException e)
+            {
+                _logger.LogError(e.Message);
+                continue;
+            }
+            catch (FoodItemNotFoundException e)
+            {
+                _logger.LogError(e.Message);
+                continue;
+            }
         }
-        catch (MenuNotFoundException e)
-        {
-            _logger.LogError(e.Message);
-            continue;
-        }
-        catch (FoodItemNotFoundException e)
-        {
-            _logger.LogError(e.Message);
-            continue;
-        }
+    }
+    catch (UserNotFoundException e)
+    {
+        _logger.LogError(e.Message);
+        return Results.NotFound(ApiResponse.NotFound());
     }
 
     return Results.Ok(new ApiResponse<RecResultDTO> { Data = recFoodItems });
 })
-.WithName("GetRecommendTempMenuItem")
+.WithName("GetRecTempMenuItemForUserByLocation")
 .Produces<ApiResponse<RecResultDTO>>(StatusCodes.Status200OK)
 .WithOpenApi(operation => new(operation)
 {
-    Summary = "Given the user input, get the food items sorted by a Language Model."
+    Summary = "Get the recommended food items within the same locaiton as the user, but no more than 100 items for performance issues."
 });
 
 app.Run();

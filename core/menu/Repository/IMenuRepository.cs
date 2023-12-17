@@ -5,7 +5,7 @@ namespace menu.Repository
     {
         public Task<IEnumerable<Menu>> FindAllAsync(bool isTempMenu);
 
-        public Task<IEnumerable<Menu>> FindAllAsyncByLocationAsync(string location, bool isTempMenu);
+        public Task<IEnumerable<Menu>> FindAllByLocationAsync(string location, bool isTempMenu);
 
         public Task<Menu?> FindAsnyc(string id, bool isTempMenu);
 
