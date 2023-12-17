@@ -21,13 +21,19 @@
   margin-left: 10px;
 }
 
-.datePicker {
-  flex: 1;
+.date {
+  font-size: 15px;
+  font-weight: bold;
+  background-color: #fff;
+  text-align: center;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 .select {
   display: flex;
   margin-left: 10px;
+  margin-bottom: 10px;
 }
 
 .icon {
@@ -38,6 +44,7 @@
 
 .userButton {
   background-color: #80c7f7;
+  margin-left: 10px;
   color: black;
 }
 
@@ -45,4 +52,12 @@
   background-color: #80c7f7;
   color: black;
   margin-left: 10px;
+}
+
+.right {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  margin-left: auto;
 }

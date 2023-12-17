@@ -79,26 +79,13 @@ async function fetchMenu(user, setMenuFood, setFirstCreate) {
 	  const response = await res.json();
 	  if (response.result) {
 		const curMenuFood = response.data['foodItems'];
-		const isNewDishExists = curMenuFood.some(item => item.name === '新增餐點');
-
-		if (!isNewDishExists) {
-			// "新增餐點" doesn't exist, so add it
-			curMenuFood.push({
-				description: '',
-				name: '新增餐點',
-				price: 1,
-				countLimit: 1,
-				imageUrl: '',
-				tags: [],
-			});
-		}
 		setMenuFood(curMenuFood);
 		console.log('Menu fetched successfully:', curMenuFood);
 	  }
 	  else if (response.message === 'Data Not Exist.') {
 		console.log('Menu not exist, creating...');
 		await fetchCreateEmptyMenu(user);
-		console.log('Menu created successfully.');
+		console.log('Empty menu created successfully.');
 		setFirstCreate(true);
 	  }
 	  else {
@@ -132,18 +119,12 @@ const RestaurantHome = () => {
         }
       }, [userID]);
 
-    // 檢查是否為第一次登入的用戶，需先去設定名字及地點
+    // 用戶需設定名字及地點
     useEffect(() => {
-        if (userID !== '' && user["place"] === '') {
+        if (userID !== '' && (user["place"] === '' || user["name"] === '')) {
             setIsModalOpen(true);
         }
     }, [userID, user["place"]]);
-
-	useEffect(() => {
-		if (userID !== '' && user["place"] !== '' && user["name"] !== '') {
-			fetchMenuAndUpdate(user, setFirstCreate);
-		}
-	}, [userID, user["place"], firstCreate]);
 
 	useEffect(() => {
 		const newItems = menuFood.map((dish, index) => ({
@@ -153,12 +134,11 @@ const RestaurantHome = () => {
 		setItems(newItems);
 	}, [menuFood]);
 
-    const fetchMenuAndUpdate = async (user, setFirstCreate) => {
-		if (userID !== '' || user["place"] !== '') {
-			console.log('Fetching menu...');
-			await fetchMenu(user, setMenuFood, setFirstCreate);
+	useEffect(() => {
+		if (userID !== '' && user["place"] !== '' && user["name"] !== '') {
+			fetchMenu(user, setMenuFood, setFirstCreate);
 		}
-    };
+	}, [userID, user["place"], user["name"], firstCreate]);
 
 	const handleMenuItemClick = ({ key }) => {
 		const index = parseInt(key, 10);
@@ -173,7 +153,7 @@ const RestaurantHome = () => {
 		return (
 			isOpen && user.place === '' && (
 				<div className={styles.modal}>
-					<p>第一次登入請設定使用者名稱及地點</p>
+					<p>請設定使用者名稱及地點</p>
 					<Link href="/routers/User">
 						<button onClick={handleConfirm}>
 							跳轉至設定頁面
@@ -249,8 +229,7 @@ const RestaurantHome = () => {
 					<UploadDish 
 						index={selectedIndex} 
 						menuFood={menuFood} 
-						setMenuFood={setMenuFood} 
-						fetchMenuAndUpdate={fetchMenuAndUpdate}
+						setMenuFood={setMenuFood}
 					/>
 				) : (
 					<Spin size="large" />

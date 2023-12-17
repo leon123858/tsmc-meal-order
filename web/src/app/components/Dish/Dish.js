@@ -15,40 +15,59 @@ const TagMapping = {
 };
 
 async function deleteOrder (userID, orderID, setDeleteOrder) {
-    const response = await fetch(`${OrderAPI}/delete/${userID}/${orderID}`, {
-        method: 'POST',
-        headers: {
-            'Accept': '*/*',
-        },
-    });
-    console.log(response);
-    if (response.ok) {
-        setDeleteOrder(true);
+    try {
+        const response = await fetch(`${OrderAPI}/delete/${userID}/${orderID}`, {
+            method: 'POST',
+            headers: {
+                'Accept': '*/*',
+            },
+        });
+        if (response.ok) {
+            setDeleteOrder(true);
+            console.log("Delete Order successfully: ", response);
+        }
+        else {
+            console.log("Delete Order failed: ", response);
+            alert("刪除訂單失敗，請再試一次。");
+        }
+    }
+    catch (err) {
+        console.log("Delete Order error: ", err);
     }
 }
 
 async function confirmOrder (userID, orderID, setConfirmOrder) {
-    const response = await fetch(`${OrderAPI}/confirm/${userID}/${orderID}`, {
-        method: 'POST',
-        headers: {
-            'Accept': '*/*',
-        },
-    });
-    console.log(response);
-    if (response.ok) {
-        setConfirmOrder(true);
+    try {
+        const response = await fetch(`${OrderAPI}/confirm/${userID}/${orderID}`, {
+            method: 'POST',
+            headers: {
+                'Accept': '*/*',
+            },
+        });
+        if (response.ok) {
+            setConfirmOrder(true);
+            console.log("Confirm Order successfully: ", response);
+        }
+        else {
+            console.log("Confirm Order failed: ", response);
+            alert("完成訂單失敗，請再試一次。");
+        }
+    }
+    catch (err) {
+        console.log("Confirm Order error: ", err);
     }
 }
 
 const Dish = ({ dish, isOrder, orderType, setDeleteOrder, setConfirmOrder, userType }) => {
     const { userID } = useContext(UserContext);
-    var orderCount = 0
+    var orderCount = 0;
     var orderID = "";
+    var restaurantName = "";
     if (isOrder) {
         orderCount = dish["count"];
         orderID = dish["orderID"];
-        dish = dish["snapshot"];
         restaurantName = dish["restaurantName"];
+        dish = dish["snapshot"];
     }
     return (
       <main>

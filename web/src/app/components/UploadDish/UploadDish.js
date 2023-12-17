@@ -24,7 +24,7 @@ async function fetchUser(userID, setUser) {
     }))
 }
 
-async function fetchCreateMenu(menuData) {
+async function fetchUpdateMenu(menuData) {
     try {
         const res = await fetch(`${MenuAPI}`, {
             method: 'POST',
@@ -40,15 +40,16 @@ async function fetchCreateMenu(menuData) {
         }
   
         const response = await res.json();
-        console.log('Menu created successfully:', response);
+        console.log('Menu updated successfully:', response);
         return response;
     } catch (error) {
-        console.error('Error creating menu:', error.message);
+        console.error('Error updating menu:', error.message);
         throw error;
     }
 }
 
-const handleCreateMenu = async (user, index, values, imageUrl, menuFood, setMenuFood, selectedTags, fetchMenuAndUpdate) => {
+const handleCreateMenu = async (user, index, values, imageUrl, menuFood, setMenuFood, selectedTags) => {
+    console.log('UPLOAD DISH USER:', user)
     try {
         console.log('Values:', values);
         console.log('Image URL:', imageUrl);
@@ -59,8 +60,9 @@ const handleCreateMenu = async (user, index, values, imageUrl, menuFood, setMenu
             values.dishTags === undefined || values.dishTags === [] ||
             values.dishPrice === undefined ||
             values.dishCountLimit === undefined ||
-            values.dishDescription === undefined || values.dishDescription === '' ||
-            values.dishImage === undefined || values.dishImage === ''
+            values.dishDescription === undefined || values.dishDescription === ''
+            // values.dishDescription === undefined || values.dishDescription === '' ||
+            // values.dishImage === undefined || values.dishImage === ''
         ) {
             alert('每個欄位都要填選！');
             return;
@@ -76,32 +78,39 @@ const handleCreateMenu = async (user, index, values, imageUrl, menuFood, setMenu
             name: values.dishName,
             price: values.dishPrice,
             countLimit: values.dishCountLimit,
-            imageUrl: "/Users/chingtingtai/Desktop/daidai/visualstudiocode/2023_fall/CloudNative/tsmc-meal-order/web/public/images/pig.jpeg",
+            imageUrl: "",
             tags: selectedTags
         };
+        
+		const isNewDishExists = updatedFoodItems.some(item => item.name === '新增餐點');
+		if (!isNewDishExists) {
+			updatedFoodItems.push({
+				description: '',
+				name: '新增餐點',
+				price: 1,
+				countLimit: 1,
+				imageUrl: '',
+				tags: [],
+			});
+		}
+
+        console.log('Updated Food Items:', updatedFoodItems);
 
         const menuData = {
             id: user["uid"], 
             name: user["name"],
             foodItems: updatedFoodItems,
         };
-        const response = await fetchCreateMenu(menuData);
-
-        setMenuFood(updatedFoodItems);
+        const response = await fetchUpdateMenu(menuData);
         console.log('Menu created successfully:', response);
 
-        try {
-            const res = await fetchMenuAndUpdate();
-        }
-        catch (error) {
-            console.error('Error fetching menu:', error.message);
-        }
+        setMenuFood(updatedFoodItems);
     } catch (error) {
         console.error('Error creating menu:', error.message);
     }
 };
 
-const handleDeleteMenu = async (user, index, menuFood, setMenuFood, fetchMenuAndUpdate) => {
+const handleDeleteMenu = async (user, index, menuFood, setMenuFood) => {
     try {
         const updatedFoodItems = [...menuFood];
 
@@ -114,28 +123,21 @@ const handleDeleteMenu = async (user, index, menuFood, setMenuFood, fetchMenuAnd
             name: user["name"],
             foodItems: updatedFoodItems,
         };
-        const response = await fetchCreateMenu(menuData);
+        const response = await fetchUpdateMenu(menuData);
 
         setMenuFood(updatedFoodItems);
         console.log('Menu deleted successfully:', response);
-        
-        try {
-            const res = await fetchMenuAndUpdate();
-        }
-        catch (error) {
-            console.error('Error fetching menu:', error.message);
-        }
     } catch (error) {
         console.error('Error deleting menu:', error.message);
     }
 };
 
-const UploadDish = ({ index, menuFood, setMenuFood, fetchMenuAndUpdate }) => {
+const UploadDish = ({ index, menuFood, setMenuFood }) => {
     const [form] = Form.useForm();
     const { userID } = useContext(UserContext);
     const [user, setUser] = useState({
-      name: "",
-      uid: "",
+        name: "",
+        uid: "",
     });
     const [price, setPrice] = useState(menuFood[index].price);
     const [countLimit, setCountLimit] = useState(menuFood[index].countLimit);
@@ -255,7 +257,7 @@ const UploadDish = ({ index, menuFood, setMenuFood, fetchMenuAndUpdate }) => {
                         <Radio.Button 
                             value="default" 
                             className={styles.redButton} 
-                            onClick={() => handleDeleteMenu(user, index, menuFood, setMenuFood, fetchMenuAndUpdate)}
+                            onClick={() => handleDeleteMenu(user, index, menuFood, setMenuFood)}
                         >
                             刪除餐點
                         </Radio.Button>
@@ -263,7 +265,7 @@ const UploadDish = ({ index, menuFood, setMenuFood, fetchMenuAndUpdate }) => {
                         <Radio.Button 
                             value="default" 
                             className={styles.deepBlueButton} 
-                            onClick={() => handleCreateMenu(user, index, form.getFieldsValue(), imageUrl, menuFood, setMenuFood, selectedTags, fetchMenuAndUpdate)}
+                            onClick={() => handleCreateMenu(user, index, form.getFieldsValue(), imageUrl, menuFood, setMenuFood, selectedTags)}
                         >
                             儲存變更
                         </Radio.Button>

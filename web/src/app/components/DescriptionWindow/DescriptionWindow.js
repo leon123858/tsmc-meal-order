@@ -9,7 +9,7 @@ import { ConfigProvider, Button, Modal } from 'antd';
 
 import styles from "./DescriptionWindow.module.css";
 
-async function sendOrderData(currentDate, mealType, dish, number, note, userID, setDesWindowState, setNumber, setNote) {
+async function sendOrderData(currentDate, mealType, dish, number, note, userID, setDesWindowState, setNumber, setNote, onOrderSent) {
     const TaiwanDate = new Date(currentDate.getTime() + (8 * 60 * 60 * 1000));
     const orders = {
         "orderDate": TaiwanDate.toISOString(),
@@ -19,22 +19,35 @@ async function sendOrderData(currentDate, mealType, dish, number, note, userID, 
         "count": number,
         "description": note
     }
-    console.log(userID);
-    const response = await fetch(`${OrderAPI}/create/${userID}`, {
-        method: 'POST',
-        headers: {
-            'Accept': 'text/plain',
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify( {...orders} ),
-    });
-    response.json().then(r => console.log(r));
-    setDesWindowState(false);
-    setNumber(1);
-    setNote('');
+
+    try {
+        const response = await fetch(`${OrderAPI}/create/${userID}`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'text/plain',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify( {...orders} ),
+        });
+        response.json().then(r => {
+            console.log("Send order data: ", r);
+            if (!r.result) {
+                alert("訂餐失敗，請再試一次。");
+            }
+        });
+        
+        setDesWindowState(false);
+        setNumber(1);
+        setNote('');
+        onOrderSent();
+    }
+    catch (err) {
+        console.log("Send order data error: ", err);
+        alert("訂餐失敗，請再試一次。");
+    }
 }
 
-const DescriptionWindow = ({curDesWindowState, setDesWindowState, dish}) => {
+const DescriptionWindow = ({curDesWindowState, setDesWindowState, dish, onOrderSent}) => {
     const { userID } = useContext(UserContext);
     const { curFilterState } = useContext(FilterContext)
     const [ curNumber, setNumber ] = useState(1);
@@ -72,7 +85,7 @@ const DescriptionWindow = ({curDesWindowState, setDesWindowState, dish}) => {
                             <Button 
                                 // key="recommend" 
                                 className={styles.recommend_button}
-                                onClick={() => sendOrderData(currentDate, curFilterState["餐點時間"], dish, curNumber, note, userID, setDesWindowState, setNumber, setNote)}
+                                onClick={() => sendOrderData(currentDate, curFilterState["餐點時間"], dish, curNumber, note, userID, setDesWindowState, setNumber, setNote, onOrderSent)}
                             >
                                 送出
                             </Button>

@@ -125,6 +125,10 @@ export default function Home() {
         setDesWindowState(true);
     }
 
+    const handleOrderSent = () => {
+        fetchMenuData(setMenuData, userID);
+    };
+
     const Modal = ({ isOpen, onClose }) => {
         const handleConfirm = () => {
             onClose();  // Close the modal
@@ -174,6 +178,7 @@ export default function Home() {
                         curDesWindowState={ curDesWindowState }
                         setDesWindowState={ setDesWindowState }
                         dish={ curSelectDish }
+                        onOrderSent={ handleOrderSent }
                     />
                 </div>
             </main>

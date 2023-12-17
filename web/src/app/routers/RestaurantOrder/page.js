@@ -1,7 +1,7 @@
 'use client';
 import styles from './page.module.css';
 import { Segmented } from 'antd';
-import { useState, useEffect, useContext, useMemo } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import Link from 'next/link'
 import DailyOrder from '../../components/DailyOrder/DailyOrder'
 import BackButton from "../../components/BackButton/BackButton";
@@ -69,8 +69,6 @@ export default function RestaurantOrder() {
         "未完成": "Init",
         "已取消": "Canceled",
         "已完成": "Preparing",
-        // "準備中": "Preparing",
-        // "已完成": "Finished"
     };
     const [curOrderState, setOrderState] = useState("未完成");
     const [curOrderData, setOrderData] = useState([]);
@@ -121,17 +119,9 @@ export default function RestaurantOrder() {
             <header className={styles.header}>
                 <div className={styles.selectionContainer}>
                     <div className={styles.backButton}>
-                        {
-                            user["userType"] === "normal" ? (
-                            <Link href={"/routers/Home"}>
-                                <BackButton />
-                            </Link>
-                            ) : user["userType"] === "admin" ? (
-                            <Link href={"/routers/RestaurantHome"}>
-                                <BackButton />
-                            </Link>
-                            ) : null
-                        }
+                        <Link href={"/routers/RestaurantHome"}>
+                            <BackButton />
+                        </Link>
                     </div>
                     
                     <Segmented

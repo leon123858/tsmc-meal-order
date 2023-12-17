@@ -6,8 +6,10 @@ function getDish (orderData) {
     const Dishes = [];
     orderData.forEach(order => {
         const foodItems = order["foodItems"];
+        const restaurantName = order["restaurant"]["name"];
         foodItems.forEach(foodItem => {
             foodItem["orderID"] = order["id"];
+            foodItem["restaurantName"] = restaurantName;
             Dishes.push(foodItem);
         })
     });

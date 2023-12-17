@@ -28,14 +28,33 @@ async function fetchUser(userID, setUser) {
 }
 
 const User = () => {
-    const { userID, userType } = useContext(UserContext);
+    const { userID } = useContext(UserContext);
     const [user, setUser] = useState({
       name: "",
       place: "",
       uid: "",
       userType: "",
     });
-  
+    const [isUpdateSuccess, setIsUpdateSuccess] = useState(false);
+	const [isModalOpen, setIsModalOpen] = useState(false);
+	
+    const Modal = ({ isOpen, success, onClose }) => {
+        const handleConfirm = () => {
+            onClose();  // Close the modal
+        };
+    
+        return (
+            isOpen && (
+                <div className={styles.modal}>
+                    <p>{success ? 'Update user successfully!' : 'Please enter both name and place.'}</p>
+                    <button onClick={handleConfirm}>
+                        Confirm
+                    </button>
+                </div>
+            )
+        );
+    };
+
     const handleNameChange = (e) => {
       setUser((prevState) => ({
         ...prevState,
@@ -51,6 +70,12 @@ const User = () => {
     };
   
     const handleClick = async () => {
+      	if (!user.name || !user.place) {
+			setIsUpdateSuccess(false);
+			setIsModalOpen(true);
+			return;
+    	}
+
         const updatedUser = { ...user, name: user["name"], place: user["place"] };
     
         try {
@@ -70,7 +95,8 @@ const User = () => {
     
             const data = await response.json();
             console.log('User update successful:', data);
-            alert("修改成功！")
+			setIsUpdateSuccess(true);
+			setIsModalOpen(true);
         } catch (error) {
             console.error('User update failed:', error.message);
         }
@@ -107,6 +133,7 @@ const User = () => {
               value={user["name"]}
               onChange={handleNameChange}
               placeholder="Enter your name"
+              defaultValue={user["name"]}
             />
             <h3>廠區</h3>
             <div>
@@ -130,6 +157,8 @@ const User = () => {
             >
               確認
             </Radio.Button>
+
+			<Modal isOpen={isModalOpen} success={isUpdateSuccess} onClose={() => setIsModalOpen(false)} />
           </div>
         </main>
       </div>

@@ -76,9 +76,15 @@ const Login = () => {
                       },
                     body: JSON.stringify({ ...userLogin }),
                 });
-                response.json().then(r => console.log(r));
-
-                router.push('routers/Home');
+                response.json().then(r => {
+                    console.log("Google Sign In Success: ", r);
+                    if (r.data === "first login success") {
+                        router.push('/routers/Welcome?userType=normal');
+                    }
+                    else {
+                        router.push('routers/Home');
+                    }
+                });
             }
         } catch (error) {
             console.error('Google Sign In Error:', error.message);
@@ -91,8 +97,6 @@ const Login = () => {
             
             const idToken = userCredential._tokenResponse.idToken;
             const uid = userCredential.user.uid;
-            // console.log('idToken:', idToken);
-            // console.log('uid:', uid);
 
             if (userCredential.user) {
                 const userLogin = {
@@ -108,8 +112,15 @@ const Login = () => {
                     },
                     body: JSON.stringify({ ...userLogin }),
                 });
-                response.json().then(r => console.log(r));
-                router.push('routers/RestaurantHome');
+                response.json().then(r => {
+                    console.log("Admin Sign In Success: ", r);
+                    if (r.data === "first login success") {
+                        router.push('/routers/Welcome?userType=admin');
+                    }
+                    else {
+                        router.push('routers/RestaurantHome');
+                    }
+                });
             }
         } catch (error) {
             console.error('Admin Sign In Error:', error.message);
@@ -135,8 +146,6 @@ const Login = () => {
             });
 
             response.json().then(r => {
-                console.log(r);
-            
                 if (r.result) {
                     setIsSignupSuccess(true);
                     setIsModalOpen(true);

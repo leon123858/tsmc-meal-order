@@ -27,25 +27,36 @@ async function fetchUser(userID, setUser) {
 // 將資料依照日期分組
 function groupByDate (curOrderData) {
     const groupedData = {};
-    curOrderData.forEach(item => {
-        const orderDate = item.orderDate.split('T')[0];
+    try {
+        curOrderData.forEach(item => {
+            const orderDate = item.orderDate.split('T')[0];
 
-        if (!groupedData[orderDate]) {
-            groupedData[orderDate] = [];
-        }
+            if (!groupedData[orderDate]) {
+                groupedData[orderDate] = [];
+            }
 
-        groupedData[orderDate].push(item);
-    });
+            groupedData[orderDate].push(item);
+        });
+    }
+    catch (err) {
+        console.log("GroupByDate error: ", err);
+    }
 
     return groupedData;
 }
 
 // 從 API 取資料，並設定抓回來的資料
 async function fetchOrderData(setOrderData, userID) {
-    const res = await fetch(`${OrderAPI}/${userID}`);
-    var data = await res.json();
-    data = Object.values(data)[0];
-    setOrderData(groupByDate(data));
+    try {
+        const res = await fetch(`${OrderAPI}/${userID}`);
+        var data = await res.json();
+        data = Object.values(data)[0];
+        setOrderData(groupByDate(data));
+        console.log('FetchOrderData successfully:', data);
+    }
+    catch (err) {
+        console.log("FetchOrderData error: ", err);
+    }
 }
 
 export default function History() {
@@ -53,8 +64,6 @@ export default function History() {
         "已訂購": "Init",
         "已取消": "Canceled",
         "已完成": "Preparing",
-        // "準備中": "Preparing",
-        // "已完成": "Finished"
     };
     const [curOrderState, setOrderState] = useState("已訂購");
     const [curOrderData, setOrderData] = useState([]);

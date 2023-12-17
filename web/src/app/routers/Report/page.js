@@ -66,7 +66,7 @@ function filterOrders(orders, selectedMonth, setMonthOrderData) {
 }
 
 function groupOrders(orders, setGroupedOrders, setTotalPrice) {
-	console.log(orders);
+	// console.log(orders);
     let curTotalPrice = 0;
 
     const groupedOrders = orders.reduce((result, order) => {
