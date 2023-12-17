@@ -1,20 +1,55 @@
-# This is a sample workflow. You can replace it with your source code.
-#
-# This workflow does the following:
-# - reads current time and date information from an external API and stores
-#   the response in currentTime variable
-# - retrieves a list of Wikipedia articles related to the day of the week
-#   from currentTime
-# - returns the list of articles as an output of the workflow
-#
-# Note: In Terraform you need to escape the $$ or it will cause errors.
-
 - syncMenu:
-    call: http.post
+    call: http.get
     args:
-      url: "https://menu-kt6w747drq-de.a.run.app/api/menu/sync"
-      headers:
-        Content-Type: application/json
+      url: "https://menu-kt6w747drq-de.a.run.app/api/menu"
     result: menuResult
+- checkMenuResult:
+    switch:
+      - condition: ${menuResult.body["result"] == false}
+        next: returnError
+    next: setMenuList
+- setMenuList:
+    assign:
+      - menuList: ${menuResult.body.data}
+- postMenu:
+    for:
+      value: menu
+      in: ${menuList}
+      index: index
+      steps:
+        - initMenuItem:
+            assign:
+              - items_map_list: [ ]
+        - setMenuItem:
+            for:
+              value: v
+              index: inner_index
+              in: ${menu.foodItems}
+              steps:
+                - add_back:
+                    assign:
+                      - items_map_list: ${list.concat(items_map_list, "")}
+                - set_back:
+                    assign:
+                      - items_map_list[inner_index]:
+                          Name: ${v.name}
+                          Description: ${v.description}
+                          Tags: ${v.tags}
+        - logVariable:
+            call: sys.log
+            args:
+              text: ${json.encode_to_string(items_map_list)}
+        - aiAdd:
+            call: http.post
+            args:
+              url: "https://ai-kt6w747drq-de.a.run.app/api/ai/add"
+              headers:
+                Content-Type: application/json
+                accept: application/json
+              body:
+                - MenuId: ${menu.id}
+                  FoodItems: ${items_map_list}
 - returnOutput:
-    return: menuResult
+    return: ${menuList}
+- returnError:
+    raise: "Something went wrong."
