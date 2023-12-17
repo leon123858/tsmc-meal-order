@@ -30,7 +30,7 @@
       steps:
         - initMenuItem:
             assign:
-              - items_map_list: []
+              - items_map_list: [ ]
         - setMenuItem:
             for:
               value: v
