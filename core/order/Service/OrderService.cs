@@ -8,11 +8,12 @@ namespace order.Service;
 public class OrderService
 {
     private readonly IFoodItemRepository _foodItemRepository;
-    private readonly IUserRepository _userRepository;
     private readonly IMailService _mailService;
     private readonly IOrderRepository _orderRepository;
+    private readonly IUserRepository _userRepository;
 
-    public OrderService(IOrderRepository orderRepository, IFoodItemRepository foodItemRepository, IUserRepository userRepository,
+    public OrderService(IOrderRepository orderRepository, IFoodItemRepository foodItemRepository,
+        IUserRepository userRepository,
         IMailService mailService)
     {
         _orderRepository = orderRepository;
@@ -23,19 +24,21 @@ public class OrderService
 
     public async Task<IEnumerable<Order>> GetOrders(User user)
     {
-        var ordersEnumerable = user.Type == UserType.admin? await _orderRepository.GetOrdersByRestaurant(user.Id) : await _orderRepository.GetOrders(user.Id);
-        
+        var ordersEnumerable = user.Type == UserType.admin
+            ? await _orderRepository.GetOrdersByRestaurant(user.Id)
+            : await _orderRepository.GetOrders(user.Id);
+
         var orders = ordersEnumerable.ToList();
 
-        var userIds = orders.SelectMany(_ => new [] { _.Customer.Id, _.Restaurant.Id }).Distinct();
+        var userIds = orders.SelectMany(_ => new[] { _.Customer.Id, _.Restaurant.Id }).Distinct();
         var userDictionary = await _userRepository.GetUsers(userIds);
-        
+
         foreach (var order in orders)
         {
             order.Customer = userDictionary[order.Customer.Id];
             order.Restaurant = userDictionary[order.Restaurant.Id];
         }
-            
+
         return orders;
     }
 
@@ -51,10 +54,10 @@ public class OrderService
 
         var userIds = new[] { order.Customer.Id, order.Restaurant.Id }.Distinct();
         var userDictionary = await _userRepository.GetUsers(userIds);
-        
+
         order.Customer = userDictionary[order.Customer.Id];
         order.Restaurant = userDictionary[order.Restaurant.Id];
-        
+
         return order;
     }
 
