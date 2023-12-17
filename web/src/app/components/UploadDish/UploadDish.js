@@ -1,8 +1,10 @@
-import { Upload, Button, Form, Input, Radio, InputNumber, Switch } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
+import { Form, Input, Radio, InputNumber, Switch, message } from 'antd';
 import { useState, useContext, useEffect } from 'react';
-import { UserContext } from '../../store/userContext'
-import { UserAPI, MenuAPI } from '../../global'
+import { UserContext } from '../../store/userContext';
+import { UserAPI, MenuAPI } from '../../global';
+import { UploadImage } from '../UploadImage/UploadImage';
+import Image from 'next/image';
+
 
 import styles from './UploadDish.module.css';
 
@@ -48,29 +50,23 @@ async function fetchUpdateMenu(menuData) {
     }
 }
 
-const handleCreateMenu = async (user, index, values, imageUrl, menuFood, setMenuFood, selectedTags) => {
+const handleCreateMenu = async (user, index, values, menuFood, setMenuFood, selectedTags) => {
     console.log('UPLOAD DISH USER:', user)
     try {
         console.log('Values:', values);
-        console.log('Image URL:', imageUrl);
 
         // Check if any of the values is undefined
         if (
             values.dishName === undefined || values.dishName === '' ||
-            values.dishTags === undefined || values.dishTags === [] ||
+            selectedTags === undefined || selectedTags === 0 ||
             values.dishPrice === undefined ||
             values.dishCountLimit === undefined ||
-            values.dishDescription === undefined || values.dishDescription === ''
-            // values.dishDescription === undefined || values.dishDescription === '' ||
-            // values.dishImage === undefined || values.dishImage === ''
+            values.dishDescription === undefined || values.dishDescription === '' ||
+            values.dishUrl === undefined || values.dishUrl === ''
         ) {
             alert('每個欄位都要填選！');
             return;
         }
-
-        // const dishImage = values.dishImage[0].originFileObj;
-        // const imageUrl = await uploadImageAndGetUrl(dishImage);
-        // console.log('Image URL:', imageUrl);
 
         const updatedFoodItems = [...menuFood];
         updatedFoodItems[index] = {
@@ -78,7 +74,7 @@ const handleCreateMenu = async (user, index, values, imageUrl, menuFood, setMenu
             name: values.dishName,
             price: values.dishPrice,
             countLimit: values.dishCountLimit,
-            imageUrl: "",
+            imageUrl: values.dishUrl,
             tags: selectedTags
         };
         
@@ -142,7 +138,6 @@ const UploadDish = ({ index, menuFood, setMenuFood }) => {
     const [price, setPrice] = useState(menuFood[index].price);
     const [countLimit, setCountLimit] = useState(menuFood[index].countLimit);
     const [selectedTags, setSelectedTags] = useState(menuFood[index].tags);
-    const [imageUrl, setImageUrl] = useState('');
   
     const onPriceChange = (newValue) => {
       setPrice(newValue);
@@ -159,14 +154,6 @@ const UploadDish = ({ index, menuFood, setMenuFood }) => {
             return prevTags.filter((selectedTag) => selectedTag !== tag);
           }
         });
-      };
-
-    const handleImageChange = (info) => {
-        console.log('File Info:', info);
-        if (info.file && info.file.status === 'done') {
-            setImageUrl(info.file.response.imageUrl);
-            console.log('Image URL:', info.file.response.imageUrl);
-        }
     };
 
     useEffect(() => {
@@ -175,7 +162,7 @@ const UploadDish = ({ index, menuFood, setMenuFood }) => {
         }
       }, [userID]);
 
-      useEffect(() => {
+    useEffect(() => {
         if (userID !== "" && menuFood[index]) {
             fetchUser(userID, setUser);
             form.setFieldsValue({
@@ -184,6 +171,7 @@ const UploadDish = ({ index, menuFood, setMenuFood }) => {
                 dishCountLimit: menuFood[index].countLimit || 1,
                 dishDescription: menuFood[index].description || '',
                 dishTags: menuFood[index].tags || [],
+                dishUrl: menuFood[index].imageUrl || ''
             });
             setSelectedTags(menuFood[index].tags || []);
         }
@@ -202,8 +190,7 @@ const UploadDish = ({ index, menuFood, setMenuFood }) => {
                         dishCountLimit: menuFood[index].countLimit || 1, 
                         dishDescription: menuFood[index].description || '', 
                         dishTags: menuFood[index].tags || [],
-                        // dishImage: menuFood[index].imageUrl || '',
-                        // dishImage: "/Users/chingtingtai/Desktop/daidai/visualstudiocode/2023_fall/CloudNative/tsmc-meal-order/web/public/images/pig.jpeg",
+                        dishUrl: menuFood[index].imageUrl || '',
                     }}
                 >
                     <div className={styles.formContent}>
@@ -212,12 +199,34 @@ const UploadDish = ({ index, menuFood, setMenuFood }) => {
                                 name="dishImage"
                                 valuePropName="fileList"
                                 getValueFromEvent={(normFile) => normFile.fileList}
-                                onChange={handleImageChange}
                             >
-                                <Upload name="logo" listType="picture" beforeUpload={() => false}>
-                                    <Button icon={<UploadOutlined />}>上傳餐點照片</Button>
-                                </Upload>
+                                <UploadImage
+									setUrl={(url) => {
+										const el = document.createElement('textarea');
+										el.value = url;
+										document.body.appendChild(el);
+										el.select();
+										document.execCommand('copy');
+										document.body.removeChild(el);
+										message.success('以複製上傳圖片網址, 可至下方文字筐貼上');
+									}}
+                                    _isUpload={false}
+                                    text='上傳圖片並複製'
+                                    index={index}
+                                ></UploadImage>
                             </Form.Item>
+                            { menuFood[index].imageUrl !== '' && 
+                                <div>
+                                    <h3>原始上傳圖片</h3>
+                                    <Image
+                                        src={menuFood[index].imageUrl}
+                                        alt="Avatar"
+                                        width={200}
+                                        height={200}
+                                        priority
+                                    />
+                                </div>
+                            }
                         </div>
 
                         <div>
@@ -250,6 +259,10 @@ const UploadDish = ({ index, menuFood, setMenuFood }) => {
                             <Form.Item name="dishDescription" label="介紹" >
                                 <Input.TextArea placeholder="輸入餐點介紹" />
                             </Form.Item>
+
+                            <Form.Item name="dishUrl" label="圖片連結" >
+                                <Input.TextArea placeholder="圖片連結" />
+                            </Form.Item>
                         </div>
                     </div>
 
@@ -265,7 +278,7 @@ const UploadDish = ({ index, menuFood, setMenuFood }) => {
                         <Radio.Button 
                             value="default" 
                             className={styles.deepBlueButton} 
-                            onClick={() => handleCreateMenu(user, index, form.getFieldsValue(), imageUrl, menuFood, setMenuFood, selectedTags)}
+                            onClick={() => handleCreateMenu(user, index, form.getFieldsValue(), menuFood, setMenuFood, selectedTags)}
                         >
                             儲存變更
                         </Radio.Button>
