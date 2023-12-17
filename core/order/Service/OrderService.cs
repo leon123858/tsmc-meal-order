@@ -8,23 +8,35 @@ namespace order.Service;
 public class OrderService
 {
     private readonly IFoodItemRepository _foodItemRepository;
+    private readonly IUserRepository _userRepository;
     private readonly IMailService _mailService;
     private readonly IOrderRepository _orderRepository;
 
-    public OrderService(IOrderRepository orderRepository, IFoodItemRepository foodItemRepository,
+    public OrderService(IOrderRepository orderRepository, IFoodItemRepository foodItemRepository, IUserRepository userRepository,
         IMailService mailService)
     {
         _orderRepository = orderRepository;
         _foodItemRepository = foodItemRepository;
+        _userRepository = userRepository;
         _mailService = mailService;
     }
 
     public async Task<IEnumerable<Order>> GetOrders(User user)
     {
-        if (user.Type == UserType.admin)
-            return await _orderRepository.GetOrdersByRestaurant(user.Id);
+        var ordersEnumerable = user.Type == UserType.admin? await _orderRepository.GetOrdersByRestaurant(user.Id) : await _orderRepository.GetOrders(user.Id);
+        
+        var orders = ordersEnumerable.ToList();
 
-        return await _orderRepository.GetOrders(user.Id);
+        var userIds = orders.SelectMany(_ => new [] { _.Customer.Id, _.Restaurant.Id }).Distinct();
+        var userDictionary = await _userRepository.GetUsers(userIds);
+        
+        foreach (var order in orders)
+        {
+            order.Customer = userDictionary[order.Customer.Id];
+            order.Restaurant = userDictionary[order.Restaurant.Id];
+        }
+            
+        return orders;
     }
 
     public async Task<Order> GetOrder(User user, Guid orderId)
@@ -37,6 +49,12 @@ public class OrderService
         if (user.Type == UserType.normal && order.Customer.Id != user.Id)
             throw new Exception("User is not the owner of the order");
 
+        var userIds = new[] { order.Customer.Id, order.Restaurant.Id }.Distinct();
+        var userDictionary = await _userRepository.GetUsers(userIds);
+        
+        order.Customer = userDictionary[order.Customer.Id];
+        order.Restaurant = userDictionary[order.Restaurant.Id];
+        
         return order;
     }
 

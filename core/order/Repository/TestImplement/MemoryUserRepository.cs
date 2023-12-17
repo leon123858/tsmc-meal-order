@@ -11,4 +11,9 @@ public class MemoryUserRepository : IUserRepository
             Id = userId
         });
     }
+
+    public Task<Dictionary<string, User>> GetUsers(IEnumerable<string> userIds)
+    {
+        throw new NotImplementedException();
+    }
 }

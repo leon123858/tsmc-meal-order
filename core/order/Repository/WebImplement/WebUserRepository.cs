@@ -36,4 +36,17 @@ public class WebUserRepository : IUserRepository
             throw;
         }
     }
+
+    public async Task<Dictionary<string, User>> GetUsers(IEnumerable<string> userIds)
+    {
+        var userDictionary = new Dictionary<string, User>();
+        
+        foreach (var id in userIds.Distinct())
+        {
+            var user = await GetUser(id);
+            userDictionary.Add(id, user);
+        }
+        
+        return userDictionary;
+    }
 }
