@@ -107,7 +107,7 @@ const handleCreateMenu = async (user, index, values, menuFood, setMenuFood, sele
     }
 };
 
-const handleDeleteMenu = async (user, index, menuFood, setMenuFood) => {
+const handleDeleteMenu = async (user, index, menuFood, setMenuFood, setUpdate) => {
     try {
         const updatedFoodItems = [...menuFood];
 
@@ -123,6 +123,7 @@ const handleDeleteMenu = async (user, index, menuFood, setMenuFood) => {
         const response = await fetchUpdateMenu(menuData);
 
         setMenuFood(updatedFoodItems);
+        setUpdate(true);
         console.log('Menu deleted successfully:', response);
     } catch (error) {
         console.error('Error deleting menu:', error.message);
@@ -278,7 +279,7 @@ const UploadDish = ({ index, menuFood, setMenuFood }) => {
                         <Radio.Button 
                             value="default" 
                             className={styles.redButton} 
-                            onClick={() => handleDeleteMenu(user, index, menuFood, setMenuFood)}
+                            onClick={() => handleDeleteMenu(user, index, menuFood, setMenuFood, setUpdate)}
                         >
                             刪除餐點
                         </Radio.Button>
