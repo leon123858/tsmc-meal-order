@@ -50,8 +50,7 @@ async function fetchUpdateMenu(menuData) {
     }
 }
 
-const handleCreateMenu = async (user, index, values, menuFood, setMenuFood, selectedTags, setUpdate) => {
-    console.log('UPLOAD DISH USER:', user)
+const handleCreateMenu = async (user, index, values, menuFood, setMenuFood, selectedTags, setIsSaveSuccess, setIsSaveModalOpen, setIsAlertModalOpen, setUpdate) => {
     try {
         console.log('Values:', values);
 
@@ -64,10 +63,11 @@ const handleCreateMenu = async (user, index, values, menuFood, setMenuFood, sele
             values.dishDescription === undefined || values.dishDescription === '' ||
             values.dishUrl === undefined || values.dishUrl === ''
         ) {
-            alert('每個欄位都要填選！');
+            setIsAlertModalOpen(true);
             return;
         }
 
+        // Update the item at the specified index
         const updatedFoodItems = [...menuFood];
         updatedFoodItems[index] = {
             description: values.dishDescription,
@@ -78,9 +78,19 @@ const handleCreateMenu = async (user, index, values, menuFood, setMenuFood, sele
             tags: selectedTags
         };
         
-		const isNewDishExists = updatedFoodItems.some(item => item.name === '新增餐點');
+        const menuData = {
+            id: user["uid"], 
+            name: user["name"],
+            foodItems: updatedFoodItems,
+        };
+        const response = await fetchUpdateMenu(menuData);
+        console.log('Updated Food Items:', updatedFoodItems);
+
+        // Add a ”新增餐點“ item for RestaurantHome if it doesn't exist
+        const newUpdatedFoodItems = [...updatedFoodItems];
+		const isNewDishExists = newUpdatedFoodItems.some(item => item.name === '新增餐點');
 		if (!isNewDishExists) {
-			updatedFoodItems.push({
+			newUpdatedFoodItems.push({
 				description: '',
 				name: '新增餐點',
 				price: 1,
@@ -89,25 +99,22 @@ const handleCreateMenu = async (user, index, values, menuFood, setMenuFood, sele
 				tags: [],
 			});
 		}
+        setMenuFood(newUpdatedFoodItems);
 
-        console.log('Updated Food Items:', updatedFoodItems);
-
-        const menuData = {
-            id: user["uid"], 
-            name: user["name"],
-            foodItems: updatedFoodItems,
-        };
-        const response = await fetchUpdateMenu(menuData);
-        console.log('Menu created successfully:', response);
-
-        setMenuFood(updatedFoodItems);
+        setIsSaveSuccess(true);
+        setIsSaveModalOpen(true);
         setUpdate(true);
+
+        console.log('Menu created successfully:', response);
     } catch (error) {
+        setIsSaveSuccess(false);
+        setIsSaveModalOpen(true);
+
         console.error('Error creating menu:', error.message);
     }
 };
 
-const handleDeleteMenu = async (user, index, menuFood, setMenuFood, setUpdate) => {
+const handleDeleteMenu = async (user, index, menuFood, setMenuFood, setIsDeleteSuccess, setIsDeleteModalOpen, setUpdate) => {
     try {
         const updatedFoodItems = [...menuFood];
 
@@ -121,11 +128,17 @@ const handleDeleteMenu = async (user, index, menuFood, setMenuFood, setUpdate) =
             foodItems: updatedFoodItems,
         };
         const response = await fetchUpdateMenu(menuData);
-
         setMenuFood(updatedFoodItems);
+
+        setIsDeleteSuccess(true);
+        setIsDeleteModalOpen(true);
+
         setUpdate(true);
         console.log('Menu deleted successfully:', response);
     } catch (error) {
+        setIsDeleteSuccess(false);
+        setIsDeleteModalOpen(true);
+
         console.error('Error deleting menu:', error.message);
     }
 };
@@ -140,6 +153,12 @@ const UploadDish = ({ index, menuFood, setMenuFood }) => {
     const [price, setPrice] = useState(menuFood[index].price);
     const [countLimit, setCountLimit] = useState(menuFood[index].countLimit);
     const [selectedTags, setSelectedTags] = useState(menuFood[index].tags);
+
+    const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+    const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isSaveSuccess, setIsSaveSuccess] = useState(false);
+    const [isDeleteSuccess, setIsDeleteSuccess] = useState(false);
     const [update, setUpdate] = useState(false);
   
     const onPriceChange = (newValue) => {
@@ -158,6 +177,57 @@ const UploadDish = ({ index, menuFood, setMenuFood }) => {
             return prevTags.filter((selectedTag) => selectedTag !== tag);
           }
         });
+    };
+
+    const AlertModal = ({ isOpen, onClose }) => {
+        const handleConfirm = () => {
+            onClose();
+        };
+    
+        return (
+            isOpen && (
+                <div className={styles.modal}>
+                    <p>每個欄位都要填選！</p>
+                    <button onClick={handleConfirm}>
+                        確認
+                    </button>
+                </div>
+            )
+        );
+    };
+
+    const SaveModal = ({ isOpen, isSave, onClose }) => {
+        const handleConfirm = () => {
+            onClose();
+        };
+    
+        return (
+            isOpen && (
+                <div className={styles.modal}>
+                    <p>{isSave ? '成功儲存餐點' : '儲存餐點失敗'}</p>
+                    <button onClick={handleConfirm}>
+                        確認
+                    </button>
+                </div>
+            )
+        );
+    };
+
+    const DeleteModal = ({ isOpen, isDelete, onClose }) => {
+        const handleConfirm = () => {
+            onClose();
+        };
+    
+        return (
+            isOpen && (
+                <div className={styles.modal}>
+                    <p>{isDelete ? '成功刪除餐點' : '刪除餐點失敗'}</p>
+                    <button onClick={handleConfirm}>
+                    確認
+                    </button>
+                </div>
+            )
+        );
     };
 
     useEffect(() => {
@@ -276,10 +346,12 @@ const UploadDish = ({ index, menuFood, setMenuFood }) => {
                     </div>
 
                     <div style={{ marginTop: 'auto', textAlign: 'right' }}>
+                        {/* if it is 新增餐點, disable the delete button */}
                         <Radio.Button 
                             value="default" 
                             className={styles.redButton} 
-                            onClick={() => handleDeleteMenu(user, index, menuFood, setMenuFood, setUpdate)}
+                            onClick={() => handleDeleteMenu(user, index, menuFood, setMenuFood, setIsDeleteSuccess, setIsDeleteModalOpen, setUpdate)}
+                            disabled={menuFood[index].name === '新增餐點'}
                         >
                             刪除餐點
                         </Radio.Button>
@@ -287,13 +359,18 @@ const UploadDish = ({ index, menuFood, setMenuFood }) => {
                         <Radio.Button 
                             value="default" 
                             className={styles.deepBlueButton} 
-                            onClick={() => handleCreateMenu(user, index, form.getFieldsValue(), menuFood, setMenuFood, selectedTags, setUpdate)}
+                            onClick={() => handleCreateMenu(user, index, form.getFieldsValue(), menuFood, setMenuFood, selectedTags, setIsSaveSuccess, setIsSaveModalOpen, setIsAlertModalOpen, setUpdate)}
                         >
                             儲存變更
                         </Radio.Button>
                     </div>
 
                 </Form>
+
+                <AlertModal isOpen={isAlertModalOpen} onClose={() => setIsAlertModalOpen(false)} />
+                <SaveModal isOpen={isSaveModalOpen} isSave={isSaveSuccess} onClose={() => setIsSaveModalOpen(false)} />
+                <DeleteModal isOpen={isDeleteModalOpen} isDelete={isDeleteSuccess} onClose={() => setIsDeleteModalOpen(false)} />
+
             </div>
         </main>
     );

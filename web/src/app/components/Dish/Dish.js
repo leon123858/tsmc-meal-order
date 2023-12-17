@@ -74,7 +74,7 @@ const Dish = ({ dish, isOrder, orderType, setDeleteOrder, setConfirmOrder, userT
           <div className={styles.container}>
                 <div className={styles.imageContainer}>
                     <Image
-                        src="/images/tsmc.png"
+                        src={dish["imageUrl"]}
                         alt="Avatar"
                         width={50}
                         height={50}
@@ -82,7 +82,9 @@ const Dish = ({ dish, isOrder, orderType, setDeleteOrder, setConfirmOrder, userT
                     />
                 </div>
                 <div className={styles.textContainer}>
-                    <h3>店家: {dish["restaurantName"]}<br></br>{dish["name"]}</h3>
+                    {isOrder === true && <h3>店家: {restaurantName}</h3>}
+                    {isOrder === true ? null : <h3>{dish["restaurantName"]}</h3>}
+                    <h3>{dish["name"]}</h3>
                     <div className={styles.switchContainer}>
                         {
                             dish["tags"].map((tag, index) => (

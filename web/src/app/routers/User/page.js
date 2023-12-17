@@ -10,21 +10,21 @@ import { UserContext } from '../../store/userContext';
 import styles from './page.module.css';
 
 async function fetchUser(userID, setUser) {
-  const res = await fetch(`${UserAPI}/get?uid=${userID}`, {
-    method: 'GET',
-    headers: {
-      'Accept': 'application/json'
-    }
-  });
-  var data = await res.json();
-  data = Object.values(data)[2];
-  setUser((prevState) => ({
-    ...prevState,
-    "name": data["name"],
-    "place": data["place"],
-    "uid": userID,
-    "userType": data["userType"]
-  }))
+	const res = await fetch(`${UserAPI}/get?uid=${userID}`, {
+		method: 'GET',
+		headers: {
+			'Accept': 'application/json'
+		}
+	});
+	var data = await res.json();
+	data = Object.values(data)[2];
+	setUser((prevState) => ({
+		...prevState,
+		"name": data["name"],
+		"place": data["place"],
+		"uid": userID,
+		"userType": data["userType"]
+	}))
 }
 
 const User = () => {
@@ -70,7 +70,7 @@ const User = () => {
     };
   
     const handleClick = async () => {
-      	if (!user.name || !user.place) {
+      if (!user.name || !user.place) {
 			setIsUpdateSuccess(false);
 			setIsModalOpen(true);
 			return;

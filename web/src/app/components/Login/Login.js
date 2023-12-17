@@ -127,11 +127,11 @@ const Login = () => {
         }
     };
 
-    const handleAdminSignup = async (name, email, password) => {
+    const handleAdminSignup = async (email, password) => {
         try {
             const adminCredentials = {
                 email: email,
-                name: name,
+                name: "restaurant",
                 password: password,
                 type: "admin"
             };
@@ -222,14 +222,6 @@ const Login = () => {
                     <h2>Create Admin Account</h2>
                     <input
                         type="text"
-                        placeholder="Admin Name"
-                        name="name"
-                        value={adminData.name}
-                        onChange={handleInputChange}
-                    />
-                    <br />
-                    <input
-                        type="text"
                         placeholder="Admin Email"
                         name="email"
                         value={adminData.email}
@@ -244,7 +236,7 @@ const Login = () => {
                         onChange={handleInputChange}
                     />
                     <br />
-                    <button onClick={() => handleAdminSignup(adminData.name, adminData.email, adminData.password)}>
+                    <button onClick={() => handleAdminSignup(adminData.email, adminData.password)}>
                         Create Admin Account
                     </button>
 

@@ -28,73 +28,58 @@ async function fetchUser(userID, setUser) {
     }));
 }
 
-async function fetchCreateEmptyMenu(user) {
-    try {
-        const menuData = {
-            id: user["uid"], 
-            name: user["name"],
-            foodItems: [
-                {
-                    "description": "",
-                    "name": "新增餐點",
-                    "price": 1,
-                    "countLimit": 1,
-                    "imageUrl": "",
-                    "tags": []
-                }
-            ]
-        };
-
-        const res = await fetch(`${MenuAPI}`, {
-            method: 'POST',
-            headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(menuData),
-        });
-  
-        if (!res.ok) {
-            throw new Error(`HTTP error! Status: ${res.status}`);
-        }
-  
-        const response = await res.json();
-        console.log('Menu created successfully:', response);
-        return response;
-    } catch (error) {
-        console.error('Error creating menu:', error.message);
-        throw error;
-    }
-}
-
 async function fetchMenu(user, setMenuFood, setFirstCreate) {
 	try {
-	  const res = await fetch(`${MenuAPI}/${user["uid"]}`, {
+		const res = await fetch(`${MenuAPI}/${user["uid"]}`, {
 		method: 'GET',
 		headers: {
-		  'Accept': 'application/json'
+			'Accept': 'application/json'
 		}
-	  });
+		});
+
+		const response = await res.json();
+		if (response.result) {
+			const curMenuFood = response.data['foodItems'];
 	  
-	  const response = await res.json();
-	  if (response.result) {
-		const curMenuFood = response.data['foodItems'];
-		setMenuFood(curMenuFood);
-		console.log('Menu fetched successfully:', curMenuFood);
-	  }
-	  else if (response.message === 'Data Not Exist.') {
-		console.log('Menu not exist, creating...');
-		await fetchCreateEmptyMenu(user);
-		console.log('Empty menu created successfully.');
-		setFirstCreate(true);
-	  }
-	  else {
-		console.log('Fetching menu failed:', response.message);
-	  }
+			const isNewDishExists = curMenuFood.some(item => item.name === '新增餐點');
+			if (!isNewDishExists) {
+				curMenuFood.push({
+					description: '',
+					name: '新增餐點',
+					price: 1,
+					countLimit: 1,
+					imageUrl: '',
+					tags: [],
+				});
+			}
+
+			setMenuFood(curMenuFood);
+			console.log('Menu fetched successfully:', curMenuFood);
+		}
+		else if (response.message === 'Data Not Exist.') {
+			console.log('Menu not exist, creating...');
+
+			const curMenuFood = [];
+			curMenuFood.push({
+					description: '',
+					name: '新增餐點',
+					price: 1,
+					countLimit: 1,
+					imageUrl: '',
+					tags: [],
+			});
+			setMenuFood(curMenuFood);
+			
+			console.log('Empty menu created successfully.');
+			setFirstCreate(true);
+		}
+		else {
+			console.log('Fetching menu failed:', response.message);
+		}
 	} catch (error) {
-	  console.error('Error fetching menu:', error.message);
+		console.error('Error fetching menu:', error.message);
 	}
-  }
+}
   
 const RestaurantHome = () => {
 	const { userID } = useContext(UserContext);
@@ -236,7 +221,7 @@ const RestaurantHome = () => {
 				)}
 
 			<Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
-
+			
           </div>
         </Content>
       </Layout>
