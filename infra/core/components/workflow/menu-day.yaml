@@ -1,4 +1,15 @@
 - syncMenu:
+    call: http.post
+    args:
+      url: "https://menu-kt6w747drq-de.a.run.app/api/menu/sync"
+      headers:
+        Content-Type: application/json
+    result: syncResult
+- logSync:
+    call: sys.log
+    args:
+      text: ${json.encode_to_string(syncResult.body)}
+- getMenu:
     call: http.get
     args:
       url: "https://menu-kt6w747drq-de.a.run.app/api/menu"
@@ -19,7 +30,7 @@
       steps:
         - initMenuItem:
             assign:
-              - items_map_list: [ ]
+              - items_map_list: []
         - setMenuItem:
             for:
               value: v
