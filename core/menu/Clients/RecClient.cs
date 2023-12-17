@@ -12,14 +12,14 @@ namespace menu.Clients
     public class RecClient : IRecClient
     {
         private string _domainUrl = string.Empty;
-        private const int TimeoutSec = 10;
+        private const int TimeoutSec = 20;
 
         public RecClient(IOptions<WebConfig> config)
         {
             _domainUrl = config.Value.RecUrl ?? throw new ArgumentNullException();
         }
 
-        async public Task<IEnumerable<RecItemDTO>?> GetRecAsync(string input)
+        async public Task<List<RecItemDTO>?> GetRecAsync(string input)
         {
             using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(TimeoutSec) };
             string url = _domainUrl + $"/recommend/{input}";
@@ -33,26 +33,6 @@ namespace menu.Clients
                     return apiResponse.Data;
 
                 throw new Exception();
-            }
-            catch(Exception)
-            {
-                throw new RecException();
-            }
-        }
-
-        async public Task SyncRecMenuAsync(IEnumerable<RecMenuDTO> dtos)
-        {
-            using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(TimeoutSec) };
-            string url = _domainUrl + $"/add";
-            try
-            {
-                var body = JsonConvert.SerializeObject(dtos);
-                var response = await client.PostAsync(url, new StringContent(body ?? "", Encoding.UTF8, "application/json"));
-                var responseString = await response.Content.ReadAsStringAsync();
-
-                var apiResponse = JsonConvert.DeserializeObject<ApiResponse<object>>(responseString);
-                if (apiResponse is not { Result: true })
-                    throw new Exception();
             }
             catch (Exception)
             {
