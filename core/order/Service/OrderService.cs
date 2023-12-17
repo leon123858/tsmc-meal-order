@@ -60,7 +60,7 @@ public class OrderService
 
     public async Task<Order> CreateOrder(User user, User restaurant, CreateOrderWebDTO createOrderWeb)
     {
-        using var scope = new TransactionScope();
+        using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
         var foodItem = await _foodItemRepository.GetFoodItem(restaurant.Id, createOrderWeb.FoodItemId);
 
         if (foodItem.Count < createOrderWeb.Count)
