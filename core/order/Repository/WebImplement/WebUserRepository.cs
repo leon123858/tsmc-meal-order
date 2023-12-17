@@ -8,8 +8,8 @@ namespace order.Repository.WebImplement;
 
 public class WebUserRepository : IUserRepository
 {
-    private readonly WebUtils _webUtils;
     private readonly ILogger<WebUserRepository> _logger;
+    private readonly WebUtils _webUtils;
 
     public WebUserRepository(IOptions<WebConfig> config, ILogger<WebUserRepository> logger)
     {
@@ -35,5 +35,18 @@ public class WebUserRepository : IUserRepository
             _logger.LogError("Get user error: {Error}", e.Message);
             throw;
         }
+    }
+
+    public async Task<Dictionary<string, User>> GetUsers(IEnumerable<string> userIds)
+    {
+        var userDictionary = new Dictionary<string, User>();
+
+        foreach (var id in userIds.Distinct())
+        {
+            var user = await GetUser(id);
+            userDictionary.Add(id, user);
+        }
+
+        return userDictionary;
     }
 }

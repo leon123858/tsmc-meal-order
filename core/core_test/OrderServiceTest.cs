@@ -17,13 +17,15 @@ public class OrderServiceTest
         _orderRepository = Substitute.For<IOrderRepository>();
         _foodItemRepository = Substitute.For<IFoodItemRepository>();
         _mailService = Substitute.For<IMailService>();
+        _userRepository = Substitute.For<IUserRepository>();
 
-        _orderService = new OrderService(_orderRepository, _foodItemRepository, _mailService);
+        _orderService = new OrderService(_orderRepository, _foodItemRepository, _userRepository, _mailService);
     }
 
     private IOrderRepository _orderRepository;
     private IFoodItemRepository _foodItemRepository;
     private IMailService _mailService;
+    private IUserRepository _userRepository;
 
     private OrderService _orderService;
 
@@ -56,6 +58,39 @@ public class OrderServiceTest
         Assert.IsNotNull(result);
         await _orderRepository.Received().GetOrders(Arg.Any<string>());
     }
+    
+    [Test]
+    public async Task GetOrders_AdminUser_ReturnsOrdersWithUsers()
+    {
+        // Arrange
+        var adminUser = new User { Id = "Test", Type = UserType.admin };
+        var normalUser1 = new User { Id = "Test1", Type = UserType.normal };
+        var normalUser2 = new User { Id = "Test2", Type = UserType.normal };
+        var orders = new List<Order>
+        {
+            new() { Customer = new User { Id = normalUser1.Id }, Restaurant = new User { Id = adminUser.Id } },
+            new() { Customer = new User { Id = normalUser2.Id }, Restaurant = new User { Id = adminUser.Id } }
+        };
+        _orderRepository.GetOrdersByRestaurant(adminUser.Id).Returns(orders);
+        _userRepository.GetUsers(Arg.Any<IEnumerable<string>>()).Returns(new Dictionary<string, User>
+        {
+            {adminUser.Id, adminUser},
+            {normalUser1.Id, normalUser1},
+            {normalUser2.Id, normalUser2}
+        });
+
+        // Act
+        var result = await _orderService.GetOrders(adminUser);
+
+        // Assert
+        Assert.IsNotNull(result);
+
+        foreach (var order in result)
+        {
+            Assert.That(order.Restaurant, Is.EqualTo(adminUser));
+            Assert.That(order.Customer, Is.EqualTo(normalUser1).Or.EqualTo(normalUser2));
+        }
+    }
 
     [Test]
     public async Task GetOrder_AdminUser_ReturnsOrderForRestaurant()
@@ -63,8 +98,13 @@ public class OrderServiceTest
         // Arrange
         var adminUser = new User { Id = "Test", Type = UserType.admin };
         var orderId = Guid.NewGuid();
-        var order = new Order { Id = orderId, Restaurant = new User { Id = adminUser.Id } };
+        var order = new Order { Id = orderId, Customer = new User() { Id = "Test2" } , Restaurant = new User { Id = adminUser.Id } };
         _orderRepository.GetOrder(orderId).Returns(order);
+        _userRepository.GetUsers(Arg.Any<IEnumerable<string>>()).Returns(new Dictionary<string, User>
+        {
+            {order.Customer.Id, order.Customer},
+            {order.Restaurant.Id, order.Restaurant}
+        });
 
         // Act
         var result = await _orderService.GetOrder(adminUser, orderId);
@@ -80,8 +120,13 @@ public class OrderServiceTest
         // Arrange
         var normalUser = new User { Id = "Test", Type = UserType.normal };
         var orderId = Guid.NewGuid();
-        var order = new Order { Id = orderId, Customer = new User { Id = normalUser.Id } };
+        var order = new Order { Id = orderId, Customer = new User { Id = normalUser.Id }, Restaurant = new User() { Id = "Test2"}};
         _orderRepository.GetOrder(orderId).Returns(order);
+        _userRepository.GetUsers(Arg.Any<IEnumerable<string>>()).Returns(new Dictionary<string, User>
+        {
+            {order.Customer.Id, order.Customer},
+            {order.Restaurant.Id, order.Restaurant}
+        });
 
         // Act
         var result = await _orderService.GetOrder(normalUser, orderId);

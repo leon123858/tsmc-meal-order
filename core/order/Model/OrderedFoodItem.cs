@@ -10,7 +10,7 @@ public class OrderedFoodItem
             throw new ArgumentException("Count must be greater than 0");
         if (index < 0)
             throw new ArgumentException("Index must be greater than or equal to 0");
-        
+
         Snapshot = snapshot ?? throw new ArgumentNullException(nameof(snapshot));
         Index = index;
         Count = count;

@@ -11,4 +11,16 @@ public class MemoryUserRepository : IUserRepository
             Id = userId
         });
     }
+
+    public Task<Dictionary<string, User>> GetUsers(IEnumerable<string> userIds)
+    {
+        var users = new Dictionary<string, User>();
+        foreach (var userId in userIds)
+            users.Add(userId, new User
+            {
+                Id = userId
+            });
+
+        return Task.FromResult(users);
+    }
 }

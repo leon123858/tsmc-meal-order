@@ -10,21 +10,36 @@ public class OrderService
     private readonly IFoodItemRepository _foodItemRepository;
     private readonly IMailService _mailService;
     private readonly IOrderRepository _orderRepository;
+    private readonly IUserRepository _userRepository;
 
     public OrderService(IOrderRepository orderRepository, IFoodItemRepository foodItemRepository,
+        IUserRepository userRepository,
         IMailService mailService)
     {
         _orderRepository = orderRepository;
         _foodItemRepository = foodItemRepository;
+        _userRepository = userRepository;
         _mailService = mailService;
     }
 
     public async Task<IEnumerable<Order>> GetOrders(User user)
     {
-        if (user.Type == UserType.admin)
-            return await _orderRepository.GetOrdersByRestaurant(user.Id);
+        var ordersEnumerable = user.Type == UserType.admin
+            ? await _orderRepository.GetOrdersByRestaurant(user.Id)
+            : await _orderRepository.GetOrders(user.Id);
 
-        return await _orderRepository.GetOrders(user.Id);
+        var orders = ordersEnumerable.ToList();
+
+        var userIds = orders.SelectMany(_ => new[] { _.Customer.Id, _.Restaurant.Id }).Distinct();
+        var userDictionary = await _userRepository.GetUsers(userIds);
+
+        foreach (var order in orders)
+        {
+            order.Customer = userDictionary[order.Customer.Id];
+            order.Restaurant = userDictionary[order.Restaurant.Id];
+        }
+
+        return orders;
     }
 
     public async Task<Order> GetOrder(User user, Guid orderId)
@@ -37,12 +52,18 @@ public class OrderService
         if (user.Type == UserType.normal && order.Customer.Id != user.Id)
             throw new Exception("User is not the owner of the order");
 
+        var userIds = new[] { order.Customer.Id, order.Restaurant.Id }.Distinct();
+        var userDictionary = await _userRepository.GetUsers(userIds);
+
+        order.Customer = userDictionary[order.Customer.Id];
+        order.Restaurant = userDictionary[order.Restaurant.Id];
+
         return order;
     }
 
     public async Task<Order> CreateOrder(User user, User restaurant, CreateOrderWebDTO createOrderWeb)
     {
-        using var scope = new TransactionScope();
+        using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
         var foodItem = await _foodItemRepository.GetFoodItem(restaurant.Id, createOrderWeb.FoodItemId);
 
         if (foodItem.Count < createOrderWeb.Count)
