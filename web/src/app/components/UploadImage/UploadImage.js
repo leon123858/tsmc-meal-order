@@ -5,7 +5,7 @@ import {
 } from '@ant-design/icons';
 import { Button, Modal, Spin, Upload, Image } from 'antd';
 import { useState, useEffect } from 'react';	
-import ImgCrop from 'antd-img-crop';
+// import ImgCrop from 'antd-img-crop';
 import { ImageAPI } from '../../global';
 import { auth } from '../../firebase';
 
@@ -148,19 +148,19 @@ export const UploadImage = ({setUrl, _isUpload, text, index, update}) => {
 	};
 	return (
 		<>
-            <ImgCrop showGrid rotationSlider aspectSlider showReset>
-                <Upload
-					name="foodImage"
-                    accept='image/*'
-                    style={{ width: 230 }}
-                    customRequest={localPreview}
-                    listType='picture'
-					fileList={fileList}
-                    onPreview={() => setPreviewVisible(true)}
-                >
-                    {uploadButton}
-                </Upload>
-            </ImgCrop>
+            {/* <ImgCrop showGrid rotationSlider aspectSlider showReset> */}
+			<Upload
+				name="foodImage"
+				accept='image/*'
+				style={{ width: 230 }}
+				customRequest={localPreview}
+				listType='picture'
+				fileList={fileList}
+				onPreview={() => setPreviewVisible(true)}
+			>
+				{uploadButton}
+			</Upload>
+            {/* </ImgCrop> */}
 
 			<Modal
 				open={previewVisible}

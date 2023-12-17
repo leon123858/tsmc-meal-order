@@ -137,15 +137,6 @@
     rc-resize-observer "^1.3.1"
     rc-util "^5.38.0"
 
-antd-img-crop@^4.18.0:
-  version "4.18.0"
-  resolved "https://registry.yarnpkg.com/antd-img-crop/-/antd-img-crop-4.18.0.tgz#851c75f26cc71bdc8a33e10e3b206c222e551102"
-  integrity sha512-K9GJYg0F1tE9Q+TWuHX8QOeH52Z8OA+WAXAUWjJkPHeHAWlnIh538RpuHYgogP7LN4U1qU7TQKRCwkrUPNMdGA==
-  dependencies:
-    compare-versions "6.1.0"
-    react-easy-crop "^5.0.2"
-    tslib "^2.6.2"
-
 antd@^5.12.2:
   version "5.12.2"
   resolved "https://registry.yarnpkg.com/antd/-/antd-5.12.2.tgz#85ede9a9ee810c8c77bb8952ddcf4349bdabd29a"
@@ -607,14 +598,6 @@ rc-virtual-list@^3.11.1, rc-virtual-list@^3.5.1, rc-virtual-list@^3.5.2:
     classnames "^2.2.6"
     rc-resize-observer "^1.0.0"
     rc-util "^5.36.0"
-
-react-easy-crop@^5.0.2:
-  version "5.0.4"
-  resolved "https://registry.yarnpkg.com/react-easy-crop/-/react-easy-crop-5.0.4.tgz#9559ff878cc7c77121c472dcd01babbd85647578"
-  integrity sha512-JfzSk4cBHoksgAtgWUHR/jDYretebMxS0rpAlltP1LeELGMj4WTa420m4PsYFpgQXoJZV0DXmINUlBWAoAD/PQ==
-  dependencies:
-    normalize-wheel "^1.0.1"
-    tslib "2.0.1"
 
 react-is@^18.2.0:
   version "18.2.0"

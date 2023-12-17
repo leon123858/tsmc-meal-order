@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "antd": "^5.12.2",
-    "antd-img-crop": "^4.18.0"
+    "antd": "^5.12.2"
   }
 }
