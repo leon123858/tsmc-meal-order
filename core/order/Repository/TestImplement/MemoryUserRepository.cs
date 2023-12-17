@@ -14,6 +14,13 @@ public class MemoryUserRepository : IUserRepository
 
     public Task<Dictionary<string, User>> GetUsers(IEnumerable<string> userIds)
     {
-        throw new NotImplementedException();
+        var users = new Dictionary<string, User>();
+        foreach (var userId in userIds)
+            users.Add(userId, new User
+            {
+                Id = userId
+            });
+
+        return Task.FromResult(users);
     }
 }
