@@ -9,13 +9,26 @@ import ImgCrop from 'antd-img-crop';
 import { ImageAPI } from '../../global';
 import { auth } from '../../firebase';
 
+function generateRandomString() {
+	let result = '';
+	const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+	const charactersLength = characters.length;
+  
+	for (let i = 0; i < 15; i++) {
+	  const randomIndex = Math.floor(Math.random() * charactersLength);
+	  result += characters.charAt(randomIndex);
+	}
+  
+	return result;
+  }
+
 const uploadImageToCloud = async (image, index) => {
 	try {
 		const url = ImageAPI;
 		// Create FormData
 		const imageBlob = new Blob([image], { type: 'image/jpeg' });
 		const formData = new FormData();
-		formData.set('image', imageBlob, index + '.jpg');
+		formData.set('image', imageBlob, generateRandomString() + '-' + index + '.jpg');
 
 		// can get jwt from firebase SDK in client
 		let JWT = "";
@@ -43,20 +56,34 @@ const uploadImageToCloud = async (image, index) => {
 	}
 }
 
-export const UploadImage = ({setUrl, _isUpload, text, index}) => {
+export const UploadImage = ({setUrl, _isUpload, text, index, update}) => {
 	const [previewVisible, setPreviewVisible] = useState(false);
 	const [previewImage, setPreviewImage] = useState('');
 	const [previewTitle, setPreviewTitle] = useState('');
 	const [imageFile, setImageFile] = useState(null);
 	const [isUpload, setisUpload] = useState(_isUpload ?? false);
 	const [loading, setloading] = useState(false);
+	const [fileList, setFileList] = useState([]);
 	const handleCancel = () => setPreviewVisible(false);
 
 	useEffect(() => {
 		if (_isUpload !== undefined && !_isUpload) {
 			setisUpload(false);
+			setFileList([]);
 		}
 	}, [_isUpload]);
+
+	useEffect(() => {
+		if (update === true) {
+			setPreviewVisible(false);
+			setPreviewImage('');
+			setPreviewTitle('');
+			setImageFile(null);
+			setisUpload(_isUpload ?? false);
+			setloading(false);
+			setFileList([]);
+		}
+	}, [update]);
 
 	const uploadButton = (
 		<div>
@@ -85,10 +112,19 @@ export const UploadImage = ({setUrl, _isUpload, text, index}) => {
 			setImageFile(file);
 			setPreviewImage(url);
 			setPreviewTitle((options.file).name);
+			setFileList([
+				{
+					uid: index,
+					name: (options.file).name,
+					status: 'done',
+					url: url,
+				},
+			]);
 			setisUpload(false);
 			onSuccess();
 		} else {
 			setisUpload(false);
+			setFileList([]);
 		}
 	};
 
@@ -97,6 +133,14 @@ export const UploadImage = ({setUrl, _isUpload, text, index}) => {
 		if (url !== null && url !== undefined) {
 			URL.revokeObjectURL(previewImage);
 			setPreviewImage(url);
+			setFileList([
+				{
+					uid: index,
+					name: '已上傳',
+					status: 'done',
+					url: url,
+				},
+			]);
 			setPreviewTitle('已上傳');
 			setisUpload(true);
 			setUrl(url);
@@ -111,6 +155,7 @@ export const UploadImage = ({setUrl, _isUpload, text, index}) => {
                     style={{ width: 230 }}
                     customRequest={localPreview}
                     listType='picture'
+					fileList={fileList}
                     onPreview={() => setPreviewVisible(true)}
                 >
                     {uploadButton}

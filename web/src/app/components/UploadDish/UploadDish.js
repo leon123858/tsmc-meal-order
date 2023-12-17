@@ -50,7 +50,7 @@ async function fetchUpdateMenu(menuData) {
     }
 }
 
-const handleCreateMenu = async (user, index, values, menuFood, setMenuFood, selectedTags) => {
+const handleCreateMenu = async (user, index, values, menuFood, setMenuFood, selectedTags, setUpdate) => {
     console.log('UPLOAD DISH USER:', user)
     try {
         console.log('Values:', values);
@@ -101,6 +101,7 @@ const handleCreateMenu = async (user, index, values, menuFood, setMenuFood, sele
         console.log('Menu created successfully:', response);
 
         setMenuFood(updatedFoodItems);
+        setUpdate(true);
     } catch (error) {
         console.error('Error creating menu:', error.message);
     }
@@ -138,10 +139,12 @@ const UploadDish = ({ index, menuFood, setMenuFood }) => {
     const [price, setPrice] = useState(menuFood[index].price);
     const [countLimit, setCountLimit] = useState(menuFood[index].countLimit);
     const [selectedTags, setSelectedTags] = useState(menuFood[index].tags);
+    const [update, setUpdate] = useState(false);
   
     const onPriceChange = (newValue) => {
       setPrice(newValue);
     };
+
     const onCountLimitChange = (newValue) => {
       setCountLimit(newValue);
     };
@@ -160,7 +163,11 @@ const UploadDish = ({ index, menuFood, setMenuFood }) => {
         if (userID != "") {
           fetchUser(userID, setUser);
         }
-      }, [userID]);
+    }, [userID]);
+
+    useEffect(() => {
+        setUpdate(false);
+    }, [update])
 
     useEffect(() => {
         if (userID !== "" && menuFood[index]) {
@@ -213,6 +220,7 @@ const UploadDish = ({ index, menuFood, setMenuFood }) => {
                                     _isUpload={false}
                                     text='上傳圖片並複製'
                                     index={index}
+                                    update={update}
                                 ></UploadImage>
                             </Form.Item>
                             { menuFood[index].imageUrl !== '' && 
@@ -278,7 +286,7 @@ const UploadDish = ({ index, menuFood, setMenuFood }) => {
                         <Radio.Button 
                             value="default" 
                             className={styles.deepBlueButton} 
-                            onClick={() => handleCreateMenu(user, index, form.getFieldsValue(), menuFood, setMenuFood, selectedTags)}
+                            onClick={() => handleCreateMenu(user, index, form.getFieldsValue(), menuFood, setMenuFood, selectedTags, setUpdate)}
                         >
                             儲存變更
                         </Radio.Button>
