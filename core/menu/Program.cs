@@ -317,7 +317,8 @@ app.MapGet("/api/menu/recommend/{userId}/{userInput}", async (string userId, str
 })
 .WithName("GetRecTempMenuItemForUserByLocation")
 .Produces<ApiResponse<RecResultDTO>>(StatusCodes.Status200OK)
-
+.Produces<ApiResponse<object>>(StatusCodes.Status400BadRequest)
+.Produces<ApiResponse<object>>(StatusCodes.Status404NotFound)
 .WithOpenApi(operation => new(operation)
 {
     Summary = "Get the recommended food items within the same locaiton as the user, but no more than 100 items for performance issues."
