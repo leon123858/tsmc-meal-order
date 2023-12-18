@@ -11,7 +11,7 @@ NTU cloud native class final project
 
 ![infra](./docs/all_cloud_arc.jpg)
 
-## special infra concept
+## special architecture concept
 
 ### HA mail service
 
