@@ -8,7 +8,7 @@ const DetailedDish = ({ dish }) => {
         <div className={styles.container}>
             <div className={styles.imageContainer}>
                 <Image
-                    src="/images/tsmc.png"
+                    src={dish.imageUrl}
                     alt="Avatar"
                     width={50}
                     height={50}

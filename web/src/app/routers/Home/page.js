@@ -27,6 +27,7 @@ async function fetchUser(userID, setPlace) {
 
 function getDish (menuData) {
     const Dishes = [];
+    console.log("getDish: ", menuData);
     menuData.forEach(menu => {
         const foodItems = menu["foodItems"];
         const menuID = menu["id"];
@@ -197,6 +198,7 @@ export default function Home() {
                     <AIwindow 
                         curAIWindowState={ curAIWindowState }
                         setAIWindowState={ setAIWindowState }
+                        curFilterState={ curFilterState }
                     />
 
                     <div className={styles.rightButtons}>

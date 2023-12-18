@@ -40,6 +40,7 @@ async function fetchMenu(user, setMenuFood, setFirstCreate) {
 		const response = await res.json();
 		if (response.result) {
 			const curMenuFood = response.data['foodItems'];
+			console.log('Menu fetched successfully:', curMenuFood);
 	  
 			const isNewDishExists = curMenuFood.some(item => item.name === '新增餐點');
 			if (!isNewDishExists) {
@@ -54,7 +55,6 @@ async function fetchMenu(user, setMenuFood, setFirstCreate) {
 			}
 
 			setMenuFood(curMenuFood);
-			console.log('Menu fetched successfully:', curMenuFood);
 		}
 		else if (response.message === 'Data Not Exist.') {
 			console.log('Menu not exist, creating...');

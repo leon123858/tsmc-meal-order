@@ -286,7 +286,7 @@ const UploadDish = ({ index, menuFood, setMenuFood }) => {
 										el.select();
 										document.execCommand('copy');
 										document.body.removeChild(el);
-										message.success('以複製上傳圖片網址, 可至下方文字筐貼上');
+										message.success('已複製上傳圖片網址，請至下方圖片連結的文字框貼上');
 									}}
                                     _isUpload={false}
                                     text='上傳圖片並複製'
