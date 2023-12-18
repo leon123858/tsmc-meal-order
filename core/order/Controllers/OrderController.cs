@@ -160,8 +160,8 @@ public class OrderController : ControllerBase
         }
     }
 
-    [HttpGet("notify/{mealTypeString}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [HttpPost("notify/{mealTypeString}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ApiResponse<string>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ApiResponse<object>))]
     public async Task<IActionResult> NotifyCustomers(string mealTypeString)
     {
@@ -171,7 +171,7 @@ public class OrderController : ControllerBase
 
             await _orderService.NotifyCustomers(mealType);
 
-            return NoContent();
+            return Ok(new ApiResponse<string> { Data = "Notification sent" });
         }
         catch (Exception e)
         {
