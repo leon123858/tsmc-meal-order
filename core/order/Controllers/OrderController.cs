@@ -2,6 +2,7 @@ using core;
 using Microsoft.AspNetCore.Mvc;
 using order.DTO.Web;
 using order.Exceptions;
+using order.Model;
 using order.Repository;
 using order.Service;
 
@@ -45,7 +46,7 @@ public class OrderController : ControllerBase
         catch (Exception e)
         {
             _logger.LogError("Unknown, Exception: {Message}", e.Message);
-            return BadRequest(ApiResponse.BadRequest());
+            return BadRequest(ApiResponse.BadRequest(e.Message));
         }
     }
 
@@ -72,7 +73,7 @@ public class OrderController : ControllerBase
         catch (Exception e)
         {
             _logger.LogError("Unknown, Exception: {Message}", e.Message);
-            return BadRequest(ApiResponse.BadRequest());
+            return BadRequest(ApiResponse.BadRequest(e.Message));
         }
     }
 
@@ -103,7 +104,7 @@ public class OrderController : ControllerBase
         catch (Exception e)
         {
             _logger.LogError("Unknown, Exception: {Message}", e.Message);
-            return BadRequest(ApiResponse.BadRequest());
+            return BadRequest(ApiResponse.BadRequest(e.Message));
         }
     }
 
@@ -129,7 +130,7 @@ public class OrderController : ControllerBase
         catch (Exception e)
         {
             _logger.LogError("Unknown, Exception: {Message}", e.Message);
-            return BadRequest(ApiResponse.BadRequest());
+            return BadRequest(ApiResponse.BadRequest(e.Message));
         }
     }
 
@@ -155,7 +156,27 @@ public class OrderController : ControllerBase
         catch (Exception e)
         {
             _logger.LogError("Unknown, Exception: {Message}", e.Message);
-            return BadRequest(ApiResponse.BadRequest());
+            return BadRequest(ApiResponse.BadRequest(e.Message));
+        }
+    }
+    
+    [HttpGet("notify/{mealTypeString}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ApiResponse<object>))]
+    public async Task<IActionResult> NotifyCustomers(string mealTypeString)
+    {
+        try
+        {
+            var mealType= Enum.Parse<MealType>(mealTypeString);
+            
+            await _orderService.NotifyCustomers(mealType);
+
+            return NoContent();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError("Unknown, Exception: {Message}", e.Message);
+            return BadRequest(ApiResponse.BadRequest(e.Message));
         }
     }
 }

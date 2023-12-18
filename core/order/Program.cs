@@ -3,6 +3,8 @@ using order.Repository;
 using order.Repository.SqlImplement;
 using order.Repository.WebImplement;
 using order.Service;
+using order.Service.TestImplement;
+using order.Service.WebImplement;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +31,7 @@ builder.Services.Configure<WebConfig>(builder.Configuration.GetSection("WebApi")
 //builder.Services.AddSingleton<IUserRepository, MemoryUserRepository>();
 //builder.Services.AddSingleton<IOrderRepository, MemoryOrderRepository>();
 //builder.Services.AddSingleton<IFoodItemRepository, MemoryFoodItemRepository>();
+//builder.Services.AddSingleton<IMailService, MockMailService>();
 
 builder.Services.AddSingleton<IUserRepository, WebUserRepository>();
 builder.Services.AddSingleton<IOrderRepository, SqlOrderRepository>();

@@ -127,4 +127,19 @@ public class OrderService
 
         _mailService.SendOrderDeletedMail(order);
     }
+
+    public async Task NotifyCustomers(MealType mealType)
+    {
+        var orders = (await _orderRepository.GetOrdersByDate(DateTime.Today)).ToList();
+        var ordersInMealType = orders.Where(_ => _.MealType == mealType && _.Status == OrderStatus.Preparing).ToList();
+        
+        var userIds = ordersInMealType.Select(_ => _.Customer.Id).Distinct();
+        var userDictionary = await _userRepository.GetUsers(userIds);
+
+        foreach (var order in ordersInMealType)
+        {
+            order.Customer = userDictionary[order.Customer.Id];
+            _mailService.SendOrderNotifyMail(order);
+        }
+    }
 }
