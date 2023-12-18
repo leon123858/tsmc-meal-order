@@ -64,7 +64,7 @@ class EmbeddingRepository:
                 connection.close()
 
     def get_menu_recommend(self, embedding: List[float]) -> List[ResponseMenuItem]:
-        similarity_threshold = 0.185
+        similarity_threshold = 0.18
 
         connection, cursor = None, None
 
