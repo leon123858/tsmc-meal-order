@@ -9,6 +9,7 @@ EXPOSE ${PORT}
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS test
 WORKDIR /test
 COPY ["core/core.csproj", "core/"]
+COPY ["menu/menu.csproj", "menu/"]
 COPY ["order/order.csproj", "order/"]
 COPY ["core_test/core_test.csproj", "core_test/"]
 RUN dotnet restore "core_test/core_test.csproj"
