@@ -72,12 +72,12 @@ app.MapGet("/api/menu/{menuId}", async (string menuId, IMenuService _menuService
     catch (UserNotFoundException e)
     {
         _logger.LogError(e.Message);
-        return Results.NotFound(ApiResponse.NotFound());
+        return Results.NotFound(ApiResponse.NotFound(e.Message));
     }
     catch(MenuNotFoundException e)
     {
         _logger.LogError(e.Message);
-        return Results.NotFound(ApiResponse.NotFound());
+        return Results.NotFound(ApiResponse.NotFound(e.Message));
     }
 })
 .WithName("GetMenuForAdmin")
@@ -102,7 +102,7 @@ app.MapGet("/api/menu/user/{userId}", async (string userId, IMenuService _menuSe
     catch (UserNotFoundException e)
     {
         _logger.LogError(e.Message);
-        return Results.NotFound(ApiResponse.NotFound());
+        return Results.NotFound(ApiResponse.NotFound(e.Message));
     }
 })
 .WithName("GetTempMenuForUserByLocation")
@@ -140,7 +140,7 @@ app.MapPost("/api/menu/", async ([FromBody] MenuCreateDTO menuCreateDto, IMenuSe
     catch (UserNotFoundException e)
     {
         _logger.LogError(e.Message);
-        return Results.NotFound(ApiResponse.NotFound());
+        return Results.NotFound(ApiResponse.NotFound(e.Message));
     }
     catch (MenuNotFoundException)
     {
@@ -174,12 +174,12 @@ app.MapGet("/api/menu/{menuId}/foodItem/{itemIdx:int}", async (string menuId, in
     catch(MenuNotFoundException e)
     {
         _logger.LogError(e.Message);
-        return Results.NotFound(ApiResponse.NotFound());
+        return Results.NotFound(ApiResponse.NotFound(e.Message));
     }
     catch(FoodItemNotFoundException e)
     {
         _logger.LogError(e.Message);
-        return Results.NotFound(ApiResponse.NotFound());
+        return Results.NotFound(ApiResponse.NotFound(e.Message));
     }
 })
 .WithName("GetTempMenuItem")
@@ -242,12 +242,12 @@ app.MapPost("/api/menu/{menuId}/foodItem/{itemIdx:int}/{decreaseCount:int}", asy
     catch(MenuNotFoundException e)
     {
         _logger.LogError(e.Message);
-        return Results.NotFound(ApiResponse.NotFound());
+        return Results.NotFound(ApiResponse.NotFound(e.Message));
     }
     catch (FoodItemNotFoundException e)
     {
         _logger.LogError(e.Message);
-        return Results.NotFound(ApiResponse.NotFound());
+        return Results.NotFound(ApiResponse.NotFound(e.Message));
     }
 })
 .WithName("DecreaseTempFoodItemCount")
@@ -262,13 +262,14 @@ app.MapPost("/api/menu/{menuId}/foodItem/{itemIdx:int}/{decreaseCount:int}", asy
 app.MapGet("/api/menu/recommend/{userId}/{userInput}", async (string userId, string userInput, IMenuService _menuService, IUserClient _userClient, IRecClient _recClient, ILogger<Program> _logger, IMapper _mapper) =>
 {
     bool isTempMenu = true;
-    var recResult = await _recClient.GetRecAsync(userInput);
-    var recFoodItems = new RecResultDTO();
-    int countLimit = 100;
 
     try
     {
         var user = _mapper.Map<User>(await _userClient.GetUserAsync(userId));
+        var recResult = await _recClient.GetRecAsync(userInput);
+        var recFoodItems = new RecResultDTO();
+        int countLimit = 100;
+        
         foreach (var recItem in recResult!)
         {
             if (recFoodItems.RecFoodItems.Count >= countLimit)
@@ -300,17 +301,24 @@ app.MapGet("/api/menu/recommend/{userId}/{userInput}", async (string userId, str
                 continue;
             }
         }
+
+        return Results.Ok(new ApiResponse<RecResultDTO> { Data = recFoodItems });
     }
     catch (UserNotFoundException e)
     {
         _logger.LogError(e.Message);
-        return Results.NotFound(ApiResponse.NotFound());
+        return Results.NotFound(ApiResponse.NotFound(e.Message));
     }
-
-    return Results.Ok(new ApiResponse<RecResultDTO> { Data = recFoodItems });
+    catch(RecException e)
+    {
+        _logger.LogError(e.Message);
+        return Results.BadRequest(ApiResponse.BadRequest(e.Message));
+    }
 })
 .WithName("GetRecTempMenuItemForUserByLocation")
 .Produces<ApiResponse<RecResultDTO>>(StatusCodes.Status200OK)
+.Produces<ApiResponse<object>>(StatusCodes.Status400BadRequest)
+.Produces<ApiResponse<object>>(StatusCodes.Status404NotFound)
 .WithOpenApi(operation => new(operation)
 {
     Summary = "Get the recommended food items within the same locaiton as the user, but no more than 100 items for performance issues."
