@@ -14,8 +14,8 @@ public static class ApiResponse
         return new ApiResponse<object> { Result = false, Message = message };
     }
 
-    public static ApiResponse<object> NotFound()
+    public static ApiResponse<object> NotFound(string message = "Data Not Exist.")
     {
-        return new ApiResponse<object> { Result = false, Message = "Data Not Exist." };
+        return new ApiResponse<object> { Result = false, Message = message };
     }
 }
