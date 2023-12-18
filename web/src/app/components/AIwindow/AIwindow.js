@@ -15,12 +15,12 @@ function getRecDish (recMenuDish) {
     recMenuDish.forEach(menu => {
         if (menu["foodItem"]["name"] !== '新增餐點') {
             const foodItem = menu["foodItem"];
-            const menuID = menu["menuID"];
+            const menuId = menu["menuId"];
             const restaurantName = menu["restaurantName"];
             const index = menu["index"];
-            foodItem["menuID"] = menuID;
+            foodItem["menuID"] = menuId;
             foodItem["index"] = index;
-            foodItem["restaurantName"] = restaurantName;
+            foodItem["name"] = restaurantName;
             recDishes.push(foodItem)
         }
     });
@@ -85,16 +85,16 @@ const AIwindow = ({ curAIWindowState, setAIWindowState, curFilterState }) => {
     };
 
     const onClick = async () => {
+        if (text === "") {
+            alert("請輸入您的需求！");
+            return;
+        }
         fetchRecMenuData(userID, text, setRecMenuData);
     }
 
     useEffect(() => {
         filterData(curRecMenuData, setFilterData, curFilterState)
     }, [curRecMenuData]);
-
-    useEffect(() => {
-        console.log("curFilterData: ", curFilterData);
-    }, [curFilterData]);
 
     const handleDishButton = (dish) => {
         setSelectDish(dish);
