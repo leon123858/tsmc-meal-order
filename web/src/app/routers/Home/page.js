@@ -27,18 +27,22 @@ async function fetchUser(userID, setPlace) {
 
 function getDish (menuData) {
     const Dishes = [];
-    console.log("getDish: ", menuData);
-    menuData.forEach(menu => {
-        const foodItems = menu["foodItems"];
-        const menuID = menu["id"];
-        const restaurantName = menu["name"];
-        foodItems.forEach((foodItem, index) => {
-            foodItem["menuID"] = menuID;
-            foodItem["index"] = index;
-            foodItem["restaurantName"] = restaurantName;
-            Dishes.push(foodItem)
-        })
-    });
+    if (menuData.length !== 0) {
+        menuData.forEach(menu => {
+            const foodItems = menu["foodItems"];
+            const menuID = menu["id"];
+            const restaurantName = menu["name"];
+            foodItems.forEach((foodItem, index) => {
+                foodItem["menuID"] = menuID;
+                foodItem["index"] = index;
+                foodItem["restaurantName"] = restaurantName;
+                Dishes.push(foodItem)
+            })
+        });
+    }
+    else { 
+        alert("目前該地區沒有餐點。");
+    }
     return Dishes;
 }
 

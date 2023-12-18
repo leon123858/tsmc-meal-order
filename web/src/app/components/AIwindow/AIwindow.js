@@ -12,18 +12,23 @@ import styles from './AIwindow.module.css';
 
 function getRecDish (recMenuDish) {
     const recDishes = [];
-    recMenuDish.forEach(menu => {
-        if (menu["foodItem"]["name"] !== '新增餐點') {
-            const foodItem = menu["foodItem"];
-            const menuId = menu["menuId"];
-            const restaurantName = menu["restaurantName"];
-            const index = menu["index"];
-            foodItem["menuID"] = menuId;
-            foodItem["index"] = index;
-            foodItem["restaurantName"] = restaurantName;
-            recDishes.push(foodItem)
-        }
-    });
+    if (recMenuDish.length !== 0) {
+        recMenuDish.forEach(menu => {
+            if (menu["foodItem"]["name"] !== '新增餐點') {
+                const foodItem = menu["foodItem"];
+                const menuId = menu["menuId"];
+                const restaurantName = menu["restaurantName"];
+                const index = menu["index"];
+                foodItem["menuID"] = menuId;
+                foodItem["index"] = index;
+                foodItem["restaurantName"] = restaurantName;
+                recDishes.push(foodItem)
+            }
+        });
+    }
+    else { 
+        alert("目前無推薦餐點，請更改您的需求。");
+    }
     return recDishes;
 }
 
