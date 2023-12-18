@@ -271,7 +271,7 @@ app.MapGet("/api/menu/recommend/{userId}/{userInput}", async (string userId, str
         var user = _mapper.Map<User>(await _userClient.GetUserAsync(userId));
         foreach (var recItem in recResult!)
         {
-            if (recFoodItems.FoodItems.Count >= countLimit)
+            if (recFoodItems.RecFoodItems.Count >= countLimit)
                 break;
 
             try
@@ -281,7 +281,13 @@ app.MapGet("/api/menu/recommend/{userId}/{userInput}", async (string userId, str
                     continue;
 
                 FoodItem? foodItem = _menuService.GetFoodItem(menu, recItem.Index);
-                recFoodItems.FoodItems.Add(_mapper.Map<FoodItemDTO>(foodItem));
+                recFoodItems.RecFoodItems.Add(new RecFoodItemDTO()
+                {
+                    MenuId= menu.Id,
+                    RestaurantName = menu.Name,
+                    Index= recItem.Index,
+                    FoodItem = foodItem!
+                });
             }
             catch (MenuNotFoundException e)
             {
