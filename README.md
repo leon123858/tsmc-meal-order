@@ -2,8 +2,23 @@
 
 NTU cloud native class final project
 
-## overview
+## Overview
 
-![雲原生架構圖](./docs/all_cloud_arc.drawio.png)
+![overview](./docs/concept.jpg)
 
-## each cloud component
+
+## Infra
+
+![infra](./docs/all_cloud_arc.jpg)
+
+## special architecture concept
+
+### HA mail service
+
+![mail service](./docs/mail_service.jpg)
+
+### DevOp Platform
+
+![devOp platform](./docs/DevOp.jpg)
+
+### cross cloud vender (GCP & Azure)

@@ -76,4 +76,9 @@ public class MemoryOrderRepository : IOrderRepository
 
         return Task.CompletedTask;
     }
+
+    public Task<IEnumerable<Order>> GetOrdersByDate(DateTime date)
+    {
+        return Task.FromResult(_orders.Where(_ => _.OrderDate.Date == date.Date));
+    }
 }

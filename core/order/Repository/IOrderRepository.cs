@@ -9,4 +9,5 @@ public interface IOrderRepository
     Task<Order> GetOrder(Guid orderId);
     Task CreateOrder(Order order);
     Task UpdateOrder(Order order);
+    Task<IEnumerable<Order>> GetOrdersByDate(DateTime date);
 }
