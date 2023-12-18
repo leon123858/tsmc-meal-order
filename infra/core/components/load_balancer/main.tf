@@ -67,7 +67,7 @@ resource "google_compute_security_policy" "policy" {
       enforce_on_key = ""
 
       rate_limit_threshold {
-        count        = 10
+        count        = 60
         interval_sec = 60
       }
 
