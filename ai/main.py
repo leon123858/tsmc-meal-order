@@ -38,7 +38,7 @@ async def recommend(user_input: str) -> RecommendMenuResponse:
 async def add_menu(menu_list: List[Menu]) -> Response:
     try:
         for menu in menu_list:
-            menu_embeddings = generator.get_menu_embedding(menu)
+            menu_embeddings = await generator.get_menu_embedding(menu)
             repository.add_menu_embedding(menu_embeddings)
 
         return Response(
