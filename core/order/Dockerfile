@@ -6,6 +6,16 @@ ENV ASPNETCORE_URLS=http://*:${PORT}
 ENV ASPNETCORE_ENVIRONMENT="Production"
 EXPOSE ${PORT}
 
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS test
+WORKDIR /test
+COPY ["core/core.csproj", "core/"]
+COPY ["order/order.csproj", "order/"]
+COPY ["core_test/core_test.csproj", "core_test/"]
+RUN dotnet restore "core_test/core_test.csproj"
+COPY . .
+WORKDIR "/test/core_test"
+RUN dotnet test
+
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /core
 COPY ["core/core.csproj", "core/"]
