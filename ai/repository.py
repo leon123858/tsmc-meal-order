@@ -64,6 +64,8 @@ class EmbeddingRepository:
                 connection.close()
 
     def get_menu_recommend(self, embedding: List[float]) -> List[ResponseMenuItem]:
+        similarity_threshold = 0.17
+
         connection, cursor = None, None
 
         try:
@@ -71,15 +73,18 @@ class EmbeddingRepository:
 
             cursor = connection.cursor()
 
-            embeddingStr = json.dumps(embedding)
-            cursor.execute(sql.SQL("select * from menu_embeddings order by cosine_distance(embedding, %s)"),
-                           (embeddingStr,))
+            embedding_str = json.dumps(embedding)
+            cursor.execute(sql.SQL("select menu_id, index, cosine_distance(embedding, %s) as cos_sim from menu_embeddings where cosine_distance(embedding, %s) < %s order by cosine_distance(embedding, %s)"),
+                           (embedding_str, embedding_str, similarity_threshold, embedding_str))
 
             rows = cursor.fetchall()
 
+            for row in rows:
+                print(row)
+
             connection.commit()
 
-            return [ResponseMenuItem(menuId=row[1], Index=row[2]) for row in rows]
+            return [ResponseMenuItem(menuId=row[0], Index=row[1]) for row in rows]
 
         except Exception as e:
             print(f"Error: {e}")

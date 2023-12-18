@@ -20,10 +20,6 @@ async def recommend(user_input: str) -> RecommendMenuResponse:
         input_embedding = await generator.get_embedding(user_input)
         results = repository.get_menu_recommend(input_embedding)
 
-        print(len(results))
-        for result in results:
-            print(result)
-
         return RecommendMenuResponse(
             data=results,
             message="Success",
