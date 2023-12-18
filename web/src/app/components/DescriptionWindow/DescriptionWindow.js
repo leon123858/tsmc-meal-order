@@ -34,6 +34,9 @@ async function sendOrderData(currentDate, mealType, dish, number, note, userID, 
             if (!r.result) {
                 alert("訂餐失敗，請再試一次。");
             }
+            else {
+                alert("訂餐成功！");
+            }
         });
         
         setDesWindowState(false);

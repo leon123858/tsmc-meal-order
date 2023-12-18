@@ -20,7 +20,7 @@ function getRecDish (recMenuDish) {
             const index = menu["index"];
             foodItem["menuID"] = menuId;
             foodItem["index"] = index;
-            foodItem["name"] = restaurantName;
+            foodItem["restaurantName"] = restaurantName;
             recDishes.push(foodItem)
         }
     });
