@@ -301,3 +301,40 @@ module "menu-scheduler" {
   region        = var.region
   workflow_name = module.menu-maintain-workflow.name
 }
+
+module "order-maintain-workflow" {
+  source = "./components/workflow"
+  file   = "order-day.yaml"
+  name   = "order-maintain-workflow"
+  region = var.region
+}
+
+module "order-scheduler-breakfast" {
+  source        = "./components/scheduler"
+  frequency     = "0 10 * * *"
+  name          = "order-scheduler-breakfast"
+  project_id    = var.project_id
+  region        = var.region
+  parameter     = replace(jsonencode({ "mealEnum" : "Breakfast" }),"\"","\\\"")
+  workflow_name = module.order-maintain-workflow.name
+}
+
+module "order-scheduler-lunch" {
+  source        = "./components/scheduler"
+  frequency     = "0 15 * * *"
+  name          = "order-scheduler-lunch"
+  project_id    = var.project_id
+  region        = var.region
+  parameter     = replace(jsonencode({ "mealEnum" : "Lunch" }),"\"","\\\"")
+  workflow_name = module.order-maintain-workflow.name
+}
+
+module "order-scheduler-dinner" {
+  source        = "./components/scheduler"
+  frequency     = "0 20 * * *"
+  name          = "order-scheduler-dinner"
+  project_id    = var.project_id
+  region        = var.region
+  parameter     = replace(jsonencode({ "mealEnum" : "Dinner" }),"\"","\\\"")
+  workflow_name = module.order-maintain-workflow.name
+}

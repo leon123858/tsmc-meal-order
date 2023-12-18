@@ -10,7 +10,7 @@ resource "google_cloud_scheduler_job" "job" {
   retry_config {
     retry_count = 3
   }
-
+  // ex: {"argument":"{\"mealEnum\":\"Breakfast\"}","callLogLevel":"CALL_LOG_LEVEL_UNSPECIFIED"}
   http_target {
     http_method = "POST"
     uri         = "https://workflowexecutions.googleapis.com/v1/projects/${var.project_id}/locations/${var.region}/workflows/${var.workflow_name}/executions"

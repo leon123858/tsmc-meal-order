@@ -1,0 +1,12 @@
+main:
+  params: [ args ]
+  steps:
+    - orderDay:
+        call: http.post
+        args:
+          url: ${"https://order-kt6w747drq-de.a.run.app/api/order/notify/" + args.mealEnum}
+          headers:
+            Content-Type: application/json
+        result: sendResult
+    - returnOutput:
+        return: ${sendResult.body}
