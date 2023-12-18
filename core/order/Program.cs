@@ -3,7 +3,6 @@ using order.Repository;
 using order.Repository.SqlImplement;
 using order.Repository.WebImplement;
 using order.Service;
-using order.Service.TestImplement;
 using order.Service.WebImplement;
 
 var builder = WebApplication.CreateBuilder(args);

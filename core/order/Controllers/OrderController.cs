@@ -159,7 +159,7 @@ public class OrderController : ControllerBase
             return BadRequest(ApiResponse.BadRequest(e.Message));
         }
     }
-    
+
     [HttpGet("notify/{mealTypeString}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ApiResponse<object>))]
@@ -167,8 +167,8 @@ public class OrderController : ControllerBase
     {
         try
         {
-            var mealType= Enum.Parse<MealType>(mealTypeString);
-            
+            var mealType = Enum.Parse<MealType>(mealTypeString);
+
             await _orderService.NotifyCustomers(mealType);
 
             return NoContent();

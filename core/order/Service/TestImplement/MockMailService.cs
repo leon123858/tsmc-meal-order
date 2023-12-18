@@ -10,15 +10,10 @@ public class MockMailService : IMailService
     {
         _logger = logger;
     }
-    
+
     public void SendOrderCreatedMail(Order order)
     {
         LogMail(order);
-    }
-
-    private void LogMail(Order order)
-    {
-        _logger.LogInformation("SendOrderCreatedMail: {CustomerName} {OrderOrderDate} {OrderMealType}", order.Customer.Name, order.OrderDate, order.MealType);
     }
 
     public void SendOrderConfirmedMail(Order order)
@@ -34,5 +29,11 @@ public class MockMailService : IMailService
     public void SendOrderNotifyMail(Order order)
     {
         LogMail(order);
+    }
+
+    private void LogMail(Order order)
+    {
+        _logger.LogInformation("SendOrderCreatedMail: {CustomerName} {OrderOrderDate} {OrderMealType}",
+            order.Customer.Name, order.OrderDate, order.MealType);
     }
 }

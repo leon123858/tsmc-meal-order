@@ -53,7 +53,7 @@ public class MailService : IMailService
 
         return stringBuilder.ToString();
     }
-    
+
     private string GetMealTypeString(MealType mealType)
     {
         return mealType switch

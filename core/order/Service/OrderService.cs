@@ -132,7 +132,7 @@ public class OrderService
     {
         var orders = (await _orderRepository.GetOrdersByDate(DateTime.Today)).ToList();
         var ordersInMealType = orders.Where(_ => _.MealType == mealType && _.Status == OrderStatus.Preparing).ToList();
-        
+
         var userIds = ordersInMealType.Select(_ => _.Customer.Id).Distinct();
         var userDictionary = await _userRepository.GetUsers(userIds);
 
