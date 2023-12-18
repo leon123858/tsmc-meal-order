@@ -460,4 +460,44 @@ public class OrderServiceTest
         // Act & Assert
         Assert.ThrowsAsync<Exception>(async () => await _orderService.CreateOrder(user, restaurant, createOrderWebDto));
     }
+    
+    [Test]
+    public async Task NotifyCustomers_SendsMailForEachOrderInMealType()
+    {
+        // Arrange
+        var mealType = MealType.Lunch;
+        var orders = new List<Order>
+        {
+            new() { Id = Guid.NewGuid(), Customer = new User { Id = "Test" }, MealType = mealType, Status = OrderStatus.Preparing },
+            new() { Id = Guid.NewGuid(), Customer = new User { Id = "Test2" }, MealType = mealType, Status = OrderStatus.Preparing },
+        };
+        _orderRepository.GetOrdersByDate(Arg.Any<DateTime>()).Returns(Task.FromResult(orders.AsEnumerable()));
+        var userDictionary = orders.ToDictionary(o => o.Customer.Id, o => o.Customer);
+        _userRepository.GetUsers(Arg.Any<IEnumerable<string>>()).Returns(Task.FromResult(userDictionary));
+
+        // Act
+        await _orderService.NotifyCustomers(mealType);
+
+        // Assert
+        _mailService.Received(2).SendOrderNotifyMail(Arg.Any<Order>());
+    }
+
+    [Test]
+    public async Task NotifyCustomers_NoOrdersInMealType_NoMailsSent()
+    {
+        // Arrange
+        var mealType = MealType.Dinner;
+        var orders = new List<Order>
+        {
+            new() { Id = Guid.NewGuid(), Customer = new User { Id = "Test" }, MealType = MealType.Lunch, Status = OrderStatus.Preparing },
+            new() { Id = Guid.NewGuid(), Customer = new User { Id = "Test2" }, MealType = MealType.Lunch, Status = OrderStatus.Preparing },
+        };
+        _orderRepository.GetOrdersByDate(Arg.Any<DateTime>()).Returns(Task.FromResult(orders.AsEnumerable()));
+
+        // Act
+        await _orderService.NotifyCustomers(mealType);
+
+        // Assert
+        _mailService.DidNotReceive().SendOrderNotifyMail(Arg.Any<Order>());
+    }
 }

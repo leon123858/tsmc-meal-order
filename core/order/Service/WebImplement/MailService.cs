@@ -6,7 +6,7 @@ using order.DTO.Web;
 using order.Model;
 using order.Repository.WebImplement;
 
-namespace order.Service;
+namespace order.Service.WebImplement;
 
 public class MailService : IMailService
 {
@@ -39,6 +39,12 @@ public class MailService : IMailService
             $"以下訂單已取消\r\n日期：{order.OrderDate:yyyy/MM/dd}\r\n\r\n餐點：{GetFoodItemsString(order.FoodItems)}");
     }
 
+    public void SendOrderNotifyMail(Order order)
+    {
+        SendMail(order.Customer.Email, "餐點訂單通知",
+            $"請記得於{GetMealTypeString(order.MealType)}時間前來取餐\r\n日期：{order.OrderDate:yyyy/MM/dd}\r\n\r\n餐點：{GetFoodItemsString(order.FoodItems)}");
+    }
+
     private string GetFoodItemsString(List<OrderedFoodItem> orderFoodItems)
     {
         var stringBuilder = new StringBuilder();
@@ -46,6 +52,17 @@ public class MailService : IMailService
             stringBuilder.Append($"{foodItem.Snapshot.Name} x {foodItem.Count} : {foodItem.Description} \r\n");
 
         return stringBuilder.ToString();
+    }
+
+    private string GetMealTypeString(MealType mealType)
+    {
+        return mealType switch
+        {
+            MealType.Breakfast => "早餐",
+            MealType.Lunch => "午餐",
+            MealType.Dinner => "晚餐",
+            _ => throw new ArgumentOutOfRangeException(nameof(mealType), mealType, null)
+        };
     }
 
     private async Task SendMail(string to, string subject, string body)
