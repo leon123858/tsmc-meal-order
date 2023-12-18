@@ -17,7 +17,7 @@ repository = EmbeddingRepository()
 @app.get("/api/ai/recommend/{user_input}")
 async def recommend(user_input: str) -> RecommendMenuResponse:
     try:
-        input_embedding = generator.get_embedding(user_input)
+        input_embedding = await generator.get_embedding(user_input)
         results = repository.get_menu_recommend(input_embedding)
 
         print(len(results))
