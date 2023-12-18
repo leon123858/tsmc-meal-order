@@ -10,7 +10,7 @@ namespace menu
         public MappingConfig() {
             CreateMap<Menu, MenuDTO>().ReverseMap();
             CreateMap<Menu, MenuCreateDTO>().ReverseMap();
-            CreateMap<Menu, RecMenuDTO>()
+            CreateMap<Menu, RecFoodItemDTO>()
                 .ForMember(dto => dto.MenuId, cf => cf.MapFrom(menu => menu.Id));
 
             CreateMap<FoodItem, FoodItemDTO>().ReverseMap();
