@@ -22,3 +22,5 @@ NTU cloud native class final project
 ![devOp platform](./docs/DevOp.jpg)
 
 ### cross cloud vender (GCP & Azure)
+
+![vpn_arc](./docs/vpn_arc.jpg)
