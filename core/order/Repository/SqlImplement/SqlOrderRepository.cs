@@ -94,6 +94,13 @@ public class SqlOrderRepository : IOrderRepository
         }
     }
 
+    public async Task<IEnumerable<Order>> GetOrdersByDate(DateTime date)
+    {
+        var sql =
+            @$"SELECT o.*, f.* FROM [myOrder] AS o LEFT JOIN foodItem AS f on o.Id = f.OrderId WHERE CAST(o.OrderDate AS DATE) = '{date:yyyy-MM-dd}'";
+        return await GetOrderImp(sql);
+    }
+
     private async Task<IEnumerable<Order>> GetOrderImp(string sql)
     {
         await using var conn = new SqlConnection(_connectionString);
