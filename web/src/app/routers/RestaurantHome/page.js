@@ -56,7 +56,7 @@ async function fetchMenu(user, setMenuFood, setFirstCreate) {
 
 			setMenuFood(curMenuFood);
 		}
-		else if (response.message === 'Data Not Exist.') {
+		else if (response.message === 'Menu does not exist.') {
 			console.log('Menu not exist, creating...');
 
 			const curMenuFood = [];
