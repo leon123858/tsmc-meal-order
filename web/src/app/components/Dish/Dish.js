@@ -88,7 +88,6 @@ const Dish = ({ dish, isOrder, orderType, setDeleteOrder, setConfirmOrder, userT
                     <div className={styles.switchContainer}>
                         {
                             dish["tags"].map((tag, index) => (
-                                tag != "Dinner" && tag != "Lunch" && tag != "Breakfast" &&
                                 <div className={styles.circle} key={index}>{TagMapping[tag]}</div>
                             ))
                         }

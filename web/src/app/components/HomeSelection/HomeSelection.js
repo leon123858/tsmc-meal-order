@@ -40,7 +40,7 @@ const HomeSelection = () => {
                     <div className={styles.icon}>
                         <Link href="/routers/Report">
                             <Radio.Button value="default" className={styles.blueButton}>
-                                月結報表
+                                月結餐費
                             </Radio.Button>
                         </Link>
                         
