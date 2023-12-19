@@ -16,3 +16,11 @@ plan:
 
 destroy:
 	terraform destroy
+
+connect:
+	# bind vpn to cloud run named order
+	gcloud run services update order --region asia-east1 --vpc-connector serverless --vpc-egress private-ranges-only
+
+disconnect:
+	# unbind vpn to cloud run named order
+	gcloud run services update order --region asia-east1 --clear-vpc-connector
